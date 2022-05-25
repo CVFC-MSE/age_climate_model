@@ -8,28 +8,41 @@
 ##              parameter calibration and model validation. The calibrated model is used for age structure and climate modeling.
 ## ----------------------------------------------------------------------------------------------------------------------
 
+## General notes --------------------------------------------------------------------------------------------------------
+# 1. Use docstring('insert function name') to view function documentation and information.
+
 ## Set up workspace -----------------------------------------------------------------------------------------------------
 rm(list = ls()) # clear workspace
 load('srfc_data.RData')
 library(ggplot2)
 library(ggpubr)
 library(optimParallel)
+library(docstring)
 
 ## Functions ------------------------------------------------------------------------------------------------------------
 optim.simulation <- function(pars, calibrate, reset.esc){
-  # Need to load libraries and data here for parallel optim
+  #' optim.simulation
+  #' @description Run simulation model to calibrate parameters (if calibrate == TRUE) and model validation.
+  #' 
+  #' @param pars vector of four numerical parameters that are fitted if calibrate == TRUE: (1) residual juvenile survival, (2) coefficient of variation of recruitment stochasticity, (3) mean effect of NPGO on juvenile survival, (4) variance of NPGO effect on juvenile survival.
+  #' @param calibrate boolean value that will make the function return the sum of squared error between empirical and model outputs for fitting pars if TRUE, or returns simulation output variables for validation if FALSE
+  #' @param reset.esc boolean value that will reset model escapement to the empirical value at the beginning of each time step for model calibration if TRUE, or keep model escapement throughout if FALSE.
+  #' 
+  #' @return If calibrate == TRUE, return sum of squared error between empirical and model escapement; If calibrate == FALSE, return a list of vectors with model output variables.
+
+  # Need to load libraries and data here for parallel computing to work
   library(gtools)
   library(dplyr)
   library(tidyr)
   load('srfc_data.RData') # load data
   
-  # Need to define functions here for parallel optim
+  # Need to define functions here for parallel computing
   srr <- function(theta, g, x){
     return((theta[1] * g) / (1 + theta[2] * g * x))  
   }
   
   fishery.impact <- function(O, i, nu){
-    # Only used in parameter optimization
+    # Only used in parameter calibration
     tmp.nu <- c(nu, nu)
     I.out  <- rep(NA, length(O))
     for(x in 1:length(I.out)){
@@ -80,19 +93,19 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   }
   
   # Calibrated parameters
-  alpha   <- pars[1]
-  cv.j    <- pars[2]
-  phi     <- pars[3]
-  sd      <- pars[4]
+  alpha   <- pars[1] # residual juvenile survival
+  cv.j    <- pars[2] # coefficient of variation of recruitment stochasticity
+  phi     <- pars[3] # mean NPGO effect on survival
+  sd      <- pars[4] # variance of NPGO effect on survival
   
   # Set model parameters
-  n.yr        <- 26  # number of years 26 (1988 - 2013)
+  n.yr        <- 26   # number of years 26 (1988 - 2013)
   n.sim       <- 1000 # number of simulations per optimization run
-  n.age.stage <- 17  # number of age/stage classes; fry/pre-smolts, immature males (ages 2:A), mature males (ages 2:A), immature females (ages 2:A), mature females (ages 2:A)
-  n.pops      <- 1   # number of populations to simulate
-  A           <- 5   # maximum age
+  n.age.stage <- 17   # number of age/stage classes; fry/pre-smolts, immature males (ages 2:A), mature males (ages 2:A), immature females (ages 2:A), mature females (ages 2:A)
+  n.pops      <- 1    # number of populations to simulate
+  A           <- 5    # maximum age
   
-  # Set population dynamics parameters
+  # Set population dynamics parameters (see Table 2 in manuscript)
   theta.1       <- 0.3 # 0.35
   theta.2       <- 1.5e-8 # 1e-8
   m.maturity    <- c(0.038, 0.5, 0.999, 1) # maturation rates that achieve reasonable escapement age composition.
@@ -140,7 +153,7 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   
   # Population dynamics parameters/variables
   n[2:A, , , ]   <- n.surv # survival rate of fish aged 2 and older
-  harvest.scalar <- 0.75
+  harvest.scalar <- 0.75 # need to scale back exploitation rate because not all ocean ages are exploited at the same rate, and this scales harvest to match empirical values
   
   # Initialize population
   # Initial number of hatchery escapement
@@ -248,31 +261,20 @@ optim.simulation <- function(pars, calibrate, reset.esc){
     }
   }
   
-  ## SSE SPAWNERS
   # Calculate model and empirical estimated total number of spawners
-  B.total[1, ,]    <- catch.esc$hatchery[2]
-  est.spawn.df     <- gather(as.data.frame(cbind((R.spawn.est[1:25, , ] + B.total[1:25, , ]), seq(1988, 2012))), 'sim', 'est.spawners', -(eval(paste0('V', n.sim + 1)))) %>% 
+  B.total[1, ,] <- catch.esc$hatchery[2]
+  est.spawn.df <- gather(as.data.frame(cbind((R.spawn.est[1:25, , ] + B.total[1:25, , ]), seq(1988, 2012))), 'sim', 'est.spawners', -(eval(paste0('V', n.sim + 1)))) %>% 
     dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', n.sim + 1))))) %>% 
     dplyr::select(-(eval(paste0('V', n.sim + 1))))
-  emp.spawn.df     <- data.frame(year = as.integer(catch.esc$year[2:26]), spawners = (catch.esc$total.esc[2:26]))
+  emp.spawn.df <- data.frame(year = as.integer(catch.esc$year[2:26]), spawners = (catch.esc$total.esc[2:26]))
   med.est.spawn.df <- est.spawn.df %>% 
     dplyr::group_by(year) %>% 
     dplyr::summarise(median.est = (round(median(est.spawners)))) %>% 
     dplyr::mutate(year = as.integer(year))
   
-  # mod.harvest <- NULL
-  # for(i in 1:n.sim){
-  #   years <- seq(1989, 2012); 
-  #   i.tmp <- colSums(I.H[, 2:25, , i]) + colSums(I.N[, 2:25, , i]); 
-  #   mod.harvest <- rbind(mod.harvest, data.frame(year = years, harvest = i.tmp, sim = paste0('V',i))) 
-  # }
-  # med.harvest  <- mod.harvest %>% dplyr::group_by(year) %>% dplyr::summarise(med.harvest = round(median(harvest, na.rm = TRUE)))
-  # emp.harvest  <- data.frame(year = as.integer(catch.esc$year[3:26]), harvest = catch.esc$total.ocean.harvest[3:26] + catch.esc$river.harvest[3:26])
-  
   if(calibrate == TRUE){
-    # calculate the SSE between model simulations and empirical observations
+    # calculate the sum of squared error between model simulations and empirical observations
     spawner.sse    <- sum(((emp.spawn.df$spawners) - (med.est.spawn.df$median.est)) ^ 2, na.rm = TRUE)
-    # harvest.sse    <- sum((emp.harvest$harvest - med.harvest$med.harvest) ^ 2, na.rm = TRUE)
     return(log(spawner.sse))
   } else {
     return(list(y.params, R.spawn.est, Spawn.est, H, N, I.H, I.N, z, jack, harvest, B.total, j.surv, sum((emp.spawn.df$spawners - med.est.spawn.df$median.est) ^ 2, na.rm = TRUE)))
@@ -280,38 +282,38 @@ optim.simulation <- function(pars, calibrate, reset.esc){
 }
 
 ## Initialize parameters to calibrate -----------------------------------------------------------------------------------
-alpha.i <- 0.068#0.04
-cv.j.i  <- 0.30#0.26 
-phi.i   <- 0.86 
-sd.i    <- 0.2#0.26
+alpha.i <- 0.04 # residual juvenile survival
+cv.j.i  <- 0.26 # coefficient of variation of recruitment stochasticity
+phi.i   <- 0.86 # mean NPGO effect on survival
+sd.i    <- 0.26 # variance of NPGO effect on survival
 pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 
 ## Optimization function ------------------------------------------------------------------------------------------------
+# NOTE: uncomment the code below to run optimization function.
+
 # cluster <- makeCluster(detectCores() - 1); setDefaultCluster(cl = cluster)
 # ptm     <- proc.time()
 # result  <- optimParallel(par = pars, fn = optim.simulation, method = 'L-BFGS-B', control = list(maxit = 7500), lower = c(0.001, 0.001, 0.1, 0.001), upper = c(0.1, 0.5, 1, 0.5), calibrate = TRUE, reset.esc = TRUE)
 # proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
-## Run optimization simulation model -----------------------------------------------------------------------------------
-# tmp.par <- result$par
+## Run simulation model -------------------------------------------------------------------------------------------------
 tmp.par <- c(0.068, 0.30, 0.86, 0.20) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
-# c(0.07, 0.30, 0.86, 0.20)
 sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = FALSE)
-sims <- 1000; n.age.stage <- 17; A <- 5
+sims <- 1000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
 N.H.S.female.ind <- (n.age.stage - (A - 2)):n.age.stage # # Indices of natural- and hatchery-origin population vectors that correspond to female spawners
 N.H.S.ind <- c((A + 1):(2 * A - 1), (n.age.stage - (A - 2)):n.age.stage) # Indices of natural- and hatchery-origin population vectors that correspond to spawners
 R.spawn.est <- sim.results[[2]]; Spawn.est <- sim.results[[3]]; H <- sim.results[[4]]; N <- sim.results[[5]]; I.H <- sim.results[[6]]; I.N <- sim.results[[7]]; z <- sim.results[[8]]; jack <- sim.results[[9]]; harvest <- sim.results[[10]]; B.total <- sim.results[[11]]; j.surv <- sim.results[[12]]
 
-## Optim model diagnostics ---------------------------------------------------------------------------------------------
-## Juvenile survival
+## Model diagnostics ----------------------------------------------------------------------------------------------------
+# Juvenile survival
 mean(j.surv, na.rm = TRUE)
 
-## Hatchery-origin and natural-origin prop
+# Hatchery-origin and natural-origin prop
 test.a = 3
 median((N[test.a, , 1, 1] / (N[test.a, , 1, 1] + H[test.a, , 1, 1])) * 100, na.rm = TRUE)
 
-## Natural-area spawners
+# Natural-area spawners
 mod.nspawn.df  <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
 mod.nspawn.med <- mod.nspawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
 emp.nspawn.df  <- data.frame(year = as.integer(catch.esc$year[1:25]), spawners = catch.esc$natural[1:25])
@@ -328,7 +330,7 @@ n.spawn.plot   <- ggplot() +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank(), legend.position = 'none')
 
-## Total spawners
+# Total spawners
 B.total[1, ,]  <- catch.esc$hatchery[2]
 mod.tspawn.df  <- gather(as.data.frame(cbind((R.spawn.est[1:25, , ] + B.total[1:25, , ]), seq(1988,2012))), 'sim', 't.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1)))) 
 mod.tspawn.med <- mod.tspawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(t.escapement))) %>% dplyr::mutate(year = as.integer(year)) 
@@ -346,9 +348,7 @@ t.spawn.plot   <- ggplot() +
   theme_classic() +
   theme(legend.title = element_blank(), legend.position = c(0.25, 0.9), plot.margin = unit(c(0.5,0.75,0.5,0.75), 'cm'), text = element_text(size = 13))
 
-ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a',''))
-
-## Harvest
+# Harvest
 mod.harvest <- NULL
 for(i in 1:sims){
   years <- seq(1989, 2012); 
@@ -368,10 +368,9 @@ harvest.plot <- ggplot() +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank(), legend.position = 'none') +
   labs(x = 'Year', y = 'Harvest')
-
 ggarrange(t.spawn.plot, harvest.plot, ncol = 2, nrow = 1, labels = c('', ''))
 
-## Sacramento Index
+# Sacramento Index
 mod.SI <- mod.tspawn.df %>% merge(mod.harvest, by = c('year', 'sim')) %>% mutate(mod.si = t.escapement + harvest)
 med.SI <- mod.SI %>% group_by(year) %>% summarise(median.si = median(mod.si)) 
 SI.plot <- ggplot() +
@@ -387,7 +386,7 @@ SI.plot <- ggplot() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank(), legend.position = c(1.5, 0.5)) +
   labs(x = 'Year', y = 'SI')
 
-## Age-composition of ocean abundance, escapement and harvest
+# Age-composition of ocean abundance, escapement and harvest
 year <- seq(1989, 2012)
 for(a in 1:(A-1)){
   # assign empty dataframes
@@ -459,8 +458,6 @@ for(a in 1:(A-1)){
 o.abundance  <- rbind(o2.med, o3.med, o4.med, o5.med) %>% group_by(year) %>% mutate(prop = med / sum(med))
 s.escapement <- rbind(s2.med, s3.med, s4.med, s5.med) %>% group_by(year) %>% mutate(prop = med / sum(med))
 a.impact     <- rbind(a2.med, a3.med, a4.med, a5.med) %>% group_by(year) %>% mutate(prop = med / sum(med))
-# a.impact %>% group_by(a) %>% dplyr::summarise(med = median(prop)*100)
-# s.escapement %>% group_by(a) %>% dplyr::summarise(med = median(prop)*100)
 a.impact.plot <- ggplot() +
   geom_area(data = a.impact, aes(x = year, y = prop, fill = as.factor(a))) +
   labs(x = 'Year', y = 'Proportion of harvest') +
@@ -509,6 +506,7 @@ flow.mod.plot <- gratia::draw(flow.gam.mod) +
   theme(text = element_text(size = 13)) +
   annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 22.8%')
 flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
+ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
 
 
 flow.gam.df <- data.frame(year = env.df$year[4:25], emp.s = env.df$emp.spawn[4:25], mod.s = env.df$mod.spawn[4:25], flow = env.df$flow.t3[4:25])
@@ -547,360 +545,6 @@ plot(ac.harvest.emp, main = 'Empirical harvest')
 plot(ac.harvest.mod, main = 'Model harvest')
 plot(ac.si.emp, main = 'Empirical SI')
 plot(ac.si.mod, main = 'Model SI')
-
-# # Test flow-juvenile survival
-# flow$discharge
-# test.flow.surv <- NULL
-# for(i in 2:length(flow$discharge)){
-#   test.flow.surv <- c(test.flow.surv, juv.survival(flow$discharge[i]))
-# }
-# plot(test.flow.surv * 0.01 ~ flow$discharge[2:27])
-# plot(gam(test.flow.surv ~ s(flow$discharge[2:27], k = 3)))
-# # Test NPGO survival
-# test.npgo.surv <- data.frame(sim = rep(seq(1, 500), each = length(npgo$npgo)),
-#                              npgo = rep(npgo$npgo, 500),
-#                              surv = NA)
-# for(i in 1:length(test.npgo.surv$sim)){
-#   tmp1 <- rlnorm(n = 1, meanlog = log(0.001), sdlog = 0.2)      
-#   tmp2 <- inv.logit(test.npgo.surv$npgo[i] * tmp1)
-#   test.npgo.surv$surv[i] <- tmp2
-# }
-# ggplot() +
-#   geom_line(data = test.npgo.surv, aes(x = npgo, y = surv, group = sim), color = 'grey', alpha = 0.5) +
-#   theme_classic()
-
-## Run test scenarios --------------------------------------------------------------------------------------------------
-source('hindcast_functions.R') # model functions
-
-calc_of <- function(spawners){
-  sims  <- unique(spawners$sim)
-  years <- unique(spawners$year)
-  of.df <- NULL
-  for(i in 1:length(sims)){
-    tmp.df <- data.frame(sim = rep(sims[i], times = length(3:length(years))),
-                         year = years[3:length(years)],
-                         of = NA)
-    tmp.spawners <- spawners %>% filter(sim == sims[i])
-    for(j in 3:length(years)){
-      gm <- exp(mean(log(tmp.spawners$n.escapement[(j-2):j])))
-      if(gm < 91500) tmp.df$of[j-2] = 1 else tmp.df$of[j-2] = 0
-    }
-    of.df <- rbind(of.df, tmp.df)
-  }
-  
-  out <- of.df %>% dplyr::group_by(year) %>% dplyr::summarise(perc.of = mean(of) * 100)
-  return(out)
-}
-
-tmp.par[1] <- 0.055 #0.04
-tmp.par[2] <- 0.139 #0.09
-tmp.par[3] <- 0.784 #0.78 # provides better model fit wrt relationship between flow, NPGO and escapement
-tmp.par[4] <- 0.184 #0.12
-
-## AGE-STRUCTURE
-# Empirical age structure
-baseline <- test.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = FALSE, m.maturity = c(0.038, 0.5, 0.999, 1), flow.temp = flow$discharge)
-baseline.spawn <- baseline[[2]]
-baseline.broodstock <- baseline[[11]]
-baseline.spawn <- gather(as.data.frame(cbind((baseline.spawn[1:25, , ] + baseline.broodstock[1:25, , ]), seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% 
-  dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% 
-  dplyr::select(-(eval(paste0('V', sims+1))))
-baseline.spawn.med <- baseline.spawn %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-baseline.spawn.mm  <- baseline.spawn %>% dplyr::group_by(year) %>% dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-baseline.spawn.cv  <- baseline.spawn %>% filter(year != 1988) %>% dplyr::group_by(year) %>% dplyr::summarise(cv = sd(n.escapement) / mean(n.escapement))
-baseline.spawn.cv  <- mean(baseline.spawn.cv$cv)
-baseline.spawn.of  <- calc_of(baseline.spawn)
-baseline.harvest <- NULL
-baseline.IH <- baseline[[6]]
-baseline.IN <- baseline[[7]]
-for(i in 1:sims){
-  years <- seq(1989,2012)
-  i.tmp <- colSums(baseline.IH[, 2:25, , i]) + colSums(baseline.IN[, 2:25, , i])
-  baseline.harvest <- rbind(baseline.harvest, data.frame(year = years, harvest = i.tmp, sim = paste0('V',i)))
-}
-baseline.harvest.med  <- baseline.harvest %>% dplyr::group_by(year) %>% dplyr::summarise(med.harvest = round(median(harvest, na.rm = TRUE)))
-baseline.harvest.mm <- baseline.harvest %>% dplyr::group_by(year) %>% dplyr::summarise(min.harvest = min(harvest), max.harvest = max(harvest))
-
-# Low age structure
-low.age <- test.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = FALSE, m.maturity = c(0.038, 0.99, 0.99, 1), flow.temp = flow$discharge)
-low.age.spawn <- low.age[[2]]
-low.age.broodstock <- low.age[[11]]
-low.age.spawn <- gather(as.data.frame(cbind((low.age.spawn[1:25, , ] + low.age.broodstock[1:25, , ]), seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% 
-  dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% 
-  dplyr::select(-(eval(paste0('V', sims+1))))
-low.age.spawn.med <- low.age.spawn %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-low.age.spawn.mm  <- low.age.spawn %>% dplyr::group_by(year) %>% dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-low.age.spawn.cv  <- low.age.spawn %>% filter(year != 1988) %>% dplyr::group_by(year) %>% dplyr::summarise(cv = sd(n.escapement) / mean(n.escapement))
-low.age.spawn.cv  <- mean(low.age.spawn.cv$cv)
-low.age.spawn.of  <- calc_of(low.age.spawn)
-low.age.harvest <- NULL
-low.age.IH <- low.age[[6]]
-low.age.IN <- low.age[[7]]
-for(i in 1:sims){
-  years <- seq(1989,2012)
-  i.tmp <- colSums(low.age.IH[, 2:25, , i]) + colSums(low.age.IN[, 2:25, , i])
-  low.age.harvest <- rbind(low.age.harvest, data.frame(year = years, harvest = i.tmp, sim = paste0('V',i)))
-}
-low.age.harvest.med  <- low.age.harvest %>% dplyr::group_by(year) %>% dplyr::summarise(med.harvest = round(median(harvest, na.rm = TRUE)))
-low.age.harvest.mm <- low.age.harvest %>% dplyr::group_by(year) %>% dplyr::summarise(min.harvest = min(harvest), max.harvest = max(harvest))
-
-# High age structure
-high.age <- test.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = FALSE, m.maturity = c(0.038, 0.25, 0.99, 1), flow.temp = flow$discharge)
-high.age.spawn <- high.age[[2]]
-high.age.broodstock <- high.age[[11]]
-high.age.spawn <- gather(as.data.frame(cbind((high.age.spawn[1:25, , ] + high.age.broodstock[1:25, , ]), seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% 
-  dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% 
-  dplyr::select(-(eval(paste0('V', sims+1))))
-high.age.spawn.med <- high.age.spawn %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-high.age.spawn.mm  <- high.age.spawn %>% dplyr::group_by(year) %>% dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-high.age.spawn.cv  <- high.age.spawn %>% filter(year != 1988) %>% dplyr::group_by(year) %>% dplyr::summarise(cv = sd(n.escapement) / mean(n.escapement))
-high.age.spawn.cv  <- mean(high.age.spawn.cv$cv)
-high.age.spawn.of  <- calc_of(high.age.spawn)
-high.age.harvest <- NULL
-high.age.IH <- high.age[[6]]
-high.age.IN <- high.age[[7]]
-for(i in 1:sims){
-  years <- seq(1989,2012)
-  i.tmp <- colSums(high.age.IH[, 2:25, , i]) + colSums(high.age.IN[, 2:25, , i])
-  high.age.harvest <- rbind(high.age.harvest, data.frame(year = years, harvest = i.tmp, sim = paste0('V',i)))
-}
-high.age.harvest.med  <- high.age.harvest %>% dplyr::group_by(year) %>% dplyr::summarise(med.harvest = round(median(harvest, na.rm = TRUE)))
-high.age.harvest.mm <- high.age.harvest %>% dplyr::group_by(year) %>% dplyr::summarise(min.harvest = min(harvest), max.harvest = max(harvest))
-
-age.struct.harvest <- ggplot() +
-  geom_line(data = low.age.harvest.med, aes(x = year, y = med.harvest, color = '#21908CFF')) +
-  geom_ribbon(data = low.age.harvest.mm, aes(x = year, ymin = min.harvest, ymax = max.harvest, color = '#21908CFF'), fill = '#21908CFF', alpha = 0.3, color = NA) +
-  geom_line(data = low.age.harvest.med, aes(x = year, y = median(med.harvest), color = '#21908CFF'), linetype = 'dashed') +
-  geom_line(data = baseline.harvest.med, aes(x = year, y = med.harvest, color = '#440154FF')) +
-  geom_ribbon(data = baseline.harvest.mm, aes(x = year, ymin = min.harvest, ymax = max.harvest, color = '#440154FF'), fill = '#440154FF', alpha = 0.3, color = NA) +
-  geom_line(data = baseline.harvest.med, aes(x = year, y = median(med.harvest), color = '#440154FF'), linetype = 'dashed') +
-  geom_line(data = high.age.harvest.med, aes(x = year, y = med.harvest, color = '#FDE725FF')) +
-  geom_ribbon(data = high.age.harvest.mm, aes(x = year, ymin = min.harvest, ymax = max.harvest, color = '#FDE725FF'), fill = '#FDE725FF', alpha = 0.3, color = NA) +
-  geom_line(data = high.age.harvest.med, aes(x = year, y = median(med.harvest), color = '#FDE725FF'), linetype = 'dashed') +
-  scale_color_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF'),
-                     labels = c('Low', 'Empirical', 'High'),
-                     name = 'Age structure') +
-  labs(x = 'Year', y = 'Harvest') +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
-  theme_classic() +
-  theme(legend.position = 'none')
-
-age.struct.esc <- ggplot() +
-  geom_line(data = low.age.spawn.med, aes(x = year, y = median.esc, color = '#21908CFF')) +
-  geom_ribbon(data = low.age.spawn.mm, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#21908CFF'), fill = '#21908CFF', alpha = 0.3, colour = NA) +
-  geom_line(data = low.age.spawn.med, aes(x = year, y = median(median.esc), color = '#21908CFF'), linetype = 'dashed') +
-  geom_line(data = baseline.spawn.med, aes(x = year, y = median.esc, color = '#440154FF')) +
-  geom_ribbon(data = baseline.spawn.mm, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#440154FF'), fill = '#440154FF', alpha = 0.3, colour = NA) + 
-  geom_line(data = baseline.spawn.med, aes(x = year, y = median(median.esc), color = '#440154FF'), linetype = 'dashed') +
-  geom_line(data = high.age.spawn.med, aes(x = year, y = median.esc, color = '#FDE725FF')) +
-  geom_ribbon(data = high.age.spawn.mm, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#FDE725FF'), fill = '#FDE725FF', alpha = 0.3, colour = NA) + 
-  geom_line(data = high.age.spawn.med, aes(x = year, y = median(median.esc), color = '#FDE725FF'), linetype = 'dashed', alpha = 0.5) +
-  scale_color_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF'),
-                     labels = c('Low', 'Empirical', 'High'),
-                     name = 'Age structure') + 
-  scale_y_continuous(expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 0)) +
-  labs(x = 'Year', y = 'Total spawner escapement') +
-  theme_classic() +
-  theme(legend.position = c(0.15, 0.85))
-
-ggarrange(age.struct.esc, age.struct.harvest)
-
-age.struct.cv <- ggplot() +
-  geom_point(aes(x = 1, y = baseline.spawn.cv, color = '#440154FF'), size = 2.5, alpha = 0.5) +
-  geom_point(aes(x = 1, y = low.age.spawn.cv, color = '#21908CFF'), size = 2.5, alpha = 0.5) +
-  geom_point(aes(x = 1, y = high.age.spawn.cv, color = '#FDE725FF'), size = 2.5, alpha = 0.5) +
-  scale_color_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF'),
-                     labels = c('Low', 'Empirical', 'High'), name = 'Age structure') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
-age.struct.of <- ggplot() +
-  geom_point(data = low.age.spawn.of, aes(x = year, y = perc.of, color = '#21908CFF'), size = 2, alpha = 0.5) +
-  geom_line(data = low.age.spawn.of, aes(x = year, y = perc.of, color = '#21908CFF'), size = 1) +
-  geom_point(data = baseline.spawn.of, aes(x = year, y = perc.of, color = '#440154FF'), size = 2, alpha = 0.5) +
-  geom_line(data = baseline.spawn.of, aes(x = year, y = perc.of, color = '#440154FF'), size = 1) +
-  geom_point(data = high.age.spawn.of, aes(x = year, y = perc.of, color = '#FDE725FF'), size = 2, alpha = 0.5) +
-  geom_line(data = high.age.spawn.of, aes(x = year, y = perc.of, color = '#FDE725FF'), size = 1) +
-  scale_color_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF'),
-                     labels = c('Low', 'Empirical', 'High'),
-                     name = 'Age structure') +
-  labs(x = 'Year', y = '% simulations with overfished status') +
-  theme_classic() +
-  theme(legend.position = c(0.85, 0.85))
-
-
-# low flow
-lf.ba            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.12, 0.75, 0.98, 1), flow=rep(5000, 26))#low flow, baseline age
-R.spawn.est      <- lf.ba[[2]]
-lf.ba.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-lf.ba.nspawn.med <- lf.ba.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-lf.ba.spawn.df   <- lf.ba.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-# empirical flow
-ef.ba            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.12, 0.75, 0.98, 1), flow=flow$discharge[2:27])#base flow, baseline age
-R.spawn.est      <- ef.ba[[2]]
-ef.ba.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-ef.ba.nspawn.med <- ef.ba.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-ef.ba.spawn.df   <- ef.ba.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-# high flow
-hf.ba            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.12, 0.75, 0.98, 1), flow=rep(18000, 26))#base flow, baseline age
-R.spawn.est      <- hf.ba[[2]]
-hf.ba.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-hf.ba.nspawn.med <- hf.ba.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-hf.ba.spawn.df   <- hf.ba.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-ba.spawn.plot <- ggplot() +
-  geom_line(data = lf.ba.nspawn.med, aes(x = year, y = median.esc, color = '#440154FF')) +
-  geom_ribbon(data = lf.ba.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#440154FF'), fill = '#440154FF', alpha = 0.3) +
-  geom_line(data = ef.ba.nspawn.med, aes(x = year, y = median.esc, color = '#21908CFF')) +
-  geom_ribbon(data = ef.ba.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#21908CFF'), fill = '#21908CFF', alpha = 0.3) + 
-  geom_line(data = hf.ba.nspawn.med, aes(x = year, y = median.esc, color = '#FDE725FF')) +
-  geom_ribbon(data = hf.ba.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#FDE725FF'), fill = '#FDE725FF', alpha = 0.3) +
-  scale_color_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF')) + 
-  scale_fill_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF')) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1370000)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(1988, 2012), breaks = seq(1988, 2012)) + 
-  labs(x = '', y = 'Natural-area spawners') +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank(), legend.position = 'none')
-
-# LOW AGE STRUCTURE
-# low flow
-lf.la            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.12, 0.99, 0.99, 1), flow=rep(5000, 26))#low flow, baseline age
-R.spawn.est      <- lf.la[[2]]
-lf.la.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-lf.la.nspawn.med <- lf.la.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-lf.la.spawn.df   <- lf.la.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-# empirical flow
-ef.la            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.12, 0.99, 0.99, 1), flow=flow$discharge[2:27])#base flow, baseline age
-R.spawn.est      <- ef.la[[2]]
-ef.la.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-ef.la.nspawn.med <- ef.la.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-ef.la.spawn.df   <- ef.la.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-# high flow
-hf.la            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.12, 0.99, 0.99, 1), flow=rep(18000, 26))#base flow, baseline age
-R.spawn.est      <- hf.la[[2]]
-hf.la.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-hf.la.nspawn.med <- hf.la.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-hf.la.spawn.df   <- hf.la.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-la.spawn.plot <- ggplot() +
-  geom_line(data = lf.la.nspawn.med, aes(x = year, y = median.esc, color = '#440154FF')) +
-  geom_ribbon(data = lf.la.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#440154FF'), fill = '#440154FF', alpha = 0.3) +
-  geom_line(data = ef.la.nspawn.med, aes(x = year, y = median.esc, color = '#21908CFF')) +
-  geom_ribbon(data = ef.la.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#21908CFF'), fill = '#21908CFF', alpha = 0.3) + 
-  geom_line(data = hf.la.nspawn.med, aes(x = year, y = median.esc, color = '#FDE725FF')) +
-  geom_ribbon(data = hf.la.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#FDE725FF'), fill = '#FDE725FF', alpha = 0.3) +
-  scale_color_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF')) + 
-  scale_fill_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF')) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1370000)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(1988, 2012), breaks = seq(1988, 2012)) + 
-  labs(x = '', y = 'Natural-area spawners') +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank(), legend.position = 'none')
-
-# High AGE STRUCTURE
-# low flow
-lf.ha            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.057, 0.422, 0.893, 1), flow=rep(5000, 26))#low flow, baseline age
-R.spawn.est      <- lf.ha[[2]]
-lf.ha.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-lf.ha.nspawn.med <- lf.ha.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-lf.ha.spawn.df   <- lf.ha.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-# empirical flow
-ef.ha            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.057, 0.422, 0.893, 1), flow=flow$discharge[2:27])#base flow, baseline age
-R.spawn.est      <- ef.ha[[2]]
-ef.ha.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-ef.ha.nspawn.med <- ef.ha.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-ef.ha.spawn.df   <- ef.ha.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-# high flow
-hf.ha            <- simulation(pars=result$par, calibrate=FALSE, m.maturity = c(0.057, 0.422, 0.893, 1), flow=rep(18000, 26))#base flow, baseline age
-R.spawn.est      <- hf.ha[[2]]
-hf.ha.spawn.df   <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1))))
-hf.ha.nspawn.med <- hf.ha.spawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
-hf.ha.spawn.df   <- hf.ha.spawn.df %>%
-  dplyr::group_by(year) %>%
-  dplyr::summarise(min.esc = min(n.escapement), max.esc = max(n.escapement))
-ha.spawn.plot <- ggplot() +
-  geom_line(data = lf.ha.nspawn.med, aes(x = year, y = median.esc, color = '#440154FF')) +
-  geom_ribbon(data = lf.ha.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#440154FF'), fill = '#440154FF', alpha = 0.3) +
-  geom_line(data = ef.ha.nspawn.med, aes(x = year, y = median.esc, color = '#21908CFF')) +
-  geom_ribbon(data = ef.ha.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#21908CFF'), fill = '#21908CFF', alpha = 0.3) + 
-  geom_line(data = hf.ha.nspawn.med, aes(x = year, y = median.esc, color = '#FDE725FF')) +
-  geom_ribbon(data = hf.ha.spawn.df, aes(ymin = min.esc, ymax = max.esc, x = year, color = '#FDE725FF'), fill = '#FDE725FF', alpha = 0.3) +
-  scale_color_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF')) + 
-  scale_fill_manual(values = c("#440154FF"="#440154FF", '#21908CFF'='#21908CFF', '#FDE725FF'='#FDE725FF')) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1370000)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(1988, 2012), breaks = seq(1988, 2012)) + 
-  labs(x = 'Year', y = 'Natural-area spawners') +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_blank(), legend.position = 'none')
-
-ggarrange(la.spawn.plot, ba.spawn.plot, ha.spawn.plot, ncol = 1, nrow = 3, labels = c('a', 'b', 'c'))
-
-# test plot
-# library(fitdistrplus)
-# tmp1 <- fitdist(flow$discharge, 'lnorm')
-# tmp2 <- rlnorm(20000, meanlog = tmp1$estimate[1], sdlog = tmp1$estimate[2])
-# tmp2.mean <- mean(tmp2)
-# tmp2.pi   <- quantile(tmp2, probs = c(0.025, 0.975))
-# tmp3 <- rlnorm(20000, meanlog = tmp1$estimate[1]*0.95, sdlog = tmp1$estimate[2])
-# tmp3.mean <- mean(tmp3)
-# tmp3.pi   <- quantile(tmp3, probs = c(0.025, 0.975))
-# 
-# maxflow   <- 30000
-# test.flow <- seq(0, maxflow, by = 1)
-# test.surv <- NULL
-# x.perc    <- 0.9
-# step1 <- round(4258 - (4258 * ((1 - x.perc) / 2))) #c(0, 4258)
-# step2 <- round(c(4259 + (10711 * ((1 - x.perc) / 2)), 10711 - (10711 * ((1 - x.perc) / 2))))   #c(4259, 10711)
-# step3 <- round(c(10712 + (22871 * ((1 - x.perc) / 2)), 22871 - (22871 * ((1 - x.perc) / 2)))) #c(10712, 22871)
-# step4 <- round(22872 + (22872 * ((1 - x.perc) / 2))) #22872
-# for(test.i in 1:length(test.flow)){
-#   test.surv <- c(test.surv, juv.survival(test.flow[test.i]))
-# }
-# test.df <- data.frame(flow = test.flow, surv = test.surv)
-# test.step1 <- data.frame(flow = seq(0, step1), up = inv.logit(logit(0.03) + (1.96 * 0.276)), lo = inv.logit(logit(0.03) - (1.96 * 0.276))) # step 1
-# test.step2 <- data.frame(flow = seq(step2[1], step2[2]-1), up = inv.logit(logit(0.189) + (1.96 * 0.094)), lo = inv.logit(logit(0.189) - (1.96 * 0.094))) # step 2
-# test.step3 <- data.frame(flow = seq(step3[1], step3[2]-1), up = inv.logit(logit(0.508) + (1.96 * 0.082)), lo = inv.logit(logit(0.508) - (1.96 * 0.082))) # step 3
-# test.step4 <- data.frame(flow = seq(step4, maxflow), up = inv.logit(logit(0.353) + (1.96 * 0.088)), lo = inv.logit(logit(0.353) - (1.96 * 0.088)))
-# test.line1 <- data.frame(flow = seq(step1, step2[1]), y = test.df$surv[step1:step2[1]], up = inv.logit(logit(test.df$surv[4050]) + (1.96 * 0.276)), lo = inv.logit(logit(test.df$surv[4050]) - (1.96 * 0.276)))
-# test.line2 <- data.frame(flow = seq(step2[2], step3[1]), y = test.df$surv[step2[2]:step3[1]], up = inv.logit(logit(test.df$surv[10200]) + (1.96 * 0.094)), lo = inv.logit(logit(test.df$surv[10200]) - (1.96 * 0.094)))
-# test.line3 <- data.frame(flow = seq(step3[2], step4), y = test.df$surv[step3[2]:step4], up = inv.logit(logit(test.df$surv[21000]) + (1.96 * 0.088)), lo = inv.logit(logit(test.df$surv[21000]) - (1.96 * 0.088)))
-# ggplot() +
-#   geom_ribbon(data = test.step1, aes(x = flow, ymin = 0.03 - (up-lo)/2, ymax = 0.03 + (up-lo)/2), fill = 'grey70') +
-#   geom_ribbon(data = test.step2, aes(x = flow, ymin = 0.189 - (up-lo)/2, ymax = 0.189 + (up-lo)/2), fill = 'grey70') +
-#   geom_ribbon(data = test.step3, aes(x = flow, ymin = 0.508 - (up-lo)/2, ymax = 0.508 + (up-lo)/2), fill = 'grey70') +
-#   geom_ribbon(data = test.step4, aes(x = flow, ymin = 0.353 - (up-lo)/2, ymax = 0.353 + (up-lo)/2), fill = 'grey70') +
-#   geom_ribbon(data = test.line1, aes(x = flow, ymin = y - (up-lo)/2, ymax = y + (up-lo)/2), fill = 'grey70') +
-#   geom_ribbon(data = test.line2, aes(x = flow, ymin = y - (up-lo)/2, ymax = y + (up-lo)/2), fill = 'grey70') +
-#   geom_ribbon(data = test.line3, aes(x = flow, ymin = y - (up-lo)/2, ymax = y + (up-lo)/2), fill = 'grey70') +
-#   geom_line(data = test.df, aes(x = flow, y = surv)) +
-#   # geom_vline(xintercept = mean(flow$discharge), color = "#440154FF") +
-#   # geom_ribbon(aes(x = tmp2.pi, ymin = 0, ymax = 0.6), fill = "#440154FF", alpha = 0.2) +
-#   # geom_vline(xintercept = 6955.367, color = "#FDE725FF") +
-#   # geom_ribbon(aes(x = tmp3.pi, ymin = 0, ymax = 0.6), fill = "#FDE725FF", alpha = 0.2) +
-#   geom_vline(xintercept = mean(flow$discharge), lty = 'dashed') +
-#   geom_vline(xintercept = tmp3.mean, lty = 'dashed') +
-#   scale_y_continuous(limits = c(0, 0.6), expand = c(0, 0)) +
-#   scale_x_continuous(expand = c(0, 0)) +
-#   theme_classic() +
-#   labs(y = 'Juvenile survival', x = 'Flow (cfs)')
-
-
-
 
 
 
