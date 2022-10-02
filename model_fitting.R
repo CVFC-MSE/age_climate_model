@@ -23,6 +23,10 @@ library(ggpubr)
 library(optimParallel)
 library(docstring)
 
+# Load data
+load('srfc_data.RData')
+
+
 # Functions -------------------------------------------------------------------------------------------------------
 optim.simulation <- function(pars, calibrate, reset.esc){
   #' optim.simulation
@@ -61,7 +65,7 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   # Set population dynamics parameters (see Table 2 in manuscript)
   theta.1       <- 0.35 # maximum egg-to-fry survival (default = 0.35)
   theta.2       <- 1.5e-8 # SRR density dependence (default = 1e-8)
-  m.maturity    <- c(0.038, 0.5, 0.999, 1) # maturation rates that achieve reasonable escapement age composition.
+  m.maturity    <- c(0.026, 0.46, 0.999, 1) # maturation rates that achieve reasonable escapement age composition.
   f.maturity    <- m.maturity # option to define separate female and male maturation rates
   nat.maturity  <- m.maturity * c(1, 1, 1, 1) # natural-origin maturation rates in relation to hatchery derived maturation rates (fewer male fish mature at ages 2 and 3 for natural-origin)
   m.hat         <- t(array(c(m.maturity,f.maturity), dim = c(A-1, 2), dimnames <- list(c(paste('age.', 2:A, sep = "")), c('male' ,'female')))) # hatchery maturation array; NOTE - the array will automatically adjust for age/stage structure specified in above parameters
@@ -124,17 +128,17 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   n[1, 1, , ] <- juv.survival(y.params$w[1]) * alpha # juvenile survival as a function of flow (outmigration) and average survival through the bay (alpha). Flow data not available for 1987, thus 1988 was used for initialization.
   # Initial ocean age 2 - abundance of ocean fish estimated from harvest, exploitation rate, and resonable age-composition of harvest
   init.harvest <- ((1 - (1 - (y.params$i[2]))) * nu)
-  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.25) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.25) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
+  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
   # Initial ocean age 3
-  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.25) / (init.harvest[2] * harvest.scalar) )
-  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.25) / (init.harvest[2] * harvest.scalar))
+  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar) )
+  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar))
   # Initial ocean age 4
-  N[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.25) / (init.harvest[3] * harvest.scalar))
-  H[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.25) / (init.harvest[3] * harvest.scalar))
+  N[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
+  H[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
   # Initial ocean age 5
-  N[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.25) / (init.harvest[4] * harvest.scalar))
-  H[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.25) / (init.harvest[4] * harvest.scalar))
+  N[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
+  H[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
   # Initial harvest
   I.N[N.H.O.ind, 1, , ] <- round(y.params$total.harvest[1] * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
   I.H[N.H.O.ind, 1, , ] <- round(y.params$total.harvest[1] * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
@@ -161,7 +165,7 @@ optim.simulation <- function(pars, calibrate, reset.esc){
       H[1, t, , sim] <- y.params$ht[t] # hatchery production at time t
       if(reset.esc == TRUE){
         Fnt.tmp <- y.params$Nt[t - 1]/2 # reset natural-area female spawners (including age 2) to half of the empirically observed spawner escapement
-        Fnt <- Fnt.tmp * (R.spawn.fem.a[, t - 1, , sim]/sum(R.spawn.fem.a[, t - 1, , sim])) # maintain the model age-composition of spawner escapement
+        Fnt <- Fnt.tmp * f.maturity # maintain the model age-composition of spawner escapement
       } else {
         Fnt <- R.spawn.fem.a[, t - 1, , sim] # use model natural-area female spawners
       }
@@ -227,27 +231,28 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   B.total[1, ,] <- catch.esc$hatchery[2]
   est.spawn.df <- gather(as.data.frame(cbind(Spawn.est[1:25, ,], seq(1988, 2012))), 'sim', 'est.spawners', -(eval(paste0('V', n.sim + 1)))) %>% 
     dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', n.sim + 1))))) %>% 
-    dplyr::select(-(eval(paste0('V', n.sim + 1))))
-  emp.spawn.df <- data.frame(year = as.integer(catch.esc$year[2:26]), spawners = (catch.esc$total.esc[2:26]))
-  med.est.spawn.df <- est.spawn.df %>% 
+    dplyr::select(-(eval(paste0('V', n.sim + 1)))) %>%
     dplyr::group_by(year) %>% 
-    dplyr::summarise(median.est = (round(median(est.spawners)))) %>% 
+    dplyr::summarise(median.est = (round(median(est.spawners))),
+                     mean.est = (round(mean(est.spawners)))) %>%
     dplyr::mutate(year = as.integer(year))
-
+  emp.spawn.df <- data.frame(year = as.integer(catch.esc$year[2:26]), spawners = (catch.esc$total.esc[2:26]))
+  
   if(calibrate == TRUE){
     # calculate the sum of squared error between model simulations and empirical observations
-    spawner.sse <- sum(((emp.spawn.df$spawners) - (med.est.spawn.df$median.est)) ^ 2, na.rm = TRUE)
+    spawner.sse <- sum(((emp.spawn.df$spawners) - (est.spawn.df$mean.est)) ^ 2, na.rm = TRUE)
     return(log(spawner.sse))
   } else {
-    return(list(y.params, R.spawn.est, Spawn.est, H, N, I.H, I.N, z, jack, harvest, B.total, j.surv, sum((emp.spawn.df$spawners - med.est.spawn.df$median.est) ^ 2, na.rm = TRUE)))
+    return(list(y.params, R.spawn.est, Spawn.est, H, N, I.H, I.N, z, jack, harvest, B.total, j.surv, 
+                sum((emp.spawn.df$spawners - est.spawn.df$mean.est) ^ 2, na.rm = TRUE)))
   }  
 }
 
 ## Initialize parameters to calibrate -----------------------------------------------------------------------------------
-alpha.i <- 0.086 # residual juvenile survival
-cv.j.i  <- 0.459 # coefficient of variation of recruitment stochasticity
-phi.i   <- 0.959 # mean NPGO effect on survival
-sd.i    <- 0.439 # variance of NPGO effect on survival
+alpha.i <- 0.0808 # residual juvenile survival
+cv.j.i  <- 0.4522 # coefficient of variation of recruitment stochasticity
+phi.i   <- 0.8135 # mean NPGO effect on survival
+sd.i    <- 0.3233 # variance of NPGO effect on survival
 pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 
 ## Optimization function ------------------------------------------------------------------------------------------------
@@ -255,11 +260,23 @@ pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 
 cluster <- makeCluster(detectCores() - 1); setDefaultCluster(cl = cluster)
 ptm     <- proc.time()
-result  <- optimParallel(par = pars, fn = optim.simulation, method = 'L-BFGS-B', control = list(maxit = 10000), lower = c(0.001, 0.001, 0.1, 0.001), upper = c(0.1, 0.5, 1, 0.5), calibrate = TRUE, reset.esc = TRUE)
+result  <- optimParallel(par = pars, 
+                         fn = optim.simulation, 
+                         method = 'L-BFGS-B', 
+                         control = list(maxit = 10000), 
+                         lower = c(0.001, 0.001, 0.1, 0.001), 
+                         upper = c(0.1, 0.5, 1, 0.5), 
+                         calibrate = TRUE, 
+                         reset.esc = TRUE)
 proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
+# annual mean adult spawners, reset.esc=T: 27.62, means much closer than medians
+#                           , reset.esc=F: 27.65, mean and median similar to above
+# annual median adult spawners, reset.esc=T: 27.63, means further apart, but overall fit similar
+#                             , reset.esc=F: 27.63, same as above with reset.esc=T
+
 ## Run simulation model -------------------------------------------------------------------------------------------------
-tmp.par <- c(0.085, 0.460, 0.945, 0.432) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
+tmp.par <- c(0.04, 0.4522, 0.8135, 0.3233) #result$par # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
 sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = FALSE)
 sims <- 1000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
@@ -278,15 +295,21 @@ median((N[, , 1, 1] / (N[, , 1, 1] + H[, , 1, 1])) * 100, na.rm = TRUE)
 mod.nspawn.df  <- gather(as.data.frame(cbind(R.spawn.est[1:25, , ], seq(1988,2012))), 'sim', 'n.escapement', -(eval(paste0('V', sims+1)))) %>% 
   dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% 
   dplyr::select(-(eval(paste0('V', sims+1))))
-mod.nspawn.med <- mod.nspawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(n.escapement))) %>% dplyr::mutate(year = as.integer(year))
+mod.nspawn.df2 <- mod.nspawn.df %>% 
+  dplyr::group_by(year) %>% 
+  dplyr::summarise(median.esc = round(median(n.escapement)),
+                   mean.esc = round(mean(n.escapement))) %>% 
+  dplyr::mutate(year = as.integer(year))
 emp.nspawn.df  <- data.frame(year = as.integer(catch.esc$year[1:25]), spawners = catch.esc$natural[1:25])
 n.spawn.plot   <- ggplot() +
   geom_line(data = mod.nspawn.df, aes(x = year, y = n.escapement, group = sim, color = 'grey70')) +
-  geom_line(data = mod.nspawn.med, aes(x = year, y = median.esc, color = 'black')) +
+  geom_line(data = mod.nspawn.df2, aes(x = year, y = median.esc, color = 'black')) +
   geom_line(data = emp.nspawn.df, aes(x = year, y = spawners, color = 'red')) +
   scale_color_manual(values = c('grey70'='grey70', 'black' = 'black', 'red' = 'red'), labels = c('median', 'simulations', 'empirical')) +
-  geom_line(aes(x = mod.nspawn.med$year, y = median(mod.nspawn.med$median.esc)), linetype = 'dashed', alpha = 0.5) +
-  geom_line(aes(x = emp.nspawn.df$year, y = median(emp.nspawn.df$spawners)), linetype = 'dashed', col = 'red', alpha = 0.5) +
+  # geom_line(aes(x = mod.nspawn.df2$year, y = median(mod.nspawn.df2$median.esc)), linetype = 'dashed', alpha = 0.5) +
+  # geom_line(aes(x = mod.nspawn.df2$year, y = mean(mod.nspawn.df2$mean.esc)), linetype = 'solid', alpha = 0.5) +
+  # geom_line(aes(x = emp.nspawn.df$year, y = median(emp.nspawn.df$spawners)), linetype = 'dashed', col = 'red', alpha = 0.5) +
+  # geom_line(aes(x = emp.nspawn.df$year, y = mean(emp.nspawn.df$spawners)), linetype = 'solid', col = 'red', alpha = 0.5) +
   scale_y_continuous(expand = c(0, 0)) +
   # scale_x_continuous(expand = c(0, 0), limits = c(1988, 2012), breaks = seq(1988, 2012)) +
   labs(x = 'Year', y = 'Natural-area spawners') +
@@ -296,7 +319,11 @@ n.spawn.plot   <- ggplot() +
 # Total spawners
 B.total[1, ,]  <- catch.esc$hatchery[2]
 mod.tspawn.df  <- gather(as.data.frame(cbind((R.spawn.est[1:25, , ] + B.total[1:25, , ]), seq(1988,2012))), 'sim', 't.escapement', -(eval(paste0('V', sims+1)))) %>% dplyr::mutate(year = as.integer(eval(parse(text = paste0('V', sims+1))))) %>% dplyr::select(-(eval(paste0('V', sims+1)))) 
-mod.tspawn.med <- mod.tspawn.df %>% dplyr::group_by(year) %>% dplyr::summarise(median.esc = round(median(t.escapement))) %>% dplyr::mutate(year = as.integer(year)) 
+mod.tspawn.med <- mod.tspawn.df %>% 
+                  dplyr::group_by(year) %>% 
+                  dplyr::summarise(median.esc = round(median(t.escapement)),
+                                   mean.esc = mean(t.escapement)) %>% 
+                  dplyr::mutate(year = as.integer(year)) 
 emp.tspawn.df  <- data.frame(year = as.integer(catch.esc$year[1:25]), spawners = catch.esc$total.esc[1:25])
 t.spawn.plot   <- ggplot() +
   geom_line(data = mod.tspawn.df, aes(x = year, y = t.escapement/1000, group = sim, color = 'grey70')) +
@@ -448,11 +475,24 @@ o.abundance.plot <- ggplot() +
 ggarrange(o2.plot, o3.plot, o4.plot, o5.plot, o.abundance.plot, ncol = 2, nrow = 3)
 ggarrange(a2.harvest.plot, a3.harvest.plot, a4.harvest.plot, a5.harvest.plot, a.impact.plot, ncol = 2, nrow = 3)
 
+s.escapement %>%
+  group_by(a) %>%
+  summarise(med = median(med)) %>%
+  ungroup() %>%
+  mutate(prop = med/sum(med)) %>%
+  ggplot(data = .) +
+  geom_bar(aes(x = a, y = prop), stat = 'identity')
+  
+
 # Spawners as a function of flow and NPGO
-env.df <- data.frame(year = mod.tspawn.med$year, mod.spawn = mod.tspawn.med$median.esc, emp.spawn = emp.tspawn.df$spawners, flow = flow$discharge[1:25], npgo = npgo$npgo[1:25])
+env.df <- data.frame(year = mod.tspawn.med$year, 
+                     mod.spawn = mod.tspawn.med$mean.esc, 
+                     emp.spawn = emp.tspawn.df$spawners, 
+                     flow = flow$discharge[1:25], 
+                     npgo = npgo$npgo[1:25])
 env.df <- cbind(env.df, as.data.frame(embed(c(rep(NA, 6), flow$discharge[1:25]), 6)[-1,-1]) %>% dplyr::rename(flow.t1 = V1, flow.t2 = V2, flow.t3 = V3, flow.t4 = V4, flow.t5 = V5), as.data.frame(embed(c(rep(NA, 6), npgo$npgo[1:25]), 6)[-1,-(1)]) %>% dplyr::rename(npgo.t1 = V1, npgo.t2 = V2, npgo.t3 = V3, npgo.t4 = V4, npgo.t5 = V5))
 # GAM to test consistency between relationships of flow and npgo
-flow.gam.emp <- mgcv::gam(env.df$emp.spawn ~ s(env.df$flow.t2, k = 3), family = poisson(link = 'log'))
+flow.gam.emp <- mgcv::gam(env.df$emp.spawn ~ s(env.df$flow.t2, k = 3) + s(env.df$flow.t3, k = 3), family = poisson(link = 'log'))
 summary(flow.gam.emp)
 flow.emp.plot <- gratia::draw(flow.gam.emp) +
   scale_y_continuous(expand=c(0,0), limits = c(-0.65,0.65)) +
@@ -460,14 +500,14 @@ flow.emp.plot <- gratia::draw(flow.gam.emp) +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), title = 'Observed') +
   theme(text = element_text(size = 13)) +
   annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 22%')
-flow.gam.mod <- mgcv::gam(env.df$mod.spawn ~ s(env.df$flow.t2, k = 3), family = poisson(link = 'log'))
+flow.gam.mod <- mgcv::gam(env.df$mod.spawn ~ s(env.df$flow.t2, k = 3) + s(env.df$flow.t3, k = 3), family = poisson(link = 'log')) 
 summary(flow.gam.mod)
 flow.mod.plot <- gratia::draw(flow.gam.mod) +
   scale_y_continuous(expand=c(0,0), limits = c(-0.65,0.65)) +
   theme_classic() +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), y = "", title = 'Simulated') +
   theme(text = element_text(size = 13)) +
-  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 22.8%')
+  # annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 22.8%')
 flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
 ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
 
@@ -489,8 +529,8 @@ plot(npgo.gam.mod)
 
 
 # Temporal autocorrelation
-ac.esc.emp <- acf(log(catch.esc$total.esc), lag.max = A, plot = TRUE)
-ac.esc.mod <- acf(log(mod.tspawn.med$median.esc), lag.max = A, plot = TRUE)
+ac.esc.emp <- acf((catch.esc$total.esc), lag.max = A, plot = TRUE)
+ac.esc.mod <- acf((mod.tspawn.med$median.esc), lag.max = A, plot = TRUE)
 par(mfrow = c(1,2))
 plot(ac.esc.emp, main = "Observed total escapement")
 plot(ac.esc.mod, main = "Simulated total escapement")
