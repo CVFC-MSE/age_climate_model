@@ -249,10 +249,10 @@ optim.simulation <- function(pars, calibrate, reset.esc){
 }
 
 ## Initialize parameters to calibrate -----------------------------------------------------------------------------------
-alpha.i <- 0.0808 # residual juvenile survival
-cv.j.i  <- 0.4522 # coefficient of variation of recruitment stochasticity
-phi.i   <- 0.8135 # mean NPGO effect on survival
-sd.i    <- 0.3233 # variance of NPGO effect on survival
+alpha.i <- 0.08 # residual juvenile survival
+cv.j.i  <- 0.42 # coefficient of variation of recruitment stochasticity
+phi.i   <- 0.8 # mean NPGO effect on survival
+sd.i    <- 0.3 # variance of NPGO effect on survival
 pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 
 ## Optimization function ------------------------------------------------------------------------------------------------
@@ -276,7 +276,7 @@ proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 #                             , reset.esc=F: 27.63, same as above with reset.esc=T
 
 ## Run simulation model -------------------------------------------------------------------------------------------------
-tmp.par <- c(0.04, 0.4522, 0.8135, 0.3233) #result$par # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
+tmp.par <- c() #result$par # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
 sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = FALSE)
 sims <- 1000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
