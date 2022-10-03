@@ -18,8 +18,8 @@ rm(list = ls())
 # Load data
 load('srfc_data.RData')
 # Load functions stored in other scripts
-source('model_functions.r')
-source('mse_simulation.r')
+source('operating_model_functions.r')
+source('operating_model.r')
 
 # Load libraries
 # library(docstring) # NOTE: Use docstring("function name") to display R documentation for functions defined in this script
@@ -124,28 +124,31 @@ se <- function(x){return(sd(x)/sqrt(length(x)))}
 
 # Set model parameters and variables ----------------------------------------------------------------------------------
 n.yr  <- 100 # number of years to simulate
-n.sim <- 100 # number of simulations to run 20000
-pars  <- c(0.068, 0.30, 0.86, 0.20) # See 'fall_model_fit.r' for calibration process: (1) residual juvenile mortality, (2) CV in recruitment stochasticity, (3) NPGO-dependent mortality coefficient, (4) Variance of NPGO-dependent mortality 
+n.sim <- 5000 # number of simulations to run 20000
+pars  <- c(0.0798, 0.4201, 0.7989, 0.3003) # See 'fall_model_fit.r' for calibration process: (1) residual juvenile mortality, (2) CV in recruitment stochasticity, (3) NPGO-dependent mortality coefficient, (4) Variance of NPGO-dependent mortality 
 
 
 # TEST MODEL SCENARIOS --------------------------------------------------------------------------------------------
 # Base flow, survival = 0.01            
-test1 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+test1 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
 # Base flow, base survival
-test2 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+test2 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 # Base flow, survival = 0.99            
-test3 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+test3 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+
+
+
 mean1 <- test1 %>% filter(year > 30) %>% summarise(mean = mean(harvest))
 mean2 <- test2 %>% filter(year > 30) %>% summarise(mean = mean(harvest))
 mean3 <- test3 %>% filter(year > 30) %>% summarise(mean = mean(harvest))
 ggplot() +
-  # geom_line(data = test1, aes(x = year, y = harvest, group = sim), colour = "red", alpha = 0.1) +
-  # geom_line(data = test2, aes(x = year, y = harvest, group = sim), colour = "gray70", alpha = 0.1) +
-  # geom_line(data = test3, aes(x = year, y = harvest, group = sim), colour = "blue", alpha = 0.1) +
-  geom_hline(yintercept = mean1$mean, colour = 'red') +
-  geom_hline(yintercept = mean2$mean, colour = 'gray70') +
-  geom_hline(yintercept = mean3$mean, colour = 'blue') +
-  scale_y_continuous(expand = c(0,0), limits = c(0, 500000)) +
+  geom_line(data = test1, aes(x = year, y = harvest, group = sim), colour = "red", alpha = 0.1) +
+  geom_line(data = test2, aes(x = year, y = harvest, group = sim), colour = "gray70", alpha = 0.1) +
+  geom_line(data = test3, aes(x = year, y = harvest, group = sim), colour = "blue", alpha = 0.1) +
+  # geom_hline(yintercept = mean1$mean, colour = 'red') +
+  # geom_hline(yintercept = mean2$mean, colour = 'gray70') +
+  # geom_hline(yintercept = mean3$mean, colour = 'blue') +
+  # scale_y_continuous(expand = c(0,0), limits = c(0, 500000)) +
   theme_classic()
 
 
@@ -762,22 +765,23 @@ harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
 npgo.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
 
 # Test 100-year model --------------------------------------------------------------------------------------------------
-base.mod    <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-base.mod.df <- mse.summary(base.mod)
+base.mod    <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+base.mod.df <- model.summary(base.mod)
 
 base.mod %>% filter(year > 29 & year < 100) %>% summarise(NH.ratio = mean(NH.ratio))
 
 # plots
-sim.nums    <- paste0('s', sample(1:n.sim, 500, replace=FALSE))
-base.mod1   <- base.mod %>% filter(sim %in% sim.nums)
-base.mod2   <- base.mod1 %>% filter(sim %in% sample(sim.nums, 1))
+# sim.nums    <- paste0('s', sample(1:n.sim, 100, replace=FALSE))
+sim.nums <- n.sim
+base.mod1   <- base.mod #%>% filter(sim %in% sim.nums)
+# base.mod2   <- base.mod1 %>% filter(sim %in% sample(sim.nums, 1))
 hundo.spawn <- ggplot() +
   geom_line(data = base.mod1, aes(x = year, y = Spawn.est, group = sim), color = 'gray70', alpha = 0.3) +
-  geom_line(data = base.mod2, aes(x = year, y = Spawn.est), color = 'black') +
+  # geom_line(data = base.mod2, aes(x = year, y = Spawn.est), color = 'black') +
   # geom_line(aes(x = 1:26, y = catch.esc$total.esc), color = 'red') +
-  geom_hline(yintercept = base.mod.df$spawn.mean, color = 'black') +
+  # geom_hline(yintercept = base.mod.df$spawn.mean, color = 'black') +
   geom_hline(yintercept = base.mod.df$spawn.median, color = 'black', lty = 'dashed') +
-  geom_hline(yintercept = mean(catch.esc$total.esc), color = 'blue') +
+  # geom_hline(yintercept = mean(catch.esc$total.esc), color = 'blue') +
   geom_hline(yintercept = median(catch.esc$total.esc), color = 'blue', lty = 'dashed') +
   geom_hline(yintercept = 91500, color = 'red') +
   # geom_hline(yintercept = 122000, color = 'red', lty = 'dashed') +
@@ -959,51 +963,51 @@ test.mod5.cv <- test.cv(test.mod5)
 
 # Model scenarios ------------------------------------------------------------------------------------------------------
 # 1.  Base flow,       maturation = 0.99
-mod.01 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+mod.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 # 2.  Base flow,       survival = 0.01            
-mod.02 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+mod.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
 # 3.  Base flow,       base maturity and survival
-mod.03 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+mod.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 # 4.  Base flow,       survival = 0.99            
-mod.04 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+mod.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
 # 5.  Base flow,       maturation = 0.25           
-mod.05 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+mod.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 save(mod.01, mod.02, mod.03, mod.04, mod.05, file = 'age_flow_mod1.RData')
 
 # 6.  Longer duration, maturation = 0.99            
-mod.06 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+mod.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
 # 7.  Longer duration, survival = 0.01            
-mod.07 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
+mod.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
 # 8.  Longer duration, base maturity and survival
-mod.08 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+mod.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
 # 9.  Longer duration, survival = 0.99            
-mod.09 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
+mod.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
 # 10. Longer duration, maturation = 0.25           
-mod.10 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+mod.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
 save(mod.06, mod.07, mod.08, mod.09, mod.10, file = 'age_flow_mod2.RData')
 
 # 11. More frequent,   maturation = 0.99       
-mod.11 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+mod.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
 # 12. More frequent,   survival = 0.01            
-mod.12 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
+mod.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
 # 13. More frequent,   base maturity and survival
-mod.13 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+mod.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
 # 14. More frequent,   survival = 0.99            
-mod.14 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
+mod.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
 # 15. More frequent,   maturation = 0.25           
-mod.15 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+mod.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
 save(mod.11, mod.12, mod.13, mod.14, mod.15, file = 'age_flow_mod3.RData')
 
 # 16. More intense,    maturation = 0.99      
-mod.16 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+mod.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
 # 17. More intense,    survival = 0.01            
-mod.17 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
+mod.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
 # 18. More intense,    base maturity and survival
-mod.18 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+mod.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
 # 19. More intense,    survival = 0.99            
-mod.19 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
+mod.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
 # 20. More intense,    maturation = 0.25           
-mod.20 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+mod.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
 save(mod.16, mod.17, mod.18, mod.19, mod.20, file = 'age_flow_mod4.RData')
 
 
@@ -1022,11 +1026,11 @@ mod05.overfished <- calc_overfished(mod.05, n.sim = n.sim, n.yr = n.yr)
 rm(mod.01, mod.02, mod.03, mod.04, mod.05)
 
 load('age_flow_mod2.RData')
-mod06.df <- mse.summary(mod.06)
-mod07.df <- mse.summary(mod.07)
-mod08.df <- mse.summary(mod.08)
-mod09.df <- mse.summary(mod.09)
-mod10.df <- mse.summary(mod.10)
+mod06.df <- model.summary(mod.06)
+mod07.df <- model.summary(mod.07)
+mod08.df <- model.summary(mod.08)
+mod09.df <- model.summary(mod.09)
+mod10.df <- model.summary(mod.10)
 mod06.overfished <- calc_overfished(mod.06, n.sim = n.sim, n.yr = n.yr)
 mod07.overfished <- calc_overfished(mod.07, n.sim = n.sim, n.yr = n.yr)
 mod08.overfished <- calc_overfished(mod.08, n.sim = n.sim, n.yr = n.yr)
@@ -1035,11 +1039,11 @@ mod10.overfished <- calc_overfished(mod.10, n.sim = n.sim, n.yr = n.yr)
 rm(mod.06, mod.07, mod.08, mod.09, mod.10)
 
 load('age_flow_mod3.RData')
-mod11.df <- mse.summary(mod.11)
-mod12.df <- mse.summary(mod.12)
-mod13.df <- mse.summary(mod.13)
-mod14.df <- mse.summary(mod.14)
-mod15.df <- mse.summary(mod.15)
+mod11.df <- model.summary(mod.11)
+mod12.df <- model.summary(mod.12)
+mod13.df <- model.summary(mod.13)
+mod14.df <- model.summary(mod.14)
+mod15.df <- model.summary(mod.15)
 mod11.overfished <- calc_overfished(mod.11, n.sim = n.sim, n.yr = n.yr)
 mod12.overfished <- calc_overfished(mod.12, n.sim = n.sim, n.yr = n.yr)
 mod13.overfished <- calc_overfished(mod.13, n.sim = n.sim, n.yr = n.yr)
@@ -1048,11 +1052,11 @@ mod15.overfished <- calc_overfished(mod.15, n.sim = n.sim, n.yr = n.yr)
 rm(mod.11, mod.12, mod.13, mod.14, mod.15)
 
 load('age_flow_mod4.RData')
-mod16.df <- mse.summary(mod.16)
-mod17.df <- mse.summary(mod.17)
-mod18.df <- mse.summary(mod.18)
-mod19.df <- mse.summary(mod.19)
-mod20.df <- mse.summary(mod.20)
+mod16.df <- model.summary(mod.16)
+mod17.df <- model.summary(mod.17)
+mod18.df <- model.summary(mod.18)
+mod19.df <- model.summary(mod.19)
+mod20.df <- model.summary(mod.20)
 mod16.overfished <- calc_overfished(mod.16, n.sim = n.sim, n.yr = n.yr)
 mod17.overfished <- calc_overfished(mod.17, n.sim = n.sim, n.yr = n.yr)
 mod18.overfished <- calc_overfished(mod.18, n.sim = n.sim, n.yr = n.yr)

@@ -83,17 +83,17 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   init.harvest <- ((1 - (1 - ((catch.esc$exploitation.rate/100)[2]))) * nu)
   init.total.harvest.1 <- catch.esc$total.ocean.harvest[1] + catch.esc$river.harvest[1]
   init.total.harvest.2 <- catch.esc$total.ocean.harvest[2] + catch.esc$river.harvest[2]
-  N[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.25) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.25) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
+  H[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
   # Initial ocean age 3
-  N[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.25) / (init.harvest[2] * harvest.scalar) )
-  H[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.25) / (init.harvest[2] * harvest.scalar))
+  N[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar) )
+  H[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar))
   # Initial ocean age 4
-  N[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.25) / (init.harvest[3] * harvest.scalar))
-  H[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.25) / (init.harvest[3] * harvest.scalar))
+  N[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
+  H[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
   # Initial ocean age 5
-  N[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.25) / (init.harvest[4] * harvest.scalar))
-  H[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.25) / (init.harvest[4] * harvest.scalar))
+  N[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
+  H[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
   # Initial harvest
   I.N[N.H.O.ind, 1, ] <- round(init.total.harvest.1 * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
   I.H[N.H.O.ind, 1, ] <- round(init.total.harvest.1 * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
@@ -107,7 +107,7 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   # Run simulation
   mse.out <- foreach(sim = 1:n.sim) %dopar% {
     # load libraries and functions for each parallel for loop
-    source('mse_functions.R') # load functions
+    source('operating_model_functions.R') # load functions
 
     # Simulate annual biological and environmental observations
     vars <- set.vars(n.yr = n.yr, scenario = scenario) # simulate variables
