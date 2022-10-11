@@ -765,7 +765,7 @@ harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
 npgo.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
 
 # Test 100-year model --------------------------------------------------------------------------------------------------
-base.mod    <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+base.mod    <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 base.mod.df <- model.summary(base.mod)
 
 base.mod %>% filter(year > 29 & year < 100) %>% summarise(NH.ratio = mean(NH.ratio))
@@ -779,9 +779,9 @@ hundo.spawn <- ggplot() +
   geom_line(data = base.mod1, aes(x = year, y = Spawn.est, group = sim), color = 'gray70', alpha = 0.3) +
   # geom_line(data = base.mod2, aes(x = year, y = Spawn.est), color = 'black') +
   # geom_line(aes(x = 1:26, y = catch.esc$total.esc), color = 'red') +
-  # geom_hline(yintercept = base.mod.df$spawn.mean, color = 'black') +
+  geom_hline(yintercept = base.mod.df$spawn.mean, color = 'black') +
   geom_hline(yintercept = base.mod.df$spawn.median, color = 'black', lty = 'dashed') +
-  # geom_hline(yintercept = mean(catch.esc$total.esc), color = 'blue') +
+  geom_hline(yintercept = mean(catch.esc$total.esc), color = 'blue') +
   geom_hline(yintercept = median(catch.esc$total.esc), color = 'blue', lty = 'dashed') +
   geom_hline(yintercept = 91500, color = 'red') +
   # geom_hline(yintercept = 122000, color = 'red', lty = 'dashed') +
@@ -792,7 +792,7 @@ hundo.spawn <- ggplot() +
   theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), 'cm'))
 hundo.harvest <- ggplot() +
   geom_line(data = base.mod1, aes(x = year, y = harvest, group = sim), color = 'gray70', alpha = 0.3) +
-  geom_line(data = base.mod2, aes(x = year, y = harvest), color = 'black') +
+  # geom_line(data = base.mod2, aes(x = year, y = harvest), color = 'black') +
   # geom_line(aes(x = 1:26, y = catch.esc$total.esc), color = 'red') +
   geom_hline(yintercept = base.mod.df$harvest.mean, color = 'black') +
   geom_hline(yintercept = base.mod.df$harvest.median, color = 'black', lty = 'dashed') +
@@ -1212,7 +1212,7 @@ spawn.tau.plot <- ggplot(data = tau.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 500)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'),
         plot.title = element_text(hjust = 0.5))
@@ -1223,7 +1223,7 @@ spawnCV.tau.plot <- ggplot(data = tau.cv.df) +
   labs(x = 'Age structure scenario', y = '') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.58, 0.72)) +
+  scale_y_continuous(limits=c(0.65, 0.8)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
         panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
 spawn.tau <- ggarrange(spawn.tau.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
@@ -1234,7 +1234,7 @@ spawn.eta.plot <- ggplot(data = eta.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 500)) +
   theme(legend.title = element_blank(), legend.position = c(0.8, 0.2),
         text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5))
@@ -1245,7 +1245,7 @@ spawnCV.eta.plot <- ggplot(data = eta.cv.df) +
   labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.58, 0.72)) + 
+  scale_y_continuous(limits=c(0.65, 0.8)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
 spawn.eta <- ggarrange(spawn.eta.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
 
@@ -1258,7 +1258,7 @@ harvest.tau.plot <- ggplot(data = tau.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 550)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.background = element_rect(fill = 'gray90', color = 'gray90'), panel.background = element_rect(fill = 'gray90', color = 'gray90'),
         plot.title = element_text(hjust = 0.5))
@@ -1269,19 +1269,19 @@ harvestCV.tau.plot <- ggplot(data = tau.cv.df) +
   labs(x = 'Age structure scenario', y = '') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.6, 0.73)) +
+  scale_y_continuous(limits = c(0.7, 0.82)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
         panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
 harvest.tau <- ggarrange(harvest.tau.plot, harvestCV.tau.plot, nrow=2, labels = c('b', 'd'))
 
 harvest.eta.plot <- ggplot(data = eta.df) +
   geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  geom_point(aes(x = age_scen, y = harvest.median/1000, color = climate), size = 3, shape = 17) +
+  # geom_point(aes(x = age_scen, y = harvest.median/1000, color = climate), size = 3, shape = 17) +
   # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = 'Harvest (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 550)) +
   theme(legend.title = element_blank(), legend.position = c(0.8, 0.2), text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5))
 harvestCV.eta.plot <- ggplot(data = eta.cv.df) +
@@ -1291,7 +1291,7 @@ harvestCV.eta.plot <- ggplot(data = eta.cv.df) +
   labs(x = 'Age structure scenario', y = 'CV of harvest') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.6, 0.73)) +
+  scale_y_continuous(limits = c(0.7, 0.82)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
 harvest.eta <- ggarrange(harvest.eta.plot, harvestCV.eta.plot, nrow=2, labels = c('a', 'c'))
 

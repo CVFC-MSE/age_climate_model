@@ -99,14 +99,13 @@ juv.survival <- function(w){
 
 
 # Smart rounding --------------------------------------------------------------------------------------------------
-#' smart.round
-#' @description Round vector of numbers but preserve their sum
-#' 
-#' @param x vector of numbers
-#' 
-#' @return Vector of integers with sum equal to the sum of the input vector
-
 smart.round <- function(x){
+  #' smart.round
+  #' @description Round vector of numbers but preserve their sum
+  #' 
+  #' @param x vector of numbers
+  #' 
+  #' @return Vector of integers with sum equal to the sum of the input vector
   y <- floor(x)
   indices <- tail(order(x - y), round(sum(x)) - sum(y))
   y[indices] <- y[indices] + 1

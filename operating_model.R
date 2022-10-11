@@ -21,8 +21,8 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   A           <- 5    # maximum age
   
   # Set population dynamics parameters
-  theta.1       <- 0.3    # Maximum egg-to-fry survival rate: theta.1=0.3 and theta.2=1.5e-8 generates reasonable N:H
-  theta.2       <- 1.5e-8 # Strength of density dependence
+  theta.1       <- 0.35    # Maximum egg-to-fry survival rate: theta.1=0.3 and theta.2=1.5e-8 generates reasonable N:H
+  theta.2       <- 1e-8 # Strength of density dependence
   f.maturity    <- m.maturity # option to define separate female and male maturation rates
   nat.maturity  <- m.maturity * c(1, 1, 1, 1) # natural-origin maturation rates in relation to hatchery derived maturation rates (fewer male fish mature at ages 2 and 3 for natural-origin)
   m.hat         <- t(array(c(m.maturity,f.maturity), dim = c(A-1, 2), dimnames <- list(c(paste('age.', 2:A, sep = "")), c('male' ,'female')))) # hatchery maturation array; NOTE - the array will automatically adjust for age/stage structure specified in above parameters
@@ -30,7 +30,7 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   cv.spawn.est  <- 0.2  # coefficient of variation of spawner abundance estimates - value results in plausible levels of abundance forecast error (https://s3.amazonaws.com/media.fisheries.noaa.gov/2020-10/SRFC-RP_finalEA-FONSI.pdf?null=)
   g             <- c(4325, 5407, 5407, 6488) # age-3 and -4 spawners expected to have similar fecundity, ages-2 and -5 spawners have 20% increase and decrease in fecundity, respoectively.
   # n.surv        <- c(0.5, 0.8, 0.8, 0.8) #c(0.5|0.35, 0.8, 0.8, 0.8) survival rate of fish aged 2 to 5; values from MO.
-  nu            <- c(0.02, 1, 1, 1) # relative fishing mortality rate c(2, 0.25, 0.25, 0.25) 2.1, 0.3, 0.1, 0.1
+  nu            <- c(0.05, 1, 1, 1) # relative fishing mortality rate c(2, 0.25, 0.25, 0.25) 2.1, 0.3, 0.1, 0.1
   
   # Natural reproduction parameters
   sigma.log.j <- sqrt(log(cv.j ^ 2 + 1)) # SD of log of recruitment deviations
@@ -83,11 +83,11 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   init.harvest <- ((1 - (1 - ((catch.esc$exploitation.rate/100)[2]))) * nu)
   init.total.harvest.1 <- catch.esc$total.ocean.harvest[1] + catch.esc$river.harvest[1]
   init.total.harvest.2 <- catch.esc$total.ocean.harvest[2] + catch.esc$river.harvest[2]
-  N[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.5) / (init.harvest[1] * harvest.scalar))
+  H[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.5) / (init.harvest[1] * harvest.scalar))
   # Initial ocean age 3
-  N[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar) )
-  H[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar))
+  N[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.5) / (init.harvest[2] * harvest.scalar) )
+  H[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.5) / (init.harvest[2] * harvest.scalar))
   # Initial ocean age 4
   N[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
   H[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))

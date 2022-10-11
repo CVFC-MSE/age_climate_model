@@ -64,8 +64,8 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   
   # Set population dynamics parameters (see Table 2 in manuscript)
   theta.1       <- 0.35 # maximum egg-to-fry survival (default = 0.35)
-  theta.2       <- 1.5e-8 # SRR density dependence (default = 1e-8)
-  m.maturity    <- c(0.026, 0.46, 0.999, 1) # maturation rates that achieve reasonable escapement age composition.
+  theta.2       <- 1e-8 # SRR density dependence (default = 1e-8)
+  m.maturity    <- c(0.035, 0.55, 0.95, 1) # maturation rates that achieve reasonable escapement age composition.
   f.maturity    <- m.maturity # option to define separate female and male maturation rates
   nat.maturity  <- m.maturity * c(1, 1, 1, 1) # natural-origin maturation rates in relation to hatchery derived maturation rates (fewer male fish mature at ages 2 and 3 for natural-origin)
   m.hat         <- t(array(c(m.maturity,f.maturity), dim = c(A-1, 2), dimnames <- list(c(paste('age.', 2:A, sep = "")), c('male' ,'female')))) # hatchery maturation array; NOTE - the array will automatically adjust for age/stage structure specified in above parameters
@@ -105,8 +105,9 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   # State variables
   N <- H <- I.N <- I.H <- array(0, dim = c(n.age.stage, n.yr, n.pops, n.sim)) # Numbers of natural-origin individuals (N); # numbers of hatchery-origin individuals (H); # natural-origin impacts (I.N, during period following time t); hatchery-origin impacts; rows are fry/pre-smolts, immature males (ages 2:A), mature males (ages 2:A), immature females (ages 2:A), mature females (ages 2:A); columns are times
   z <- B.m.h <- B.m.n <- B.f.h <- B.f.n <- R.spawn.fem.a <-  array(0, dim = c(A-1, n.yr, n.pops, n.sim)) # number of spawners that return to hatcheries
-  j.surv <- jack <- harvest <- R.spawn.tmp <- Spawn <- B.total <- R.spawn <- R.spawn.fem <- Spawn.est <- R.spawn.est <- mu.c <- c <- Pop <- array(NA, dim = c(n.yr, n.pops, n.sim)) # Number of returning spawners (at time t), number of spawners in natural area (at time t), broodstock (per sex) removed at time t, number of female spawners in natural area (at time t), estimated number of returning spawners (at time t), estimated number of spawners in natural area (at time t), impact rate specified by the management strategy at time t, realized impact rate south of Point Arena following time t, and population size at time t (sum of spawners at time t and in previous two years)
+  j.surv <- jack <- harvest <- R.spawn.tmp <- Spawn <- all.spawn <- B.total <- R.spawn <- R.spawn.fem <- Spawn.est <- R.spawn.est <- mu.c <- c <- Pop <- array(NA, dim = c(n.yr, n.pops, n.sim)) # Number of returning spawners (at time t), number of spawners in natural area (at time t), broodstock (per sex) removed at time t, number of female spawners in natural area (at time t), estimated number of returning spawners (at time t), estimated number of spawners in natural area (at time t), impact rate specified by the management strategy at time t, realized impact rate south of Point Arena following time t, and population size at time t (sum of spawners at time t and in previous two years)
   n <- array(NA, dim = c(A, n.yr, n.pops, n.sim)) # natural survival rate (probability of surviving to next age (based on flow for juveniles) after harvest during the current age for ages >= 2); columns are times; Note: impact rates and natural survival rates are not sex- or origin-specific
+  prefish.ab <- array(NA, dim = c(n.yr, n.pops, n.sim))
     
   # Population dynamics parameters/variables
   n[2:A, , , ]   <- n.surv # survival rate of fish aged 2 and older
@@ -128,11 +129,11 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   n[1, 1, , ] <- juv.survival(y.params$w[1]) * alpha # juvenile survival as a function of flow (outmigration) and average survival through the bay (alpha). Flow data not available for 1987, thus 1988 was used for initialization.
   # Initial ocean age 2 - abundance of ocean fish estimated from harvest, exploitation rate, and resonable age-composition of harvest
   init.harvest <- ((1 - (1 - (y.params$i[2]))) * nu)
-  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.35) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.5) / (init.harvest[1] * harvest.scalar))
+  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.5) / (init.harvest[1] * harvest.scalar))
   # Initial ocean age 3
-  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar) )
-  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.35) / (init.harvest[2] * harvest.scalar))
+  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.5) / (init.harvest[2] * harvest.scalar) )
+  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.5) / (init.harvest[2] * harvest.scalar))
   # Initial ocean age 4
   N[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
   H[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
@@ -177,6 +178,8 @@ optim.simulation <- function(pars, calibrate, reset.esc){
         N[c(N.H.O.ind[a], N.H.O.ind[a+A-1]), t, , sim] <- N[c(N.H.O.ind[a], N.H.O.ind[a+A-1]), t-1, , sim] * n.surv[a]
       }
       
+      prefish.ab[t, , sim] <- sum(c(H[N.H.O.ind, t, , sim], N[N.H.O.ind, t, , sim]), na.rm=TRUE)
+      
       # Fishery impact
       harvest[t, , sim] <- y.params$i[t] * harvest.scalar # Empirical exploitation rate modified by scalar to account for fish that remain in the ocean and delay spawning
       I.H[N.H.O.ind, t, , sim] <- fishery.impact(H[N.H.O.ind, t, , sim], harvest[t, , sim], nu) # natural mortality occurs first, so harvest is limited to fish that survive
@@ -217,7 +220,8 @@ optim.simulation <- function(pars, calibrate, reset.esc){
       
       # Save variables
       jack[t, , sim]     <- rlnorm(n = 1, meanlog = log(N[A + 1, t, , sim] + H[A + 1, t, , sim]) + cor.log.Spawn.est, sdlog = sigma.log.Spawn.est) # jack escapement
-      Spawn[t, , sim]    <- sum(N[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], H[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], na.rm = TRUE) # number of total returning adult (ages 3-5) spawners at time t
+      # Spawn[t, , sim]    <- sum(N[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], H[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], na.rm = TRUE) # number of total returning adult (ages 3-5) spawners at time t
+      Spawn[t, , sim]    <- sum(N[N.H.S.ind, t, , sim], H[N.H.S.ind, t, , sim], na.rm = TRUE) # number of total returning adult (ages 3-5) spawners at time t
       B.f.h[, t, , sim]  <- H[N.H.S.female.ind, t, , sim] * y.params$xt[t] # number of female hatchery-origin spawners that return to hatcheries (including age 2)
       B.f.n[, t, , sim]  <- N[N.H.S.female.ind, t, , sim] * y.params$xt[t] # number of female natural-origin spawners ...
       B.m.h[, t, , sim]  <- H[N.H.S.ind[1:(A-1)], t, , sim] * y.params$xt[t] # number of male hatchery-origin spawners ...
@@ -240,19 +244,19 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   
   if(calibrate == TRUE){
     # calculate the sum of squared error between model simulations and empirical observations
-    spawner.sse <- sum(((emp.spawn.df$spawners) - (est.spawn.df$mean.est)) ^ 2, na.rm = TRUE)
+    spawner.sse <- sum(((emp.spawn.df$spawners) - (est.spawn.df$median.est)) ^ 2, na.rm = TRUE)
     return(log(spawner.sse))
   } else {
     return(list(y.params, R.spawn.est, Spawn.est, H, N, I.H, I.N, z, jack, harvest, B.total, j.surv, 
-                sum((emp.spawn.df$spawners - est.spawn.df$mean.est) ^ 2, na.rm = TRUE)))
+                sum((emp.spawn.df$spawners - est.spawn.df$median.est) ^ 2, na.rm = TRUE), prefish.ab))
   }  
 }
 
 ## Initialize parameters to calibrate -----------------------------------------------------------------------------------
-alpha.i <- 0.08 # residual juvenile survival
-cv.j.i  <- 0.42 # coefficient of variation of recruitment stochasticity
-phi.i   <- 0.8 # mean NPGO effect on survival
-sd.i    <- 0.3 # variance of NPGO effect on survival
+alpha.i <- 0.04 # residual juvenile survival
+cv.j.i  <- 0.298 # coefficient of variation of recruitment stochasticity
+phi.i   <- 0.885 # mean NPGO effect on survival
+sd.i    <- 0.140 # variance of NPGO effect on survival
 pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 
 ## Optimization function ------------------------------------------------------------------------------------------------
@@ -263,21 +267,16 @@ ptm     <- proc.time()
 result  <- optimParallel(par = pars, 
                          fn = optim.simulation, 
                          method = 'L-BFGS-B', 
-                         control = list(maxit = 10000), 
+                         control = list(maxit = 7500), 
                          lower = c(0.001, 0.001, 0.1, 0.001), 
                          upper = c(0.1, 0.5, 1, 0.5), 
                          calibrate = TRUE, 
                          reset.esc = TRUE)
 proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
-# annual mean adult spawners, reset.esc=T: 27.62, means much closer than medians
-#                           , reset.esc=F: 27.65, mean and median similar to above
-# annual median adult spawners, reset.esc=T: 27.63, means further apart, but overall fit similar
-#                             , reset.esc=F: 27.63, same as above with reset.esc=T
-
 ## Run simulation model -------------------------------------------------------------------------------------------------
-tmp.par <- c(0.0798, 0.4201, 0.7989, 0.3003) #result$par # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
-sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = FALSE)
+tmp.par <- result$par#c(0.06, 0.301, 0.885, 0.146) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
+sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = TRUE)
 sims <- 1000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
 N.H.S.female.ind <- (n.age.stage - (A - 2)):n.age.stage # # Indices of natural- and hatchery-origin population vectors that correspond to female spawners
@@ -332,6 +331,7 @@ t.spawn.plot   <- ggplot() +
   scale_color_manual(values = c('grey70'='grey70', 'black' = 'black', 'red' = 'red'), labels = c('Simulations', 'Median (simulations)', 'Observed')) +
   # geom_line(aes(x = mod.tspawn.med$year, y = median(mod.tspawn.med$median.esc)/1000), linetype = 'dashed', alpha = 0.5, size = 1) +
   # geom_line(aes(x = emp.tspawn.df$year, y = median(emp.tspawn.df$spawners)/1000), linetype = 'dashed', col = 'red', alpha = 0.5, size = 1) +
+  # geom_line(aes(x = mod.tspawn.med$year, y = mean(mod.tspawn.med$mean.esc)/1000), linetype = 'dashed', alpha = 0.5, size = 1) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_x_continuous(expand = c(0, 0), limits = c(1988, 2012), breaks = seq(1988, 2012, by = 2)) +
   labs(x = 'Year', y = 'Total escapement (thousands)') +
@@ -410,7 +410,7 @@ for(a in 1:(A-1)){
   }
   # ocean abundance
   assign(eval(paste0('o', a + 1, '.med')), (get(eval(paste0('o', a + 1))) %>% group_by(year) %>% dplyr::summarise(med = round(median(abundance))) %>% dplyr::mutate(a = a+1)))
-  assign(eval(paste0('o', a + 1, '.plot')), 
+  assign(eval(paste0('o', a + 1, '.plot')),
          ggplot() +
            geom_line(data = eval(parse(text = paste0('o', a + 1))), aes(x = year, y = abundance, group = sim, color = 'grey70'), alpha = 0.5) +
            geom_line(data = eval(parse(text = paste0('o', a + 1, '.med'))), aes(x = year, y = med, color = 'black')) +
@@ -422,7 +422,7 @@ for(a in 1:(A-1)){
            labs(x = 'Year', y = paste('Ocean age-', a + 1, " abundance")))
   # spawner escapement
   assign(eval(paste0('s', a + 1, '.med')), (get(eval(paste0('s', a + 1))) %>% group_by(year) %>% dplyr::summarise(med = round(median(abundance))) %>% dplyr::mutate(a = a+1)))
-  assign(eval(paste0('s', a + 1, '.plot')), 
+  assign(eval(paste0('s', a + 1, '.plot')),
          ggplot() +
            geom_line(data = eval(parse(text = paste0('s', a + 1))), aes(x = year, y = abundance, group = sim, color = 'grey70'), alpha = 0.5) +
            geom_line(data = eval(parse(text = paste0('s', a + 1, '.med'))), aes(x = year, y = med, color = 'black')) +
@@ -434,7 +434,7 @@ for(a in 1:(A-1)){
            labs(x = 'Year', y = paste('Spawner age-', a + 1, " escapement")))
   # harvest
   assign(eval(paste0('a', a + 1, '.med')), get(eval(paste0('a', a + 1, '.impact'))) %>% group_by(year) %>% dplyr::summarise(med = round(median(harvest))) %>% dplyr::mutate(a = a+1))
-  assign(eval(paste0('a', a + 1, '.harvest.plot')), 
+  assign(eval(paste0('a', a + 1, '.harvest.plot')),
          ggplot() +
            geom_line(data = eval(parse(text = paste0('a', a + 1, '.impact'))), aes(x = year, y = harvest, group = sim, color = 'grey70'), alpha = 0.5) +
            geom_line(data = eval(parse(text = paste0('a', a + 1, '.med'))), aes(x = year, y = med, color = 'black')) +
@@ -482,17 +482,25 @@ s.escapement %>%
   mutate(prop = med/sum(med)) %>%
   ggplot(data = .) +
   geom_bar(aes(x = a, y = prop), stat = 'identity')
+
+a.impact %>%
+  group_by(a) %>%
+  summarise(med = median(med)) %>%
+  ungroup() %>%
+  mutate(prop = med/sum(med)) %>%
+  ggplot(data = .) +
+  geom_bar(aes(x = a, y = prop), stat = 'identity')
   
 
 # Spawners as a function of flow and NPGO
 env.df <- data.frame(year = mod.tspawn.med$year, 
-                     mod.spawn = mod.tspawn.med$mean.esc, 
+                     mod.spawn = mod.tspawn.med$median.esc, 
                      emp.spawn = emp.tspawn.df$spawners, 
                      flow = flow$discharge[1:25], 
                      npgo = npgo$npgo[1:25])
 env.df <- cbind(env.df, as.data.frame(embed(c(rep(NA, 6), flow$discharge[1:25]), 6)[-1,-1]) %>% dplyr::rename(flow.t1 = V1, flow.t2 = V2, flow.t3 = V3, flow.t4 = V4, flow.t5 = V5), as.data.frame(embed(c(rep(NA, 6), npgo$npgo[1:25]), 6)[-1,-(1)]) %>% dplyr::rename(npgo.t1 = V1, npgo.t2 = V2, npgo.t3 = V3, npgo.t4 = V4, npgo.t5 = V5))
 # GAM to test consistency between relationships of flow and npgo
-flow.gam.emp <- mgcv::gam(env.df$emp.spawn ~ s(env.df$flow.t2, k = 3) + s(env.df$flow.t3, k = 3), family = poisson(link = 'log'))
+flow.gam.emp <- mgcv::gam(env.df$emp.spawn ~ s(env.df$flow.t2, k = 3), family = poisson(link = 'log'))
 summary(flow.gam.emp)
 flow.emp.plot <- gratia::draw(flow.gam.emp) +
   scale_y_continuous(expand=c(0,0), limits = c(-0.65,0.65)) +
@@ -500,13 +508,13 @@ flow.emp.plot <- gratia::draw(flow.gam.emp) +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), title = 'Observed') +
   theme(text = element_text(size = 13)) +
   annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 22%')
-flow.gam.mod <- mgcv::gam(env.df$mod.spawn ~ s(env.df$flow.t2, k = 3) + s(env.df$flow.t3, k = 3), family = poisson(link = 'log')) 
+flow.gam.mod <- mgcv::gam(env.df$mod.spawn ~ s(env.df$flow.t2, k = 3), family = poisson(link = 'log')) 
 summary(flow.gam.mod)
 flow.mod.plot <- gratia::draw(flow.gam.mod) +
   scale_y_continuous(expand=c(0,0), limits = c(-0.65,0.65)) +
   theme_classic() +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), y = "", title = 'Simulated') +
-  theme(text = element_text(size = 13)) +
+  theme(text = element_text(size = 13)) 
   # annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 22.8%')
 flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
 ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
