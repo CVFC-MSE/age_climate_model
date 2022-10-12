@@ -242,18 +242,18 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   
   if(calibrate == TRUE){
     # calculate the sum of squared error between model simulations and empirical observations
-    spawner.sse <- sum(((emp.spawn.df$spawners) - (est.spawn.df$median.est)) ^ 2, na.rm = TRUE)
+    spawner.sse <- sum(((emp.spawn.df$spawners) - (est.spawn.df$mean.est)) ^ 2, na.rm = TRUE)
     return(log(spawner.sse))
   } else {
     return(list(y.params, R.spawn.est, Spawn.est, H, N, I.H, I.N, z, jack, harvest, B.total, j.surv, 
-                sum((emp.spawn.df$spawners - est.spawn.df$median.est) ^ 2, na.rm = TRUE), prefish.ab))
+                sum((emp.spawn.df$spawners - est.spawn.df$mean.est) ^ 2, na.rm = TRUE), prefish.ab))
   }  
 }
 
 ## Initialize parameters to calibrate -----------------------------------------------------------------------------------
 alpha.i <- 0.063 # residual juvenile survival
 cv.j.i  <- 0.177 # coefficient of variation of recruitment stochasticity
-phi.i   <- 0.681 # mean NPGO effect on survival
+phi.i   <- 0.8 # mean NPGO effect on survival
 sd.i    <- 0.080 # variance of NPGO effect on survival
 pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 
@@ -273,9 +273,9 @@ result  <- optimParallel(par = pars,
 proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
 ## Run simulation model -------------------------------------------------------------------------------------------------
-tmp.par <- result$par#c(0.067, 0.290, 0.835, 0.004) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
+tmp.par <- result$par#c(0.0677540 , 0.2150685 , 0.8281944 , 0.1316211) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
 sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = TRUE)
-sims <- 1000; n.age.stage <- 17; A <- 5 # Model setup
+sims <- 5000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
 N.H.S.female.ind <- (n.age.stage - (A - 2)):n.age.stage # # Indices of natural- and hatchery-origin population vectors that correspond to female spawners
 N.H.S.ind <- c((A + 1):(2 * A - 1), (n.age.stage - (A - 2)):n.age.stage) # Indices of natural- and hatchery-origin population vectors that correspond to spawners
@@ -513,7 +513,11 @@ flow.mod.plot <- gratia::draw(flow.gam.mod) +
   theme_classic() +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), y = "", title = 'Simulated') +
   theme(text = element_text(size = 13)) +
+<<<<<<< HEAD
   annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 17.4%')
+=======
+  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 17%')
+>>>>>>> 99c78c3bc211e05e84a49c7284f642f0c9744935
 flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
 ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
 
