@@ -56,13 +56,13 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   
   # Set simulation parameters
   n.yr        <- 26   # number of years 26 (1988 - 2013)
-  n.sim       <- 5000 # number of simulations per optimization run
+  n.sim       <- 1000 # number of simulations per optimization run
   n.age.stage <- 17   # number of age/stage classes; fry/pre-smolts, immature males (ages 2:A), mature males (ages 2:A), immature females (ages 2:A), mature females (ages 2:A)
   n.pops      <- 1    # number of populations to simulate
   A           <- 5    # maximum age
   
   # Set population dynamics parameters (see Table 2 in manuscript)
-  theta.1       <- 0.35 # maximum egg-to-fry survival (default = 0.35)
+  theta.1       <- 0.4 # maximum egg-to-fry survival (default = 0.35)
   theta.2       <- 1e-8 # SRR density dependence (default = 1e-8)
   m.maturity    <- c(0.035, 0.55, 0.95, 1) # maturation rates that achieve reasonable escapement age composition.
   f.maturity    <- m.maturity # option to define separate female and male maturation rates
@@ -128,14 +128,14 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   n[1, 1, , ] <- juv.survival(y.params$w[1]) * alpha # juvenile survival as a function of flow (outmigration) and average survival through the bay (alpha). Flow data not available for 1987, thus 1988 was used for initialization.
   # Initial ocean age 2 - abundance of ocean fish estimated from harvest, exploitation rate, and resonable age-composition of harvest
   init.harvest <- ((1 - (1 - (y.params$i[2]))) * nu)
-  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.5) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.5) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
+  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
   # Initial ocean age 3
-  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.5) / (init.harvest[2] * harvest.scalar) )
-  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.5) / (init.harvest[2] * harvest.scalar))
+  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar) )
+  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar))
   # Initial ocean age 4
-  N[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
-  H[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.35) / (init.harvest[3] * harvest.scalar))
+  N[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.5) / (init.harvest[3] * harvest.scalar))
+  H[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.5) / (init.harvest[3] * harvest.scalar))
   # Initial ocean age 5
   N[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
   H[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
@@ -220,7 +220,6 @@ optim.simulation <- function(pars, calibrate, reset.esc){
       # Save variables
       jack[t, , sim]     <- rlnorm(n = 1, meanlog = log(N[A + 1, t, , sim] + H[A + 1, t, , sim]) + cor.log.Spawn.est, sdlog = sigma.log.Spawn.est) # jack escapement
       Spawn[t, , sim]    <- sum(N[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], H[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], na.rm = TRUE) # number of total returning adult (ages 3-5) spawners at time t
-      # Spawn[t, , sim]    <- sum(N[N.H.S.ind, t, , sim], H[N.H.S.ind, t, , sim], na.rm = TRUE) # number of total returning adult (ages 3-5) spawners at time t
       B.f.h[, t, , sim]  <- H[N.H.S.female.ind, t, , sim] * y.params$xt[t] # number of female hatchery-origin spawners that return to hatcheries (including age 2)
       B.f.n[, t, , sim]  <- N[N.H.S.female.ind, t, , sim] * y.params$xt[t] # number of female natural-origin spawners ...
       B.m.h[, t, , sim]  <- H[N.H.S.ind[1:(A-1)], t, , sim] * y.params$xt[t] # number of male hatchery-origin spawners ...
@@ -514,7 +513,7 @@ flow.mod.plot <- gratia::draw(flow.gam.mod) +
   theme_classic() +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), y = "", title = 'Simulated') +
   theme(text = element_text(size = 13)) +
-  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 16.7%')
+  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 17.4%')
 flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
 ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
 
