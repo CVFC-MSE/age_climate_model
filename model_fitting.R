@@ -62,7 +62,7 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   A           <- 5    # maximum age
   
   # Set population dynamics parameters (see Table 2 in manuscript)
-  theta.1       <- 0.35 # maximum egg-to-fry survival (default = 0.35)
+  theta.1       <- 0.4 # maximum egg-to-fry survival (default = 0.35)
   theta.2       <- 1e-8 # SRR density dependence (default = 1e-8)
   m.maturity    <- c(0.035, 0.55, 0.95, 1) # maturation rates that achieve reasonable escapement age composition.
   f.maturity    <- m.maturity # option to define separate female and male maturation rates
@@ -220,7 +220,6 @@ optim.simulation <- function(pars, calibrate, reset.esc){
       # Save variables
       jack[t, , sim]     <- rlnorm(n = 1, meanlog = log(N[A + 1, t, , sim] + H[A + 1, t, , sim]) + cor.log.Spawn.est, sdlog = sigma.log.Spawn.est) # jack escapement
       Spawn[t, , sim]    <- sum(N[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], H[N.H.S.ind[c(2:(A-1),(A+1):length(N.H.S.ind))], t, , sim], na.rm = TRUE) # number of total returning adult (ages 3-5) spawners at time t
-      # Spawn[t, , sim]    <- sum(N[N.H.S.ind, t, , sim], H[N.H.S.ind, t, , sim], na.rm = TRUE) # number of total returning adult (ages 3-5) spawners at time t
       B.f.h[, t, , sim]  <- H[N.H.S.female.ind, t, , sim] * y.params$xt[t] # number of female hatchery-origin spawners that return to hatcheries (including age 2)
       B.f.n[, t, , sim]  <- N[N.H.S.female.ind, t, , sim] * y.params$xt[t] # number of female natural-origin spawners ...
       B.m.h[, t, , sim]  <- H[N.H.S.ind[1:(A-1)], t, , sim] * y.params$xt[t] # number of male hatchery-origin spawners ...
@@ -243,18 +242,18 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   
   if(calibrate == TRUE){
     # calculate the sum of squared error between model simulations and empirical observations
-    spawner.sse <- sum(((emp.spawn.df$spawners) - (est.spawn.df$median.est)) ^ 2, na.rm = TRUE)
+    spawner.sse <- sum(((emp.spawn.df$spawners) - (est.spawn.df$mean.est)) ^ 2, na.rm = TRUE)
     return(log(spawner.sse))
   } else {
     return(list(y.params, R.spawn.est, Spawn.est, H, N, I.H, I.N, z, jack, harvest, B.total, j.surv, 
-                sum((emp.spawn.df$spawners - est.spawn.df$median.est) ^ 2, na.rm = TRUE), prefish.ab))
+                sum((emp.spawn.df$spawners - est.spawn.df$mean.est) ^ 2, na.rm = TRUE), prefish.ab))
   }  
 }
 
 ## Initialize parameters to calibrate -----------------------------------------------------------------------------------
 alpha.i <- 0.063 # residual juvenile survival
 cv.j.i  <- 0.177 # coefficient of variation of recruitment stochasticity
-phi.i   <- 0.681 # mean NPGO effect on survival
+phi.i   <- 0.8 # mean NPGO effect on survival
 sd.i    <- 0.080 # variance of NPGO effect on survival
 pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 
@@ -274,9 +273,9 @@ result  <- optimParallel(par = pars,
 proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
 ## Run simulation model -------------------------------------------------------------------------------------------------
-tmp.par <- result$par#c(0.067, 0.290, 0.835, 0.004) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
+tmp.par <- result$par#c(0.0677540 , 0.2150685 , 0.8281944 , 0.1316211) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
 sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = TRUE)
-sims <- 1000; n.age.stage <- 17; A <- 5 # Model setup
+sims <- 5000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
 N.H.S.female.ind <- (n.age.stage - (A - 2)):n.age.stage # # Indices of natural- and hatchery-origin population vectors that correspond to female spawners
 N.H.S.ind <- c((A + 1):(2 * A - 1), (n.age.stage - (A - 2)):n.age.stage) # Indices of natural- and hatchery-origin population vectors that correspond to spawners
@@ -514,7 +513,7 @@ flow.mod.plot <- gratia::draw(flow.gam.mod) +
   theme_classic() +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), y = "", title = 'Simulated') +
   theme(text = element_text(size = 13)) +
-  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 16.7%')
+  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 17%')
 flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
 ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
 

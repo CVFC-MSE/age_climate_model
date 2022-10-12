@@ -33,8 +33,11 @@ library(doParallel)
 
 # Set model parameters and variables ----------------------------------------------------------------------------------
 n.yr  <- 100 # number of years to simulate
-n.sim <- 5000 # number of simulations to run 20000
-pars  <- c(0.071, 0.144, 0.945, 0.068) # See 'fall_model_fit.r' for calibration process: (1) residual juvenile mortality, (2) CV in recruitment stochasticity, (3) NPGO-dependent mortality coefficient, (4) Variance of NPGO-dependent mortality 
+n.sim <- 500 # number of simulations to run 20000
+pars  <- c(0.068, 0.215, 0.828, 0.132) # See 'fall_model_fit.r' for calibration process: (1) residual juvenile mortality, (2) CV in recruitment stochasticity, (3) NPGO-dependent mortality coefficient, (4) Variance of NPGO-dependent mortality 
+
+
+
 
 
 # TEST MODEL SCENARIOS --------------------------------------------------------------------------------------------
@@ -872,51 +875,51 @@ test.mod5.cv <- test.cv(test.mod5)
 
 # Model scenarios ------------------------------------------------------------------------------------------------------
 # 1.  Base flow,       maturation = 0.99
-mod.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+mod.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 # 2.  Base flow,       survival = 0.01            
-mod.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+mod.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
 # 3.  Base flow,       base maturity and survival
-mod.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+mod.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 # 4.  Base flow,       survival = 0.99            
-mod.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+mod.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
 # 5.  Base flow,       maturation = 0.25           
-mod.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+mod.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 save(mod.01, mod.02, mod.03, mod.04, mod.05, file = 'age_flow_mod1.RData')
 
 # 6.  Longer duration, maturation = 0.99            
-mod.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+mod.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
 # 7.  Longer duration, survival = 0.01            
-mod.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
+mod.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
 # 8.  Longer duration, base maturity and survival
-mod.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+mod.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
 # 9.  Longer duration, survival = 0.99            
-mod.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
+mod.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
 # 10. Longer duration, maturation = 0.25           
-mod.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+mod.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
 save(mod.06, mod.07, mod.08, mod.09, mod.10, file = 'age_flow_mod2.RData')
 
 # 11. More frequent,   maturation = 0.99       
-mod.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+mod.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
 # 12. More frequent,   survival = 0.01            
-mod.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
+mod.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
 # 13. More frequent,   base maturity and survival
-mod.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+mod.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
 # 14. More frequent,   survival = 0.99            
-mod.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
+mod.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
 # 15. More frequent,   maturation = 0.25           
-mod.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+mod.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
 save(mod.11, mod.12, mod.13, mod.14, mod.15, file = 'age_flow_mod3.RData')
 
 # 16. More intense,    maturation = 0.99      
-mod.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+mod.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
 # 17. More intense,    survival = 0.01            
-mod.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
+mod.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
 # 18. More intense,    base maturity and survival
-mod.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+mod.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
 # 19. More intense,    survival = 0.99            
-mod.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
+mod.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
 # 20. More intense,    maturation = 0.25           
-mod.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+mod.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
 save(mod.16, mod.17, mod.18, mod.19, mod.20, file = 'age_flow_mod4.RData')
 
 
