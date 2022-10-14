@@ -4,7 +4,8 @@ library(tidyr)
 
 ## Functions ------------------------------------------------------------------------------------------------------------
 model.summary <- function(x){
-  tmp    <- x %>% dplyr::filter(year >= 30) %>% dplyr::select(year, Spawn.est, harvest, sim)
+  # tmp    <- x %>% dplyr::filter(year >= 30) %>% dplyr::select(year, Spawn.est, harvest, sim)
+  tmp    <- x %>% dplyr::filter(year >= 70) %>% dplyr::select(year, Spawn.est, harvest, sim)
   tmp.cv <- tmp %>% dplyr::group_by(sim) %>% dplyr::summarise(spawn.cv = sd(Spawn.est, na.rm=TRUE)/mean(Spawn.est, na.rm=TRUE), harvest.cv = sd(harvest)/mean(harvest))
   tmp.df <- data.frame(spawn.mean = mean(tmp$Spawn.est, na.rm = TRUE),
                        spawn.median = median(tmp$Spawn.est, na.rm = TRUE),

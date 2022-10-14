@@ -56,7 +56,7 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   
   # Set simulation parameters
   n.yr        <- 26   # number of years 26 (1988 - 2013)
-  n.sim       <- 1000 # number of simulations per optimization run
+  n.sim       <- 5000 # number of simulations per optimization run
   n.age.stage <- 17   # number of age/stage classes; fry/pre-smolts, immature males (ages 2:A), mature males (ages 2:A), immature females (ages 2:A), mature females (ages 2:A)
   n.pops      <- 1    # number of populations to simulate
   A           <- 5    # maximum age
@@ -273,7 +273,7 @@ result  <- optimParallel(par = pars,
 proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
 ## Run simulation model -------------------------------------------------------------------------------------------------
-tmp.par <- result$par#c(0.0677540 , 0.2150685 , 0.8281944 , 0.1316211) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
+tmp.par <- c(0.0677540 , 0.2150685 , 0.8281944 , 0.1316211) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
 sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = TRUE)
 sims <- 5000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
@@ -505,7 +505,7 @@ flow.emp.plot <- gratia::draw(flow.gam.emp) +
   theme_classic() +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), title = 'Observed') +
   theme(text = element_text(size = 13)) +
-  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 22%')
+  annotate('text', x = 15000, y = -0.25, label = 'Variance explained = 22%')
 flow.gam.mod <- mgcv::gam(env.df$mod.spawn ~ s(env.df$flow.t2, k = 3), family = poisson(link = 'log')) 
 summary(flow.gam.mod)
 flow.mod.plot <- gratia::draw(flow.gam.mod) +
@@ -513,11 +513,7 @@ flow.mod.plot <- gratia::draw(flow.gam.mod) +
   theme_classic() +
   labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), y = "", title = 'Simulated') +
   theme(text = element_text(size = 13)) +
-<<<<<<< HEAD
-  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 17.4%')
-=======
-  annotate('text', x = 15000, y = -0.25, label = 'Deviance explained = 17%')
->>>>>>> 99c78c3bc211e05e84a49c7284f642f0c9744935
+  annotate('text', x = 15000, y = -0.25, label = 'Variance explained = 17%')
 flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
 ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
 

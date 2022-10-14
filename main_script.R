@@ -1124,9 +1124,11 @@ spawn.tau.plot <- ggplot(data = tau.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 500)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 475)) +
+  annotate('text', x = 1.1, y = 440, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 440, label = '[Delayed maturation]', size = 4) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'),
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
         plot.title = element_text(hjust = 0.5))
 spawnCV.tau.plot <- ggplot(data = tau.cv.df) +
   geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
@@ -1137,7 +1139,7 @@ spawnCV.tau.plot <- ggplot(data = tau.cv.df) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
   scale_y_continuous(limits=c(0.65, 0.8)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
 spawn.tau <- ggarrange(spawn.tau.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
 
 spawn.eta.plot <- ggplot(data = eta.df) +
@@ -1146,7 +1148,9 @@ spawn.eta.plot <- ggplot(data = eta.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 500)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 475)) +
+  annotate('text', x = 1.1, y = 440, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 440, label = '[Low mortality]', size = 4) +
   theme(legend.title = element_blank(), legend.position = c(0.8, 0.2),
         text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5))
@@ -1170,9 +1174,11 @@ harvest.tau.plot <- ggplot(data = tau.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 550)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 575)) +
+  annotate('text', x = 1.1, y = 530, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 530, label = '[Delayed maturation]', size = 4) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.background = element_rect(fill = 'gray90', color = 'gray90'), panel.background = element_rect(fill = 'gray90', color = 'gray90'),
+        plot.background = element_rect(fill = 'gray85', color = 'gray85'), panel.background = element_rect(fill = 'gray85', color = 'gray85'),
         plot.title = element_text(hjust = 0.5))
 harvestCV.tau.plot <- ggplot(data = tau.cv.df) +
   geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
@@ -1183,7 +1189,7 @@ harvestCV.tau.plot <- ggplot(data = tau.cv.df) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
   scale_y_continuous(limits = c(0.7, 0.82)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
 harvest.tau <- ggarrange(harvest.tau.plot, harvestCV.tau.plot, nrow=2, labels = c('b', 'd'))
 
 harvest.eta.plot <- ggplot(data = eta.df) +
@@ -1193,7 +1199,9 @@ harvest.eta.plot <- ggplot(data = eta.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = 'Harvest (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 550)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 575)) +
+  annotate('text', x = 1.1, y = 530, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 530, label = '[Low mortality]', size = 4) +
   theme(legend.title = element_blank(), legend.position = c(0.8, 0.2), text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5))
 harvestCV.eta.plot <- ggplot(data = eta.cv.df) +
@@ -1416,6 +1424,8 @@ tau.overfished.plot <- ggplot(data = tau.overfished.df) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '', title = 'Maturation') +
   scale_y_continuous(limits = c(0,25), expand = c(0,0)) +
+  annotate('text', x = 1.1, y = 23, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 23, label = '[Delayed maturation]', size = 4) +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13),
@@ -1431,11 +1441,12 @@ eta.overfished.plot <- ggplot(data = eta.overfished.df) +
   scale_y_continuous(limits = c(0,25), expand = c(0,0)) +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(eta['4,5']~"= 0.01"), 'Base case', expression(eta['4,5']~"= 0.99"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.85), text = element_text(size = 13),
+  annotate('text', x = 1.1, y = 23, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 23, label = '[Low mortality]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = c(0.8, 0.7), text = element_text(size = 13),
         plot.title = element_text(hjust = 0.5)) 
 
 ggarrange(eta.overfished.plot, tau.overfished.plot, ncol=2, labels = c('a', 'b'))
-
 
 tau.prop.70.plot <- ggplot(data = tau.overfished.df) +
   geom_point(aes(x = age_struct, y = prop.70, color = climate_scenario), size = 3) +
@@ -1445,8 +1456,10 @@ tau.prop.70.plot <- ggplot(data = tau.overfished.df) +
   labs(x = '', y = '', title = 'Maturation') +
   scale_y_continuous(expand = c(0,0), limits=c(60,90)) +
   scale_x_continuous(breaks = seq(1,3)) +
+  annotate('text', x = 1.1, y = 88, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 88, label = '[Delayed maturation]', size = 4) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'),
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
         plot.title = element_text(hjust = 0.5)) 
 
 tau.prop.25.plot <- ggplot(data = tau.overfished.df) +
@@ -1457,8 +1470,8 @@ tau.prop.25.plot <- ggplot(data = tau.overfished.df) +
   labs(x = '', y = '') +
   scale_y_continuous(expand = c(0,0), limits=c(0,5)) +
   scale_x_continuous(breaks = seq(1,3)) +
-  theme(legend.title = element_blank(), legend.position = c(0.8,0.9), text = element_text(size = 13), axis.text.x = element_blank(), legend.background = element_rect(fill = 'gray90', color = 'gray90'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
+  theme(legend.title = element_blank(), legend.position = c(0.8,0.9), text = element_text(size = 13), axis.text.x = element_blank(), legend.background = element_rect(fill = 'gray85', color = 'gray85'),
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
 
 tau.prop.10.plot <- ggplot(data = tau.overfished.df) +
   geom_point(aes(x = age_struct, y = prop.10, color = climate_scenario), size = 3) +
@@ -1466,11 +1479,11 @@ tau.prop.10.plot <- ggplot(data = tau.overfished.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '') +
-  scale_y_continuous(expand = c(0,0), limits = c(0, 2)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 2.5)) +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), 
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
 
 tau.prop.plot <- ggarrange(tau.prop.70.plot, tau.prop.25.plot, tau.prop.10.plot, nrow=3, labels = c('b','d','f'))
 
@@ -1482,6 +1495,8 @@ eta.prop.70.plot <- ggplot(data = eta.overfished.df) +
   labs(x = '', y = expression(paste('% ', italic('c'), ' = 0.7')), title = 'Natural mortality') +
   scale_y_continuous(expand = c(0,0), limits=c(60,90)) +
   scale_x_continuous(breaks = seq(1,3)) +
+  annotate('text', x = 1.1, y = 88, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 88, label = '[Low maturation]', size = 4) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5)) 
 
@@ -1501,7 +1516,7 @@ eta.prop.10.plot <- ggplot(data = eta.overfished.df) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = expression(paste('% ', italic('c'), ' = 0.1'))) +
-  scale_y_continuous(expand = c(0,0), limits = c(0, 2)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 2.5)) +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(eta['4,5']~"= 0.01"), 'Base case', expression(eta['4,5']~"= 0.99"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13))
