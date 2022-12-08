@@ -51,8 +51,8 @@ calc_overfished <- function(mod, n.sim, n.yr){
     tmp.mod <- mod %>% filter(sim == paste0('s', i)) # get data for a single simulation
     
     # calculate proportion of years when total escapement < MSST (i.e., 91500)
-    # prop.under.MSST <- sum(tmp.mod$Spawn.est[30:n.yr-1]<91500) / length(c(30:n.yr-1))
-    prop.under.MSST <- sum(tmp.mod$Spawn.est[70:n.yr-1]<91500) / length(c(70:n.yr-1))
+    prop.under.MSST <- sum(tmp.mod$Spawn.est[30:n.yr-1]<91500) / length(c(30:n.yr-1))
+    # prop.under.MSST <- sum(tmp.mod$Spawn.est[70:n.yr-1]<91500) / length(c(70:n.yr-1))
     
     n.overfished <- 0
     for(j in 32:n.yr-1){ # use years 30-99
@@ -96,3 +96,13 @@ overfished_plot <- function(dflist, data, labels, lims){
 cal_prop_diff <- function(val1, val2){ return((val1 - val2)/val1) }
 
 se <- function(x){return(sd(x)/sqrt(length(x)))}
+
+violin_df <- function(x, scenario){
+  out <- x %>% 
+    dplyr::filter(year >= 30) %>% 
+    dplyr::select(year, Spawn.est, harvest, sim) %>%
+    group_by(sim) %>%
+    summarise(mean.spawn = mean(Spawn.est, na.rm=TRUE)) %>%
+    ungroup() %>%
+    mutate(scenario = scenario)
+}
