@@ -260,17 +260,17 @@ pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 ## Optimization function ------------------------------------------------------------------------------------------------
 # NOTE: uncomment the code below to run optimization function.
 
-cluster <- makeCluster(detectCores() - 1); setDefaultCluster(cl = cluster)
-ptm     <- proc.time()
-result  <- optimParallel(par = pars, 
-                         fn = optim.simulation, 
-                         method = 'L-BFGS-B', 
-                         control = list(maxit = 7500), 
-                         lower = c(0.001, 0.001, 0.1, 0.001), 
-                         upper = c(0.1, 0.5, 1, 0.5), 
-                         calibrate = TRUE, 
-                         reset.esc = TRUE)
-proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
+# cluster <- makeCluster(detectCores() - 1); setDefaultCluster(cl = cluster)
+# ptm     <- proc.time()
+# result  <- optimParallel(par = pars, 
+#                          fn = optim.simulation, 
+#                          method = 'L-BFGS-B', 
+#                          control = list(maxit = 7500), 
+#                          lower = c(0.001, 0.001, 0.1, 0.001), 
+#                          upper = c(0.1, 0.5, 1, 0.5), 
+#                          calibrate = TRUE, 
+#                          reset.esc = TRUE)
+# proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
 ## Run simulation model -------------------------------------------------------------------------------------------------
 tmp.par <- c(0.0677540 , 0.2150685 , 0.8281944 , 0.1316211) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
@@ -323,9 +323,9 @@ mod.tspawn.med <- mod.tspawn.df %>%
                   dplyr::mutate(year = as.integer(year)) 
 emp.tspawn.df  <- data.frame(year = as.integer(catch.esc$year[1:25]), spawners = catch.esc$total.esc[1:25])
 t.spawn.plot   <- ggplot() +
-  geom_line(data = mod.tspawn.df, aes(x = year, y = t.escapement/1000, group = sim, color = 'grey70')) +
-  geom_line(data = mod.tspawn.med, aes(x = year, y = median.esc/1000, color = 'black')) +
-  geom_line(data = emp.tspawn.df, aes(x = year, y = spawners/1000, color = 'red')) +
+  geom_line(data = mod.tspawn.df, aes(x = year, y = t.escapement/1000, group = sim, color = 'grey70'), lwd = 1) +
+  geom_line(data = mod.tspawn.med, aes(x = year, y = median.esc/1000, color = 'black'), lwd = 1) +
+  geom_line(data = emp.tspawn.df, aes(x = year, y = spawners/1000, color = 'red'), lwd = 1) +
   scale_color_manual(values = c('grey70'='grey70', 'black' = 'black', 'red' = 'red'), labels = c('Simulations', 'Median (simulations)', 'Observed')) +
   # geom_line(aes(x = mod.tspawn.med$year, y = median(mod.tspawn.med$median.esc)/1000), linetype = 'dashed', alpha = 0.5, size = 1) +
   # geom_line(aes(x = emp.tspawn.df$year, y = median(emp.tspawn.df$spawners)/1000), linetype = 'dashed', col = 'red', alpha = 0.5, size = 1) +
@@ -334,7 +334,12 @@ t.spawn.plot   <- ggplot() +
   scale_x_continuous(expand = c(0, 0), limits = c(1988, 2012), breaks = seq(1988, 2012, by = 2)) +
   labs(x = 'Year', y = 'Total escapement (thousands)') +
   theme_classic() +
-  theme(legend.title = element_blank(), legend.position = c(0.25, 0.9), plot.margin = unit(c(0.5,0.75,0.5,0.75), 'cm'), text = element_text(size = 13))
+  theme(legend.title = element_blank(), 
+        legend.position = c(0.22,0.85),
+        legend.text = element_text(size = 13),
+        plot.margin = unit(c(0.5,0.75,0.5,0.75), 'cm'), 
+        axis.text = element_text(size = 13),
+        axis.title = element_text(size = 14)) 
 
 # Harvest
 mod.harvest <- NULL
@@ -496,26 +501,40 @@ env.df <- data.frame(year = mod.tspawn.med$year,
                      emp.spawn = emp.tspawn.df$spawners, 
                      flow = flow$discharge[1:25], 
                      npgo = npgo$npgo[1:25])
-env.df <- cbind(env.df, as.data.frame(embed(c(rep(NA, 6), flow$discharge[1:25]), 6)[-1,-1]) %>% dplyr::rename(flow.t1 = V1, flow.t2 = V2, flow.t3 = V3, flow.t4 = V4, flow.t5 = V5), as.data.frame(embed(c(rep(NA, 6), npgo$npgo[1:25]), 6)[-1,-(1)]) %>% dplyr::rename(npgo.t1 = V1, npgo.t2 = V2, npgo.t3 = V3, npgo.t4 = V4, npgo.t5 = V5))
+env.df <- cbind(env.df, as.data.frame(embed(c(rep(NA, 6), flow$discharge[1:25]), 6)[-1,-1]) %>% 
+          dplyr::rename(flow.t1 = V1, flow.t2 = V2, flow.t3 = V3, flow.t4 = V4, flow.t5 = V5), as.data.frame(embed(c(rep(NA, 6), npgo$npgo[1:25]), 6)[-1,-(1)]) %>% 
+          dplyr::rename(npgo.t1 = V1, npgo.t2 = V2, npgo.t3 = V3, npgo.t4 = V4, npgo.t5 = V5))
 # GAM to test consistency between relationships of flow and npgo
-flow.gam.emp <- mgcv::gam(env.df$emp.spawn ~ s(env.df$flow.t2, k = 3), family = poisson(link = 'log'))
+flow.gam.emp <- mgcv::gam(emp.spawn ~ s(flow.t2, k = 3), family = poisson(link = 'log'), data = env.df)
 summary(flow.gam.emp)
-flow.emp.plot <- gratia::draw(flow.gam.emp) +
-  scale_y_continuous(expand=c(0,0), limits = c(-0.65,0.65)) +
-  theme_classic() +
-  labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), title = 'Observed') +
-  theme(text = element_text(size = 13)) +
-  annotate('text', x = 15000, y = -0.25, label = 'Variance explained = 22%')
-flow.gam.mod <- mgcv::gam(env.df$mod.spawn ~ s(env.df$flow.t2, k = 3), family = poisson(link = 'log')) 
+flow.gam.mod <- mgcv::gam(mod.spawn ~ s(flow.t2, k = 3), family = poisson(link = 'log'), data = env.df) 
 summary(flow.gam.mod)
-flow.mod.plot <- gratia::draw(flow.gam.mod) +
-  scale_y_continuous(expand=c(0,0), limits = c(-0.65,0.65)) +
+
+# New predicted GAM plot
+newdata <- data.frame(flow.t2 = c(seq(5000,22000,length=23)))
+pv.emp <- predict.gam(flow.gam.emp, newdata = newdata, type = "response", se = TRUE)
+pv.mod <- predict.gam(flow.gam.mod, newdata = newdata, type = "response", se = TRUE)
+
+# Plot escapement in relation to flow with predicted values from GAMs
+flow.gam.plot <- ggplot() +
+  geom_point(data = env.df, aes(x = flow.t2, y = emp.spawn/1000), color = 'red') +
+  geom_point(data = env.df, aes(x = flow.t2, y = mod.spawn/1000)) +
+  geom_line(aes(x = newdata$flow.t2, y = pv.emp$fit/1000, color = 'red'), lwd = 1) +
+  geom_line(aes(x = newdata$flow.t2, y = pv.mod$fit/1000, color = 'black'), lwd = 1) +
+  scale_color_manual(values = c('black' = 'black', 'red'='red'), labels = c('Simulated', 'Observed')) +
   theme_classic() +
-  labs(x = expression(paste('Flow (', italic('t'), ' - 2)')), y = "", title = 'Simulated') +
-  theme(text = element_text(size = 13)) +
-  annotate('text', x = 15000, y = -0.25, label = 'Variance explained = 17%')
-flow.plots <- ggarrange(flow.emp.plot, flow.mod.plot, labels=c('b','c'))
-ggarrange(t.spawn.plot, flow.plots, nrow = 2, ncol = 1, labels = c('a','')) # FIGURE 1
+  scale_x_continuous(expand = c(0,0)) +
+  xlab(expression(paste("Flow (",italic(t)," - 2)"))) +
+  ylab("Total escapement (thousands)") +
+  theme(legend.title = element_blank(),
+        legend.position = c(0.15, 0.85),
+        legend.text = element_text(size = 13),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size = 10),
+        plot.margin = unit(c(0.5,0.75,0.5,0.75), 'cm')) 
+
+ggarrange(t.spawn.plot, flow.gam.plot, nrow = 2, ncol = 1, labels = c('a','b')) # FIGURE 1
 
 
 flow.gam.df <- data.frame(year = env.df$year[4:25], emp.s = env.df$emp.spawn[4:25], mod.s = env.df$mod.spawn[4:25], flow = env.df$flow.t3[4:25])
@@ -547,7 +566,7 @@ ac.harvest.mod <- acf(med.harvest$med.harvest, lag.max = A, plot = TRUE)
 ac.si.emp <- acf(log(catch.esc$si), lag.max = A, plot = TRUE) # For SRFC, there is substantial evidence for positive lag-1 autocorrelation in log-transformed values of the Sacramento Index.
 ac.si.mod <- acf(log(med.SI$median.si), lag.max = A, plot = TRUE)
 
-par(mfrow = c(3, 2))
+par(mfrow = c(1, 2))
 plot(ac.esc.emp, main = 'Empirical escapement')
 plot(ac.esc.mod, main = 'Model escapement')
 plot(ac.harvest.emp, main = 'Empirical harvest')
