@@ -38,8 +38,6 @@ pars  <- c(0.068, 0.215, 0.828, 0.132) # See 'fall_model_fit.r' for calibration 
 
 
 
-
-
 # TEST MODEL SCENARIOS --------------------------------------------------------------------------------------------
 # Base flow, survival = 0.01            
 test1 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
@@ -935,7 +933,14 @@ mod02.overfished <- calc_overfished(mod.02, n.sim = n.sim, n.yr = n.yr)
 mod03.overfished <- calc_overfished(mod.03, n.sim = n.sim, n.yr = n.yr)
 mod04.overfished <- calc_overfished(mod.04, n.sim = n.sim, n.yr = n.yr)
 mod05.overfished <- calc_overfished(mod.05, n.sim = n.sim, n.yr = n.yr)
-rm(mod.01, mod.02, mod.03, mod.04, mod.05)
+vio1.df <- violin_df(mod.01, "1") 
+vio2.df <- violin_df(mod.02, "2") 
+vio3.df <- violin_df(mod.03, "3")
+vio4.df <- violin_df(mod.01, "4") 
+vio5.df <- violin_df(mod.05, "5")
+vio.df <- rbind(vio1.df,vio2.df,vio3.df,vio4.df,vio5.df)
+rm(mod.01, mod.02, mod.03, mod.04, mod.05, vio1.df, vio2.df, vio3.df, vio4.df, vio5.df)
+
 
 load('age_flow_mod2.RData')
 mod06.df <- model.summary(mod.06)
@@ -948,7 +953,13 @@ mod07.overfished <- calc_overfished(mod.07, n.sim = n.sim, n.yr = n.yr)
 mod08.overfished <- calc_overfished(mod.08, n.sim = n.sim, n.yr = n.yr)
 mod09.overfished <- calc_overfished(mod.09, n.sim = n.sim, n.yr = n.yr)
 mod10.overfished <- calc_overfished(mod.10, n.sim = n.sim, n.yr = n.yr)
-rm(mod.06, mod.07, mod.08, mod.09, mod.10)
+vio6.df <- violin_df(mod.01, "6") 
+vio7.df <- violin_df(mod.02, "7") 
+vio8.df <- violin_df(mod.03, "8")
+vio9.df <- violin_df(mod.01, "9") 
+vio10.df <- violin_df(mod.05, "10")
+vio.df <- rbind(vio.df,vio6.df,vio7.df,vio8.df,vio9.df,vio10.df)
+rm(mod.06, mod.07, mod.08, mod.09, mod.10, vio6.df, vio7.df, vio8.df, vio9.df, vio10.df)
 
 load('age_flow_mod3.RData')
 mod11.df <- model.summary(mod.11)
@@ -961,7 +972,13 @@ mod12.overfished <- calc_overfished(mod.12, n.sim = n.sim, n.yr = n.yr)
 mod13.overfished <- calc_overfished(mod.13, n.sim = n.sim, n.yr = n.yr)
 mod14.overfished <- calc_overfished(mod.14, n.sim = n.sim, n.yr = n.yr)
 mod15.overfished <- calc_overfished(mod.15, n.sim = n.sim, n.yr = n.yr)
-rm(mod.11, mod.12, mod.13, mod.14, mod.15)
+vio11.df <- violin_df(mod.01, "11") 
+vio12.df <- violin_df(mod.02, "12") 
+vio13.df <- violin_df(mod.03, "13")
+vio14.df <- violin_df(mod.01, "14") 
+vio15.df <- violin_df(mod.05, "15")
+vio.df <- rbind(vio.df,vio11.df,vio12.df,vio13.df,vio14.df,vio15.df)
+rm(mod.11, mod.12, mod.13, mod.14, mod.15, vio11.df, vio12.df, vio13.df, vio14.df, vio15.df)
 
 load('age_flow_mod4.RData')
 mod16.df <- model.summary(mod.16)
@@ -974,7 +991,13 @@ mod17.overfished <- calc_overfished(mod.17, n.sim = n.sim, n.yr = n.yr)
 mod18.overfished <- calc_overfished(mod.18, n.sim = n.sim, n.yr = n.yr)
 mod19.overfished <- calc_overfished(mod.19, n.sim = n.sim, n.yr = n.yr)
 mod20.overfished <- calc_overfished(mod.20, n.sim = n.sim, n.yr = n.yr)
-rm(mod.16, mod.17, mod.18, mod.19, mod.20)
+vio16.df <- violin_df(mod.01, "16") 
+vio17.df <- violin_df(mod.02, "17") 
+vio18.df <- violin_df(mod.03, "18")
+vio19.df <- violin_df(mod.01, "19") 
+vio20.df <- violin_df(mod.05, "20")
+vio.df <- rbind(vio.df,vio16.df,vio17.df,vio18.df,vio19.df,vio20.df)
+rm(mod.16, mod.17, mod.18, mod.19, mod.20, vio16.df, vio17.df, vio18.df, vio19.df, vio20.df)
 
 # save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08.df, mod09.df, mod10.df,
 #      mod11.df, mod12.df, mod13.df, mod14.df, mod15.df, mod16.df, mod17.df, mod18.df, mod19.df, mod20.df,
