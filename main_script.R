@@ -936,7 +936,7 @@ mod05.overfished <- calc_overfished(mod.05, n.sim = n.sim, n.yr = n.yr)
 vio1.df <- violin_df(mod.01, "1") 
 vio2.df <- violin_df(mod.02, "2") 
 vio3.df <- violin_df(mod.03, "3")
-vio4.df <- violin_df(mod.01, "4") 
+vio4.df <- violin_df(mod.04, "4") 
 vio5.df <- violin_df(mod.05, "5")
 vio.df <- rbind(vio1.df,vio2.df,vio3.df,vio4.df,vio5.df)
 rm(mod.01, mod.02, mod.03, mod.04, mod.05, vio1.df, vio2.df, vio3.df, vio4.df, vio5.df)
@@ -953,11 +953,11 @@ mod07.overfished <- calc_overfished(mod.07, n.sim = n.sim, n.yr = n.yr)
 mod08.overfished <- calc_overfished(mod.08, n.sim = n.sim, n.yr = n.yr)
 mod09.overfished <- calc_overfished(mod.09, n.sim = n.sim, n.yr = n.yr)
 mod10.overfished <- calc_overfished(mod.10, n.sim = n.sim, n.yr = n.yr)
-vio6.df <- violin_df(mod.01, "6") 
-vio7.df <- violin_df(mod.02, "7") 
-vio8.df <- violin_df(mod.03, "8")
-vio9.df <- violin_df(mod.01, "9") 
-vio10.df <- violin_df(mod.05, "10")
+vio6.df <- violin_df(mod.06, "6") 
+vio7.df <- violin_df(mod.07, "7") 
+vio8.df <- violin_df(mod.08, "8")
+vio9.df <- violin_df(mod.09, "9") 
+vio10.df <- violin_df(mod.10, "10")
 vio.df <- rbind(vio.df,vio6.df,vio7.df,vio8.df,vio9.df,vio10.df)
 rm(mod.06, mod.07, mod.08, mod.09, mod.10, vio6.df, vio7.df, vio8.df, vio9.df, vio10.df)
 
@@ -972,11 +972,11 @@ mod12.overfished <- calc_overfished(mod.12, n.sim = n.sim, n.yr = n.yr)
 mod13.overfished <- calc_overfished(mod.13, n.sim = n.sim, n.yr = n.yr)
 mod14.overfished <- calc_overfished(mod.14, n.sim = n.sim, n.yr = n.yr)
 mod15.overfished <- calc_overfished(mod.15, n.sim = n.sim, n.yr = n.yr)
-vio11.df <- violin_df(mod.01, "11") 
-vio12.df <- violin_df(mod.02, "12") 
-vio13.df <- violin_df(mod.03, "13")
-vio14.df <- violin_df(mod.01, "14") 
-vio15.df <- violin_df(mod.05, "15")
+vio11.df <- violin_df(mod.11, "11") 
+vio12.df <- violin_df(mod.12, "12") 
+vio13.df <- violin_df(mod.13, "13")
+vio14.df <- violin_df(mod.14, "14") 
+vio15.df <- violin_df(mod.15, "15")
 vio.df <- rbind(vio.df,vio11.df,vio12.df,vio13.df,vio14.df,vio15.df)
 rm(mod.11, mod.12, mod.13, mod.14, mod.15, vio11.df, vio12.df, vio13.df, vio14.df, vio15.df)
 
@@ -991,19 +991,30 @@ mod17.overfished <- calc_overfished(mod.17, n.sim = n.sim, n.yr = n.yr)
 mod18.overfished <- calc_overfished(mod.18, n.sim = n.sim, n.yr = n.yr)
 mod19.overfished <- calc_overfished(mod.19, n.sim = n.sim, n.yr = n.yr)
 mod20.overfished <- calc_overfished(mod.20, n.sim = n.sim, n.yr = n.yr)
-vio16.df <- violin_df(mod.01, "16") 
-vio17.df <- violin_df(mod.02, "17") 
-vio18.df <- violin_df(mod.03, "18")
-vio19.df <- violin_df(mod.01, "19") 
-vio20.df <- violin_df(mod.05, "20")
+vio16.df <- violin_df(mod.16, "16") 
+vio17.df <- violin_df(mod.17, "17") 
+vio18.df <- violin_df(mod.18, "18")
+vio19.df <- violin_df(mod.19, "19") 
+vio20.df <- violin_df(mod.20, "20")
 vio.df <- rbind(vio.df,vio16.df,vio17.df,vio18.df,vio19.df,vio20.df)
 rm(mod.16, mod.17, mod.18, mod.19, mod.20, vio16.df, vio17.df, vio18.df, vio19.df, vio20.df)
 
-# save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08.df, mod09.df, mod10.df,
-#      mod11.df, mod12.df, mod13.df, mod14.df, mod15.df, mod16.df, mod17.df, mod18.df, mod19.df, mod20.df,
-#      mod01.overfished, mod02.overfished, mod03.overfished, mod04.overfished, mod05.overfished, mod06.overfished, mod07.overfished, mod08.overfished, mod09.overfished, mod10.overfished,
-#      mod11.overfished, mod12.overfished, mod13.overfished, mod14.overfished, mod15.overfished, mod16.overfished, mod17.overfished, mod18.overfished, mod19.overfished, mod20.overfished,
-#      file = 'age_flow_summary.RData')
+save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08.df, mod09.df, mod10.df,
+     mod11.df, mod12.df, mod13.df, mod14.df, mod15.df, mod16.df, mod17.df, mod18.df, mod19.df, mod20.df,
+     mod01.overfished, mod02.overfished, mod03.overfished, mod04.overfished, mod05.overfished, mod06.overfished, mod07.overfished, mod08.overfished, mod09.overfished, mod10.overfished,
+     mod11.overfished, mod12.overfished, mod13.overfished, mod14.overfished, mod15.overfished, mod16.overfished, mod17.overfished, mod18.overfished, mod19.overfished, mod20.overfished,
+     vio.df,
+     file = 'age_flow_summary.RData')
+
+# Test average absolute variability
+test <- rlnorm(100)
+test1 <- data.frame(test, year = seq(1:100)) %>%
+  filter(year>=30) %>%
+  mutate(test.lag = lag(test, 1)) %>%
+  filter(!(is.na(test.lag))) %>%
+  mutate(ab.diff = abs(test-test.lag))
+test2 <- sum(test1$ab.diff)/sum(test1$test)
+mean(test1$ab.diff)
 
 load('age_flow_summary.RData')
 
@@ -1044,6 +1055,17 @@ tau.df <- rbind(mod01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                 mod18.df %>% mutate(climate='More intense', age_scen = 2.3),
                 mod20.df %>% mutate(climate='More intense', age_scen = 3.3))
 
+age.scen.df1 <- data.frame(scenario = as.character(c(1,3,5,6,8,10,11,13,15,16,18,20)),
+                          age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+
+tau.vio.df <- vio.df %>%
+  filter(scenario %in% as.character(c(1,3,5,6,8,10,11,13,15,16,18,20))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(1,3,5)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(6,8,10)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(11,13,15)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df1, by = "scenario")
+
 tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                         age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                         spawn_cv = c(mod01.df$spawn.cv, mod03.df$spawn.cv, mod05.df$spawn.cv, mod06.df$spawn.cv, mod08.df$spawn.cv, mod10.df$spawn.cv, mod11.df$spawn.cv, mod13.df$spawn.cv, mod15.df$spawn.cv, mod16.df$spawn.cv, mod18.df$spawn.cv, mod20.df$spawn.cv),
@@ -1062,6 +1084,17 @@ eta.df <- rbind(mod02.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                 mod18.df %>% mutate(climate='More intense', age_scen=2.3),
                 mod19.df %>% mutate(climate='More intense', age_scen=3.3))
 
+age.scen.df2 <- data.frame(scenario = as.character(c(2,3,4,7,8,9,12,13,14,17,18,19)),
+                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+
+eta.vio.df <- vio.df %>%
+  filter(scenario %in% as.character(c(2,3,4,7,8,9,12,13,14,17,18,19))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(2,3,4)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(7,8,9)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(12,13,14)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df2, by = "scenario")
+  
 eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                         age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                         spawn_cv = c(mod02.df$spawn.cv, mod03.df$spawn.cv, mod04.df$spawn.cv, mod07.df$spawn.cv, mod08.df$spawn.cv, mod09.df$spawn.cv, mod12.df$spawn.cv, mod13.df$spawn.cv, mod14.df$spawn.cv, mod17.df$spawn.cv, mod18.df$spawn.cv, mod19.df$spawn.cv),
@@ -1153,6 +1186,33 @@ spawn.tau.plot <- ggplot(data = tau.df) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
         plot.title = element_text(hjust = 0.5))
+
+spawn.tau.vio.plot <- ggplot(data = tau.vio.df) +
+  geom_violin(aes(x = age_scen, y = mean.spawn/1000, fill = climate)) +
+  scale_fill_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = '', title = 'Maturation') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  scale_x_discrete(expand = c(0,0)) +
+  annotate('text', x = 2.8, y = 570, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 10.5, y = 570, label = '[Delayed maturation]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = 'none', axis.text.x = element_blank(), plot.margin = unit(c(0.5,0,0,0.9),'cm'), axis.ticks = element_blank(),
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
+
+spawn.tau.95pi.plot <- ggplot(data = tau.df) +
+  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
+  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = '', title = 'Maturation') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
+  annotate('text', x = 1.1, y = 1250, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 1250, label = '[Delayed maturation]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
+        plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
+
+
 spawnCV.tau.plot <- ggplot(data = tau.cv.df) +
   geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
@@ -1163,7 +1223,8 @@ spawnCV.tau.plot <- ggplot(data = tau.cv.df) +
   scale_y_continuous(limits=c(0.65, 0.8)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
         panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
-spawn.tau <- ggarrange(spawn.tau.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
+
+spawn.tau <- ggarrange(spawn.tau.95pi.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
 
 spawn.eta.plot <- ggplot(data = eta.df) +
   geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
@@ -1177,6 +1238,31 @@ spawn.eta.plot <- ggplot(data = eta.df) +
   theme(legend.title = element_blank(), legend.position = c(0.8, 0.2),
         text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5))
+
+spawn.eta.vio.plot <- ggplot(data = eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = mean.spawn/1000, fill = climate)) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Mortality') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  annotate('text', x = 2.8, y = 570, label = '[High mortality]', size = 4) +
+  annotate('text', x = 10.5, y = 570, label = '[Low mortality]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = 'none',
+        axis.text.x = element_blank(), plot.margin = unit(c(0.5,0,0,0.9),'cm'), axis.ticks = element_blank(),)
+
+spawn.eta.95pi.plot <- ggplot(data = eta.df) +
+  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
+  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
+  annotate('text', x = 1.1, y = 1250, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 1250, label = '[Low mortality]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = 'none',
+        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
+
 spawnCV.eta.plot <- ggplot(data = eta.cv.df) +
   geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
@@ -1186,7 +1272,8 @@ spawnCV.eta.plot <- ggplot(data = eta.cv.df) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
   scale_y_continuous(limits=c(0.65, 0.8)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-spawn.eta <- ggarrange(spawn.eta.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
+
+spawn.eta <- ggarrange(spawn.eta.95pi.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
 
 spawn.final <- ggarrange(spawn.eta, spawn.tau, ncol=2)
 

@@ -4,10 +4,14 @@ library(tidyr)
 
 ## Functions ------------------------------------------------------------------------------------------------------------
 model.summary <- function(x){
-  # tmp    <- x %>% dplyr::filter(year >= 30) %>% dplyr::select(year, Spawn.est, harvest, sim)
-  tmp    <- x %>% dplyr::filter(year >= 70) %>% dplyr::select(year, Spawn.est, harvest, sim)
+  tmp    <- x %>% dplyr::filter(year >= 30) %>% dplyr::select(year, Spawn.est, harvest, sim)
+  # tmp    <- x %>% dplyr::filter(year >= 70) %>% dplyr::select(year, Spawn.est, harvest, sim)
   tmp.cv <- tmp %>% dplyr::group_by(sim) %>% dplyr::summarise(spawn.cv = sd(Spawn.est, na.rm=TRUE)/mean(Spawn.est, na.rm=TRUE), harvest.cv = sd(harvest)/mean(harvest))
+  tmp.CVsim <- tmp %>% dplyr::group_by(sim) %>% summarise(mean = mean(Spawn.est, na.rm=TRUE), mean.h = mean(harvest)) 
+  tmp.CVsim.esc <- sd(tmp.CVsim$mean)/mean(tmp.CVsim$mean)
+  tmp.CVsim.har <- sd(tmp.CVsim$mean.h)/mean(tmp.CVsim$mean.h)
   tmp.df <- data.frame(spawn.mean = mean(tmp$Spawn.est, na.rm = TRUE),
+                       spawn.sd = sd(tmp$Spawn.est, na.rm = TRUE),
                        spawn.median = median(tmp$Spawn.est, na.rm = TRUE),
                        spawn.pi.lo = quantile(tmp$Spawn.est, probs = 0.025, na.rm = TRUE),
                        spawn.pi.up = quantile(tmp$Spawn.est, probs = 0.975, na.rm = TRUE),
@@ -15,12 +19,15 @@ model.summary <- function(x){
                        spawn.cv.lo = quantile(tmp.cv$spawn.cv, probs = 0.025),
                        spawn.cv.up = quantile(tmp.cv$spawn.cv, probs = 0.975),
                        harvest.mean = mean(tmp$harvest),
+                       harvest.sd = sd(tmp$harvest),
                        harvest.median = median(tmp$harvest),
                        harvest.pi.lo = quantile(tmp$harvest, probs = 0.025),
                        harvest.pi.up = quantile(tmp$harvest, probs = 0.975),
                        harvest.cv = mean(tmp.cv$harvest.cv),
                        harvest.cv.lo = quantile(tmp.cv$harvest.cv, probs = 0.025),
-                       harvest.cv.up = quantile(tmp.cv$harvest.cv, probs = 0.975))
+                       harvest.cv.up = quantile(tmp.cv$harvest.cv, probs = 0.975),
+                       cv.esc.sim = tmp.CVsim.esc,
+                       cv.har.sim = tmp.CVsim.har)
   row.names(tmp.df) <- NULL
   return(tmp.df)
 }
@@ -161,29 +168,30 @@ juv.survival <- function(w){
   if(is.na(w)){
     return(NA)
   }
-  if(w < 4045){ #1
+  if(w < (4045)){ #1: 4045 is 95% of the upper limit of this step in Michel et al. (2021)
     surv <- 0.03 # flat step from Michel et al. 2021
-    se   <- 0.276
-  } else if(w >= 4045 & w < 4795) { #2
+    sd   <- 0.276
+    
+  } else if(w >= 4045 & w < 4795) { #2: 
     surv <- (((0.189 - 0.03) / (4795 - 4045)) * w) + (0.189 - (((0.189 - 0.03) / (4795 - 4045)) * 4795)) # linear model to interpolate steps
-    se   <- sum(c(0.276, 0.094))
+    sd   <- sum(c(0.276, 0.094))
   } else if(w >= 4795 & w < 10175) { #3
     surv <- 0.189 # flat step from Michel et al. 2021
-    se   <- 0.094
+    sd   <- 0.094
   } else if(w >= 10175 & w < 11856) { #4 (0.508 - 0.189)
     surv <- (((0.508 - 0.189) / (11856 - 10175)) * w) + (0.508 - (((0.508 - 0.189) / (11856 - 10175)) * 11856)) # linear model to interpolate steps
-    se   <- sum(c(0.094, 0.082))
+    sd   <- sum(c(0.094, 0.082))
   } else if(w >= 11856 & w < 21727) { #5
     surv <- 0.508 # flat step from Michel et al. 2021
-    se   <- 0.082
+    sd   <- 0.082
   } else if(w >= 21727 & w < 24016){
     surv <- (((0.353 - 0.508) / (24016 - 21727)) * w) + (0.353 - (((0.353 - 0.508) / (24016 - 21727)) * 24016)) # linear model to interpolate steps
-    se   <- sum(c(0.082, 0.094))
+    sd   <- sum(c(0.082, 0.088))
   } else if(w >= 24016){
     surv <- 0.353 # flat step from Michel et al. 2021 0.353
-    se   <- 0.088 # 0.088
+    sd   <- 0.088 # 0.088
   }
-  river.surv <- rnorm(n = 1, mean = log(surv/(1-surv)), sd = se) # logit function for mean
+  river.surv <- rnorm(n = 1, mean = log(surv/(1-surv)), sd = sd) # logit function for mean
   return(exp(river.surv)/(1 + exp(river.surv))) # return inverse logit
 }
 

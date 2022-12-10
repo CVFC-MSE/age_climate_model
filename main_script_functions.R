@@ -104,5 +104,6 @@ violin_df <- function(x, scenario){
     group_by(sim) %>%
     summarise(mean.spawn = mean(Spawn.est, na.rm=TRUE)) %>%
     ungroup() %>%
-    mutate(scenario = scenario)
+    mutate(scenario = scenario) %>%
+    select(mean.spawn, scenario)
 }
