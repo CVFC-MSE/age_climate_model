@@ -33,7 +33,7 @@ library(doParallel)
 
 # Set model parameters and variables ----------------------------------------------------------------------------------
 n.yr  <- 100 # number of years to simulate
-n.sim <- 500 # number of simulations to run 20000
+n.sim <- 20000 # number of simulations to run 20000
 pars  <- c(0.068, 0.215, 0.828, 0.132) # See 'fall_model_fit.r' for calibration process: (1) residual juvenile mortality, (2) CV in recruitment stochasticity, (3) NPGO-dependent mortality coefficient, (4) Variance of NPGO-dependent mortality 
 
 
@@ -1007,14 +1007,15 @@ save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08
      file = 'age_flow_summary.RData')
 
 # Test average absolute variability
-test <- rlnorm(100)
+test <- rlnorm(100, 5, 0.2)
 test1 <- data.frame(test, year = seq(1:100)) %>%
   filter(year>=30) %>%
   mutate(test.lag = lag(test, 1)) %>%
   filter(!(is.na(test.lag))) %>%
-  mutate(ab.diff = abs(test-test.lag))
+  mutate(ab.diff = abs(test-test.lag)) %>%
+  mutate(abs.dev = abs(test-mean(test)))
 test2 <- sum(test1$ab.diff)/sum(test1$test)
-mean(test1$ab.diff)
+test3 <- sum(test1$abs.dev)/100
 
 load('age_flow_summary.RData')
 
@@ -1070,6 +1071,7 @@ tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Freq
                         age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                         spawn_cv = c(mod01.df$spawn.cv, mod03.df$spawn.cv, mod05.df$spawn.cv, mod06.df$spawn.cv, mod08.df$spawn.cv, mod10.df$spawn.cv, mod11.df$spawn.cv, mod13.df$spawn.cv, mod15.df$spawn.cv, mod16.df$spawn.cv, mod18.df$spawn.cv, mod20.df$spawn.cv),
                         harvest_cv = c(mod01.df$harvest.cv, mod03.df$harvest.cv, mod05.df$harvest.cv, mod06.df$harvest.cv, mod08.df$harvest.cv, mod10.df$harvest.cv, mod11.df$harvest.cv, mod13.df$harvest.cv, mod15.df$harvest.cv, mod16.df$harvest.cv, mod18.df$harvest.cv, mod20.df$harvest.cv))
+                        # totalrun_cv = c(mod01.df$total.run.cv, mod03.df$total.run.cv, mod05.df$total.run.cv, mod06.df$total.run.cv, mod08.df$total.run.cv, mod10.df$total.run.cv, mod11.df$total.run.cv, mod13.df$total.run.cv, mod15.df$total.run.cv, mod16.df$total.run.cv, mod18.df$total.run.cv, mod20.df$total.run.cv))
 
 eta.df <- rbind(mod02.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                 mod03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
@@ -1099,6 +1101,7 @@ eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Freq
                         age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                         spawn_cv = c(mod02.df$spawn.cv, mod03.df$spawn.cv, mod04.df$spawn.cv, mod07.df$spawn.cv, mod08.df$spawn.cv, mod09.df$spawn.cv, mod12.df$spawn.cv, mod13.df$spawn.cv, mod14.df$spawn.cv, mod17.df$spawn.cv, mod18.df$spawn.cv, mod19.df$spawn.cv),
                         harvest_cv = c(mod02.df$harvest.cv, mod03.df$harvest.cv, mod04.df$harvest.cv, mod07.df$harvest.cv, mod08.df$harvest.cv, mod09.df$harvest.cv, mod12.df$harvest.cv, mod13.df$harvest.cv, mod14.df$harvest.cv, mod17.df$harvest.cv, mod18.df$harvest.cv, mod19.df$harvest.cv))
+                        # totalrun_cv = c(mod02.df$total.run.cv, mod03.df$total.run.cv, mod04.df$total.run.cv, mod07.df$total.run.cv, mod08.df$total.run.cv, mod09.df$total.run.cv, mod12.df$total.run.cv, mod13.df$total.run.cv, mod14.df$total.run.cv, mod17.df$total.run.cv, mod18.df$total.run.cv, mod19.df$total.run.cv))
 
 ## Plot scenarios ------------------------------------------------------------------------------------------------------
 # base case flow
@@ -1174,30 +1177,18 @@ ggarrange(harvest.plot.all, harvest.cv.all, nrow=2, ncol=1, labels=c('a','b'))
 
 
 ## SPAWN PLOTS
-spawn.tau.plot <- ggplot(data = tau.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
+total.run.tau.plot <- ggplot(data = tau.df) +
+  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
   # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 475)) +
-  annotate('text', x = 1.1, y = 440, label = '[Early maturation]', size = 4) +
-  annotate('text', x = 2.9, y = 440, label = '[Delayed maturation]', size = 4) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 875)) +
+  annotate('text', x = 1.1, y = 840, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 840, label = '[Delayed maturation]', size = 4) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
         plot.title = element_text(hjust = 0.5))
-
-spawn.tau.vio.plot <- ggplot(data = tau.vio.df) +
-  geom_violin(aes(x = age_scen, y = mean.spawn/1000, fill = climate)) +
-  scale_fill_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  scale_x_discrete(expand = c(0,0)) +
-  annotate('text', x = 2.8, y = 570, label = '[Early maturation]', size = 4) +
-  annotate('text', x = 10.5, y = 570, label = '[Delayed maturation]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = 'none', axis.text.x = element_blank(), plot.margin = unit(c(0.5,0,0,0.9),'cm'), axis.ticks = element_blank(),
-        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
 
 spawn.tau.95pi.plot <- ggplot(data = tau.df) +
   geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
@@ -1212,43 +1203,31 @@ spawn.tau.95pi.plot <- ggplot(data = tau.df) +
         panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
         plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
 
-
-spawnCV.tau.plot <- ggplot(data = tau.cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
+total.run.cv.tau.plot <- ggplot(data = tau.cv.df) +
+  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.65, 0.8)) +
+  scale_y_continuous(limits=c(0.5, 0.7)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
         panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
 
-spawn.tau <- ggarrange(spawn.tau.95pi.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
+total.run.tau <- ggarrange(total.run.tau.plot, total.run.cv.tau.plot, nrow=2, labels = c('b', 'd'))
 
-spawn.eta.plot <- ggplot(data = eta.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
+total.run.eta.plot <- ggplot(data = eta.df) +
+  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
   # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
-  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 475)) +
-  annotate('text', x = 1.1, y = 440, label = '[High mortality]', size = 4) +
-  annotate('text', x = 2.9, y = 440, label = '[Low mortality]', size = 4) +
+  labs(x = '', y = 'Total run size (thousands)', title = 'Natural mortality') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 900)) +
+  annotate('text', x = 1.1, y = 875, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 875, label = '[Low mortality]', size = 4) +
   theme(legend.title = element_blank(), legend.position = c(0.8, 0.2),
         text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5))
-
-spawn.eta.vio.plot <- ggplot(data = eta.vio.df) +
-  geom_violin(aes(x = age_scen, y = mean.spawn/1000, fill = climate)) +
-  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  annotate('text', x = 2.8, y = 570, label = '[High mortality]', size = 4) +
-  annotate('text', x = 10.5, y = 570, label = '[Low mortality]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = 'none',
-        axis.text.x = element_blank(), plot.margin = unit(c(0.5,0,0,0.9),'cm'), axis.ticks = element_blank(),)
 
 spawn.eta.95pi.plot <- ggplot(data = eta.df) +
   geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
@@ -1262,70 +1241,22 @@ spawn.eta.95pi.plot <- ggplot(data = eta.df) +
   theme(legend.title = element_blank(), legend.position = 'none',
         text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
         plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
-
-spawnCV.eta.plot <- ggplot(data = eta.cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
+total.run.cv.eta.plot <- ggplot(data = eta.cv.df) +
+  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.65, 0.8)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-
-spawn.eta <- ggarrange(spawn.eta.95pi.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
-
-spawn.final <- ggarrange(spawn.eta, spawn.tau, ncol=2)
-
-## HARVEST PLOTS
-harvest.tau.plot <- ggplot(data = tau.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 575)) +
-  annotate('text', x = 1.1, y = 530, label = '[Early maturation]', size = 4) +
-  annotate('text', x = 2.9, y = 530, label = '[Delayed maturation]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.background = element_rect(fill = 'gray85', color = 'gray85'), panel.background = element_rect(fill = 'gray85', color = 'gray85'),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.tau.plot <- ggplot(data = tau.cv.df) +
-  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = '') +
+  labs(x = 'Age structure scenario', y = 'CV of total run size') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.7, 0.82)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
-harvest.tau <- ggarrange(harvest.tau.plot, harvestCV.tau.plot, nrow=2, labels = c('b', 'd'))
-
-harvest.eta.plot <- ggplot(data = eta.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_point(aes(x = age_scen, y = harvest.median/1000, color = climate), size = 3, shape = 17) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Harvest (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 575)) +
-  annotate('text', x = 1.1, y = 530, label = '[High mortality]', size = 4) +
-  annotate('text', x = 2.9, y = 530, label = '[Low mortality]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.2), text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.eta.plot <- ggplot(data = eta.cv.df) +
-  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of harvest') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.7, 0.82)) +
+  scale_y_continuous(limits=c(0.5, 0.7)) +
   theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-harvest.eta <- ggarrange(harvest.eta.plot, harvestCV.eta.plot, nrow=2, labels = c('a', 'c'))
 
-harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
+
+total.run.eta <- ggarrange(total.run.eta.plot, total.run.cv.eta.plot, nrow=2, labels = c('a', 'c'))
+totalrun.final <- ggarrange(total.run.eta, total.run.tau, ncol=2)
+
+
+## HARVEST PLOTS
 
 # Check 100-year simulations for contemporary flow conditions ------
 sim.nums <- paste0('s', sample(1:n.sim, 500, replace=FALSE))
