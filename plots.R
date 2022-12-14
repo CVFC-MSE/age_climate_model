@@ -65,6 +65,38 @@ eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Freq
                         spawn_cv = c(mod02.df$spawn.cv, mod03.df$spawn.cv, mod04.df$spawn.cv, mod07.df$spawn.cv, mod08.df$spawn.cv, mod09.df$spawn.cv, mod12.df$spawn.cv, mod13.df$spawn.cv, mod14.df$spawn.cv, mod17.df$spawn.cv, mod18.df$spawn.cv, mod19.df$spawn.cv),
                         harvest_cv = c(mod02.df$harvest.cv, mod03.df$harvest.cv, mod04.df$harvest.cv, mod07.df$harvest.cv, mod08.df$harvest.cv, mod09.df$harvest.cv, mod12.df$harvest.cv, mod13.df$harvest.cv, mod14.df$harvest.cv, mod17.df$harvest.cv, mod18.df$harvest.cv, mod19.df$harvest.cv))
 
+### OVERFISHING TAU AND ETA
+tau.mods <- c(1,3,5,6,8,10,11,13,15,16,18,20)
+tau.overfished.df <- NULL
+for(index in 1:12){
+  i <- tau.mods[index]
+  tmp.name <- paste0('mod',stringr::str_pad(i, 2, pad = '0'),'.overfished')
+  tmp.of <- get(tmp.name)
+  tmp.of <- tmp.of %>% 
+            mutate(scenario = as.character(i)) %>%
+            mutate(climate = ifelse(scenario %in% c(1,3,5), 'Contemporary',
+                             ifelse(scenario %in% c(6,8,10), 'Longer duration', 
+                             ifelse(scenario %in% c(11,13,15), 'More frequent', 
+                             'More intense')))) %>%
+            left_join(., age.scen.df1, by = 'scenario')
+  tau.overfished.df <- rbind(tau.overfished.df, tmp.of)
+}       
+
+eta.mods <- c(2,3,4,7,8,9,12,13,14,17,18,19)
+eta.overfished.df <- NULL
+for(index in 1:12){
+  i <- eta.mods[index]
+  tmp.name <- paste0('mod',stringr::str_pad(i, 2, pad = '0'),'.overfished')
+  tmp.of <- get(tmp.name)
+  tmp.of <- tmp.of %>% 
+            mutate(scenario = as.character(i),
+                   climate = ifelse(scenario %in% as.character(2,3,4), 'Contemporary',
+                             ifelse(scenario %in% as.character(7,8,9), 'Longer duration',
+                             ifelse(scenario %in% as.character(12,13,14), 'More frequent',
+                             'More intense')))) %>%
+            left_join(., age.scen.df2, by = 'scenario')
+  eta.overfished.df <- rbind(eta.overfished.df, tmp.of)
+}     
 
 # Figure. Spawner escapement violin plots and CV --------------------------------------------------------------------------------
 vio.plot.settings <- theme(legend.title = element_blank(), 
@@ -171,4 +203,18 @@ harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
 
 
 # Figure. Percent overfished status violin --------------------------------------------------------------------------------------
+tau.overfished.df %>%
+  filter(scenario == '1') %>%
+  ggplot() +
+  geom_violin(aes(x = scenario, y = prop.overfished), draw_quantiles = 0.5)
 
+of.tau.vio.plot <- ggplot() +
+  geom_violin(data = tau.overfished.df, aes(x = age_scen, y = prop.overfished*100, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = '', title = 'Maturation') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 700), breaks = seq(0,700,100)) +
+  scale_x_discrete(expand = c(0,0)) +
+  annotate('text', x = 2.5, y = 650, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 10.5, y = 650, label = '[Delayed maturation]', size = 4) +
+  vio.plot.settings
