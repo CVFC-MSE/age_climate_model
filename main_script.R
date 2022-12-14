@@ -941,7 +941,6 @@ vio5.df <- violin_df(mod.05, "5")
 vio.df <- rbind(vio1.df,vio2.df,vio3.df,vio4.df,vio5.df)
 rm(mod.01, mod.02, mod.03, mod.04, mod.05, vio1.df, vio2.df, vio3.df, vio4.df, vio5.df)
 
-
 load('age_flow_mod2.RData')
 mod06.df <- model.summary(mod.06)
 mod07.df <- model.summary(mod.07)
@@ -1414,49 +1413,7 @@ prop.10.plot <- ggplot(data = overfished.df) +
 ggarrange(prop.70.plot, prop.25.plot, prop.10.plot, nrow=3, ncol=1, labels=c('a','b','c'))
 
 
-### OVERFISHING TAU AND ETA
-tau.overfished.df <- data.frame(climate_scenario = rep(c('Contemporary','Longer duration','More frequent','More intense'), each=3),
-                                age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)), 
-                                prop.of = NA,pilo.of = NA,piup.of = NA,prop.70 = NA,pilo.70 = NA,piup.70 = NA,prop.25 = NA,pilo.25 = NA,piup.25 = NA,prop.10 = NA,pilo.10 = NA,piup.10 = NA)
-for(index in 1:12){
-  mods <- c(1,3,5,6,8,10,11,13,15,16,18,20)
-  i <- mods[index]
-  tmp.name <- paste0('mod',stringr::str_pad(i, 2, pad = '0'),'.overfished')
-  tmp.of <- get(tmp.name)
-  tau.overfished.df$prop.of[index] <- mean(tmp.of$prop.overfished) * 100
-  tau.overfished.df$pilo.of[index] <- quantile(tmp.of$prop.overfished, probs = 0.025) * 100
-  tau.overfished.df$piup.of[index] <- quantile(tmp.of$prop.overfished, probs = 0.975) * 100
-  tau.overfished.df$prop.70[index] <- mean(tmp.of$prop.70) * 100
-  tau.overfished.df$pilo.70[index] <- quantile(tmp.of$prop.70, probs = 0.025) * 100
-  tau.overfished.df$piup.70[index] <- quantile(tmp.of$prop.70, probs = 0.975) * 100
-  tau.overfished.df$prop.25[index] <- mean(tmp.of$prop.25) * 100
-  tau.overfished.df$pilo.25[index] <- quantile(tmp.of$prop.25, probs = 0.025) * 100
-  tau.overfished.df$piup.25[index] <- quantile(tmp.of$prop.25, probs = 0.975) * 100
-  tau.overfished.df$prop.10[index] <- mean(tmp.of$prop.10) * 100
-  tau.overfished.df$pilo.10[index] <- quantile(tmp.of$prop.10, probs = 0.025) * 100
-  tau.overfished.df$piup.10[index] <- quantile(tmp.of$prop.10, probs = 0.975) * 100
-}       
-eta.overfished.df <- data.frame(climate_scenario = rep(c('Contemporary','Longer duration','More frequent','More intense'), each=3),
-                                age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)), 
-                                prop.of = NA,pilo.of = NA,piup.of = NA,prop.70 = NA,pilo.70 = NA,piup.70 = NA,prop.25 = NA,pilo.25 = NA,piup.25 = NA,prop.10 = NA,pilo.10 = NA,piup.10 = NA)
-for(index in 1:12){
-  mods <- c(2,3,4,7,8,9,12,13,14,17,18,19)
-  i <- mods[index]
-  tmp.name <- paste0('mod',stringr::str_pad(i, 2, pad = '0'),'.overfished')
-  tmp.of <- get(tmp.name)
-  eta.overfished.df$prop.of[index] <- mean(tmp.of$prop.overfished) * 100
-  eta.overfished.df$pilo.of[index] <- quantile(tmp.of$prop.overfished, probs = 0.025) * 100
-  eta.overfished.df$piup.of[index] <- quantile(tmp.of$prop.overfished, probs = 0.975) * 100
-  eta.overfished.df$prop.70[index] <- mean(tmp.of$prop.70) * 100
-  eta.overfished.df$pilo.70[index] <- quantile(tmp.of$prop.70, probs = 0.025) * 100
-  eta.overfished.df$piup.70[index] <- quantile(tmp.of$prop.70, probs = 0.975) * 100
-  eta.overfished.df$prop.25[index] <- mean(tmp.of$prop.25) * 100
-  eta.overfished.df$pilo.25[index] <- quantile(tmp.of$prop.25, probs = 0.025) * 100
-  eta.overfished.df$piup.25[index] <- quantile(tmp.of$prop.25, probs = 0.975) * 100
-  eta.overfished.df$prop.10[index] <- mean(tmp.of$prop.10) * 100
-  eta.overfished.df$pilo.10[index] <- quantile(tmp.of$prop.10, probs = 0.025) * 100
-  eta.overfished.df$piup.10[index] <- quantile(tmp.of$prop.10, probs = 0.975) * 100
-}       
+
 
 tau.overfished.plot <- ggplot(data = tau.overfished.df) +
   geom_point(aes(x = age_struct, y = prop.of, color = climate_scenario), size = 3) +
