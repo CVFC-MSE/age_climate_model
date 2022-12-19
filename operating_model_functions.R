@@ -3,45 +3,8 @@ library(dplyr)
 library(tidyr)
 
 ## Functions ------------------------------------------------------------------------------------------------------------
-model.summary <- function(x){
-  tmp    <- x %>% dplyr::filter(year >= 30) %>% dplyr::select(year, Spawn.est, harvest, sim)
-  # tmp    <- x %>% dplyr::filter(year >= 70) %>% dplyr::select(year, Spawn.est, harvest, sim)
-  tmp.cv <- tmp %>%
-            dplyr::group_by(sim) %>% 
-            dplyr::summarise(spawn.cv = sd(Spawn.est, na.rm=TRUE)/mean(Spawn.est, na.rm=TRUE), 
-                             harvest.cv = sd(harvest)/mean(harvest),
-                             total.run.cv = sd(Spawn.est+harvest,na.rm=TRUE)/mean(Spawn.est+harvest,na.rm=TRUE))
-  tmp.CVsim <- tmp %>% 
-               dplyr::group_by(sim) %>% 
-               summarise(mean = mean(Spawn.est, na.rm=TRUE), mean.h = mean(harvest)) 
-  tmp.CVsim.esc <- sd(tmp.CVsim$mean)/mean(tmp.CVsim$mean)
-  tmp.CVsim.har <- sd(tmp.CVsim$mean.h)/mean(tmp.CVsim$mean.h)
-  tmp.df <- data.frame(spawn.mean = mean(tmp$Spawn.est, na.rm = TRUE),
-                       spawn.sd = sd(tmp$Spawn.est, na.rm = TRUE),
-                       spawn.median = median(tmp$Spawn.est, na.rm = TRUE),
-                       spawn.pi.lo = quantile(tmp$Spawn.est, probs = 0.025, na.rm = TRUE),
-                       spawn.pi.up = quantile(tmp$Spawn.est, probs = 0.975, na.rm = TRUE),
-                       spawn.cv = mean(tmp.cv$spawn.cv),
-                       spawn.cv.lo = quantile(tmp.cv$spawn.cv, probs = 0.025),
-                       spawn.cv.up = quantile(tmp.cv$spawn.cv, probs = 0.975),
-                       harvest.mean = mean(tmp$harvest),
-                       harvest.sd = sd(tmp$harvest),
-                       harvest.median = median(tmp$harvest),
-                       harvest.pi.lo = quantile(tmp$harvest, probs = 0.025),
-                       harvest.pi.up = quantile(tmp$harvest, probs = 0.975),
-                       harvest.cv = mean(tmp.cv$harvest.cv),
-                       harvest.cv.lo = quantile(tmp.cv$harvest.cv, probs = 0.025),
-                       harvest.cv.up = quantile(tmp.cv$harvest.cv, probs = 0.975),
-                       total.run.mean = mean(tmp$Spawn.est + tmp$harvest, na.rm = TRUE),
-                       total.run.cv = mean(tmp.cv$total.run.cv),
-                       cv.esc.sim = tmp.CVsim.esc,
-                       cv.har.sim = tmp.CVsim.har)
-  row.names(tmp.df) <- NULL
-  return(tmp.df)
-}
-
 set.vars <- function(n.yr, scenario){
-  load('srfc_data.RData') # load data
+  load('srfc_data.RData') # load data, need to load in here for parallel computing
   library(mgcv)
   
   # Simulate climate/flow scenario
@@ -62,9 +25,7 @@ set.vars <- function(n.yr, scenario){
   xt <- sample(catch.esc$hatchery/catch.esc$total.esc, n.yr, replace = TRUE)
 
   # NPGO - concatenate years
-  # npgo <- rep(npgo$npgo, times = ceiling(n.yr/length(npgo$npgo)))[1:n.yr] # concatenate npgo times series
   npgo <- rep(npgo.full$npgo, times = 2)
-  # npgo <- sample(npgo$npgo, n.yr, replace = TRUE)
 
   return(data.frame(w, ht, hd, xt, npgo))
 }
@@ -133,65 +94,6 @@ flow.sim <- function(n.yr, scenario, flow.full){ # n.yr, scenario, flow.full
   return(flow.array[,1])
   
 }
-
-# Code for plotting example hydrographs
-hydro.df <- data.frame(year = seq(1,n.yr),
-                       base = flow.sim(100, 'base', flow.full),
-                       duration = flow.sim(100, 'longer duration', flow.full),
-                       frequency = flow.sim(100, 'more frequent', flow.full),
-                       intensity = flow.sim(100, 'more intense', flow.full))
-
-hydro.plot.settings <- theme(axis.text = element_text(size = 14),
-                             axis.title = element_text(size = 14),
-                             title = element_text(size = 14),
-                             plot.margin = unit(c(0.5,0,0,0.1),'cm'))
-
-hydro.contemporary <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = base), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = '', y = 'Flow (csf)', title = 'Contemporary') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$base<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$base<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-hydro.duration <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = duration), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = '', y = '', title = 'Longer duration') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$duration<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$duration<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-hydro.frequency <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = frequency), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = 'Simulation year', y = 'Flow (csf)', title = 'More frequent') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$frequency<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$frequency<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-hydro.intensity <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = intensity), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = 'Simulation year', y = '', title = 'More intense') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$intensity<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$intensity<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-ggarrange(hydro.contemporary,hydro.duration, hydro.frequency, hydro.intensity)
-
 
 
 # # Code to look at difference between longer duration and more frequent droughts
