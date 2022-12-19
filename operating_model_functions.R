@@ -95,25 +95,6 @@ flow.sim <- function(n.yr, scenario, flow.full){ # n.yr, scenario, flow.full
   
 }
 
-
-# # Code to look at difference between longer duration and more frequent droughts
-# ld <- NULL
-# mf <- NULL
-# for(i in 1:500){
-#   ld.df <- data.frame(year=1:100, flow=flow.sim(n.yr,scenario='longer duration',flow.full), sim=i)
-#   ld <- rbind(ld, ld.df)
-#   mf.df <- data.frame(year=1:100, flow=flow.sim(n.yr,scenario='more frequent',flow.full), sim=i)
-#   mf <- rbind(mf, mf.df)
-# }
-# # 1. look at the percentage of time below 10712
-# library(dplyr)
-# test1 <- function(x){
-#   x.below <- sum(x < 10712)
-# }
-# ld.flow <- mean(unlist(ld %>% group_by(sim) %>% group_map(~test1(.x$flow))))
-# mf.flow <- mean(unlist(mf %>% group_by(sim) %>% group_map(~test1(.x$flow))))
-# # end of code for looking at difference between longer duration and more frequent droughts
-
 srr <- function(theta, g, x){
   return((theta[1] * g) / (1 + theta[2] * g * x))  
 }
@@ -189,30 +170,3 @@ control.rule <- function(SI){
   }
   return(ER)
 }
-
-# Extra code for plotting the harvest control rule
-library(ggplot2)
-library(ggpubr)
-tmp.si <- seq(0, 500000, length.out = 1000)
-tmp.er <- sapply(tmp.si, control.rule)
-plot1 <- ggplot() +
-  geom_line(aes(x = tmp.si/1000, y = tmp.er), size = 1) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
-  labs(x = 'Sacramento Index (thousands)', y = 'Allowable exploitation rate') +
-  theme_classic() +
-  theme(text = element_text(size = 16), plot.margin = unit(c(0.5,1,0.5,0.5), 'cm'))
-
-plot2 <- ggplot() +
-  geom_line(aes(x = tmp.si/1000, y = (tmp.si/1000) - ((tmp.si/1000)* tmp.er)), size = 1) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
-  labs(x = 'Sacramento Index (thousands)', y = 'Expected spawners after exploitation') +
-  theme_classic() +
-  theme(text = element_text(size = 13), plot.margin = unit(c(0.5,1,0.5,0.5), 'cm'))
-#
-# ggarrange(plot1, plot2, nrow=2)
-#
-tmp.si2 <- seq(122000, 500000, length.out = 1000)
-constant_esc_er <- (tmp.si2 - 122000) / tmp.si2
-plot(tmp.si2, constant_esc_er)
