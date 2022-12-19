@@ -1,10 +1,19 @@
-operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, 
-                            n.surv = NULL, scenario = 'base'){
+## -------------------------------------------------------------------------------------------------------------------------
+## operating_model.R
+##
+## Author: Paul Carvalho (paul.carvalho@noaa.gov, pcarvalh@ucsc.edu)
+##
+## Description: Age-structure, life cycle model for Sacramento River fall Chinook salmon. The model accepts age specific 
+##              maturation rates and natural mortality rates as inputs, which was used to modify age structure diversity.
+##              In addition, the 'scenario' input was used to simulate various drought scenarios (see 'main_script.R').
+## -------------------------------------------------------------------------------------------------------------------------
+
+operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n.surv = NULL, scenario = 'base'){
   # Load libraries for parallel computing
   library(foreach)
   library(doParallel)
   
-  # Load data
+  # Load data - must be loaded within the function for parallel computing 
   load('srfc_data.RData')
   
   # Calibrated parameters
@@ -29,7 +38,6 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   m.nat         <- t(array(c(nat.maturity,f.maturity), dim = c(A-1, 2), dimnames <- list(c(paste('age.', 2:A, sep = "")), c('male' ,'female')))) # natural maturation array; NOTE - the array will automatically adjust for age/stage structure specified in above parameters
   cv.spawn.est  <- 0.2  # coefficient of variation of spawner abundance estimates - value results in plausible levels of abundance forecast error (https://s3.amazonaws.com/media.fisheries.noaa.gov/2020-10/SRFC-RP_finalEA-FONSI.pdf?null=)
   g             <- c(4325, 5407, 5407, 6488) # age-3 and -4 spawners expected to have similar fecundity, ages-2 and -5 spawners have 20% increase and decrease in fecundity, respoectively.
-  # n.surv        <- c(0.5, 0.8, 0.8, 0.8) #c(0.5|0.35, 0.8, 0.8, 0.8) survival rate of fish aged 2 to 5; values from MO.
   nu            <- c(0.05, 1, 1, 1) # relative fishing mortality rate c(2, 0.25, 0.25, 0.25) 2.1, 0.3, 0.1, 0.1
   
   # Natural reproduction parameters
@@ -80,11 +88,11 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   H[1, 1, ] <- hat.release$total.release[1] # hatchery juvenile production in year t = 1
   n[1, 1, ] <- juv.survival(flow$discharge[1]) * alpha # juvenile survival as a function of flow (outmigration) and average survival through the bay (alpha). Flow data not available for 1987, thus 1988 was used for initialization.
   # Initial ocean age 2 - abundance of ocean fish estimated from harvest, exploitation rate, and resonable age-composition of harvest
-  init.harvest <- ((1 - (1 - ((catch.esc$exploitation.rate/100)[2]))) * nu)
+  init.harvest         <- ((1 - (1 - ((catch.esc$exploitation.rate/100)[2]))) * nu)
   init.total.harvest.1 <- catch.esc$total.ocean.harvest[1] + catch.esc$river.harvest[1]
   init.total.harvest.2 <- catch.esc$total.ocean.harvest[2] + catch.esc$river.harvest[2]
-  N[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ] <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ]    <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
+  H[c(2, 2*A), 1, ]    <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
   # Initial ocean age 3
   N[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar) )
   H[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar))
@@ -101,11 +109,11 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   
   # Set up parallel backend to run multiple simulations simultaneously
   cores <- detectCores() # CPU cores
-  cl <- makeCluster(cores-1) # Create R copies and reduce by 1 to avoid overloading computer
+  cl    <- makeCluster(cores-1) # Create R copies and reduce by 1 to avoid overloading computer
   registerDoParallel(cl) # register parallel backend with foreach package
 
   # Run simulation
-  mse.out <- foreach(sim = 1:n.sim) %dopar% {
+  model.out <- foreach(sim = 1:n.sim) %dopar% {
     # load libraries and functions for each parallel for loop
     source('operating_model_functions.R') # load functions
 
@@ -146,11 +154,6 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
       }   
       
       # Forecast model
-      # SI.error[t - 1, ]    <- ifelse(t > 2, log(SI.observed[t - 1, ]) - log(SI.forecast[t - 1, ]), 0)
-      # jack[t - 1, ]        <- round(rlnorm(n = 1, meanlog = log(N[A + 1, t - 1, ] + H[A + 1, t - 1, ]) + cor.log.Spawn.est, sdlog = sigma.log.Spawn.est)) # observe jack escapement
-      # SI.log.forecast      <- beta.0 + (beta.1 * log(jack[t - 1, ])) + (rho * SI.error[t - 1, ])
-      # SI.forecast[t, ]     <- round(exp(SI.log.forecast + (0.5 * sigma.si)))
-      # SI.forecast[t, ] <- sum(N[N.H.O.ind, t - 1, ], H[N.H.O.ind, t - 1, ]) * exp(forecast.error)
       forecast.error       <- rnorm(1, mean = 0.1317641, sd = 0.4858035) # mean = 0.1317641, sd = 0.4858035
       SI.forecast[t, ]     <- sum(N[c(3:5,11:13), t, ], H[c(3:5,11:13), t, ]) * exp(forecast.error) # use adult ocean abundance for forecast
       
@@ -237,8 +240,8 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL,
   stopCluster(cl = cl)
 
   # Unpackage parallel for loop output
-  for(i in seq_len(n.sim)){mse.out[[i]] <- cbind(mse.out[[i]], sim = paste0('s', i))}
-  return(do.call('rbind', mse.out))
+  for(i in seq_len(n.sim)){model.out[[i]] <- cbind(model.out[[i]], sim = paste0('s', i))}
+  return(do.call('rbind', model.out))
 }
 
 
