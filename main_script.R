@@ -192,11 +192,11 @@ save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08
 # 3. base maturity and mortality
 # 4. mortality  = 0.99 (base maturation)
 # 5. maturation = 0.25 (base natural mortality)
-cver.sa.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-cver.sa.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
-cver.sa.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-cver.sa.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
-cver.sa.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+cver.sa.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+cver.sa.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+cver.sa.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+cver.sa.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+cver.sa.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
 
 ### 6.1.2 Longer duration drought models -----------------------------------------------------------------------------------
 # 6.  maturation = 0.99 (base natural mortality)
@@ -204,11 +204,11 @@ cver.sa.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturit
 # 8.  base maturity and mortality
 # 9.  mortality  = 0.99 (base maturation)
 # 10. maturation = 0.25 (base natural mortality)
-cver.sa.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-cver.sa.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
-cver.sa.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-cver.sa.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
-cver.sa.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+cver.sa.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+cver.sa.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
+cver.sa.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+cver.sa.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
+cver.sa.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
 
 ### 6.1.3 More frequent drought models -------------------------------------------------------------------------------------
 # 11. maturation = 0.99 (base natural mortality)
@@ -216,11 +216,11 @@ cver.sa.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturit
 # 13. base maturity and mortality
 # 14. mortality  = 0.99 (base maturation)
 # 15. maturation = 0.25 (base natural mortality)
-cver.sa.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-cver.sa.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
-cver.sa.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-cver.sa.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
-cver.sa.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+cver.sa.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+cver.sa.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
+cver.sa.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+cver.sa.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
+cver.sa.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
 
 ### 6.1.4 More intense drought models --------------------------------------------------------------------------------------
 # 16. maturation = 0.99 (base natural mortality)
@@ -228,11 +228,11 @@ cver.sa.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturit
 # 18. base maturity and mortality
 # 19. mortality  = 0.99 (base maturation)
 # 20. maturation = 0.25 (base natural mortality)
-cver.sa.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-cver.sa.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
-cver.sa.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-cver.sa.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
-cver.sa.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+cver.sa.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+cver.sa.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
+cver.sa.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+cver.sa.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
+cver.sa.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
 
 ### 6.1.5 Save data for sensitivity to the CV of realized harvest rate -----------------------------------------------------
 save(cver.sa.01, cver.sa.02, cver.sa.03, cver.sa.04, cver.sa.05,
@@ -249,11 +249,11 @@ save(cver.sa.01, cver.sa.02, cver.sa.03, cver.sa.04, cver.sa.05,
 # 3. base maturity and mortality
 # 4. mortality  = 0.99 (base maturation)
 # 5. maturation = 0.25 (base natural mortality)
-cv.j.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-cv.j.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
-cv.j.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-cv.j.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
-cv.j.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+cv.j.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+cv.j.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+cv.j.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+cv.j.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+cv.j.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
 
 ### 6.2.2 Longer duration drought models -----------------------------------------------------------------------------------
 # 6.  maturation = 0.99 (base natural mortality)
@@ -261,11 +261,11 @@ cv.j.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity =
 # 8.  base maturity and mortality
 # 9.  mortality  = 0.99 (base maturation)
 # 10. maturation = 0.25 (base natural mortality)
-cv.j.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-cv.j.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
-cv.j.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-cv.j.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
-cv.j.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+cv.j.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+cv.j.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
+cv.j.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+cv.j.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
+cv.j.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
 
 ### 6.2.3 Longer duration drought models -----------------------------------------------------------------------------------
 # 11. maturation = 0.99 (base natural mortality)
@@ -273,11 +273,11 @@ cv.j.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity =
 # 13. base maturity and mortality
 # 14. mortality  = 0.99 (base maturation)
 # 15. maturation = 0.25 (base natural mortality)
-cv.j.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-cv.j.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
-cv.j.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-cv.j.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
-cv.j.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+cv.j.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+cv.j.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
+cv.j.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+cv.j.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
+cv.j.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
 
 ### 6.2.4 Longer duration drought models -----------------------------------------------------------------------------------
 # 16. maturation = 0.99 (base natural mortality)
@@ -285,11 +285,11 @@ cv.j.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity =
 # 18. base maturity and mortality
 # 19. mortality  = 0.99 (base maturation)
 # 20. maturation = 0.25 (base natural mortality)
-cv.j.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-cv.j.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
-cv.j.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-cv.j.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
-cv.j.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+cv.j.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+cv.j.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
+cv.j.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+cv.j.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
+cv.j.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
 
 ### 6.2.5 Save data for sensitivity to the CV of recruitment stochasticity -------------------------------------------------
 save(cv.j.01, cv.j.02, cv.j.03, cv.j.04, cv.j.05,
@@ -306,11 +306,11 @@ save(cv.j.01, cv.j.02, cv.j.03, cv.j.04, cv.j.05,
 # 3. base maturity and mortality
 # 4. mortality  = 0.99 (base maturation)
 # 5. maturation = 0.25 (base natural mortality)
-npgo.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-npgo.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
-npgo.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-npgo.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
-npgo.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+npgo.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+npgo.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+npgo.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+npgo.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+npgo.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
 
 ### 6.3.2 Longer duration drought models -----------------------------------------------------------------------------------
 # 6.  maturation = 0.99 (base natural mortality)
@@ -318,11 +318,11 @@ npgo.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity =
 # 8.  base maturity and mortality
 # 9.  mortality  = 0.99 (base maturation)
 # 10. maturation = 0.25 (base natural mortality)
-npgo.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-npgo.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
-npgo.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-npgo.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
-npgo.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+npgo.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+npgo.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
+npgo.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+npgo.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
+npgo.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
 
 ### 6.3.3 More frequent drought models -------------------------------------------------------------------------------------
 # 11. maturation = 0.99 (base natural mortality)
@@ -330,11 +330,11 @@ npgo.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity =
 # 13. base maturity and mortality
 # 14. mortality  = 0.99 (base maturation)
 # 15. maturation = 0.25 (base natural mortality)
-npgo.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-npgo.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
-npgo.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-npgo.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
-npgo.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+npgo.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+npgo.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
+npgo.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+npgo.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
+npgo.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
 
 ### 6.3.4 More intense drought models --------------------------------------------------------------------------------------
 # 16. maturation = 0.99 (base natural mortality)
@@ -342,11 +342,11 @@ npgo.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity =
 # 18. base maturity and mortality
 # 19. mortality  = 0.99 (base maturation)
 # 20. maturation = 0.25 (base natural mortality)
-npgo.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-npgo.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
-npgo.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-npgo.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
-npgo.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+npgo.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+npgo.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
+npgo.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+npgo.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.999, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
+npgo.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
 
 ### 6.3.5 Save data for sensitivity to mean NPGO effect --------------------------------------------------------------------
 save(npgo.01, npgo.02, npgo.03, npgo.04, npgo.05,
@@ -356,17 +356,12 @@ save(npgo.01, npgo.02, npgo.03, npgo.04, npgo.05,
      file = 'npgo_sa.RData')
 
 
-# Test 100-year model --------------------------------------------------------------------------------------------------
-base.mod    <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-base.mod.df <- model.summary(base.mod)
-
-base.mod %>% filter(year > 29 & year < 100) %>% summarise(NH.ratio = mean(NH.ratio))
+# 7. 100-YEAR MODEL VALIDATION ---------------------------------------------------------------------------------------------
+base.mod.df <- model.summary(mod.03)
 
 # plots
-# sim.nums    <- paste0('s', sample(1:n.sim, 100, replace=FALSE))
 sim.nums <- n.sim
 base.mod1   <- base.mod #%>% filter(sim %in% sim.nums)
-# base.mod2   <- base.mod1 %>% filter(sim %in% sample(sim.nums, 1))
 hundo.spawn <- ggplot() +
   geom_line(data = base.mod1, aes(x = year, y = Spawn.est, group = sim), color = 'gray70', alpha = 0.3) +
   # geom_line(data = base.mod2, aes(x = year, y = Spawn.est), color = 'black') +
@@ -443,55 +438,7 @@ melodi.harv.plot <- ggplot() +
 
 ggarrange(sim.age.com, will.age.com, sim.harv.plot, melodi.harv.plot, nrow=2, ncol=2)
 
-# Check juvenile survival
-base.mod %>% filter(year > 29 & year < 100) %>% dplyr::select(j.surv) %>% summarise(across(1, mean))
 
-# Check overfished status
-base.mod.overfished <- calc_overfished(base.mod, n.sim = n.sim, n.yr = n.yr)
-mean(base.mod.overfished$prop.overfished) * 100
-mean(base.mod.overfished$prop.under.MSST) * 100
-mean(base.mod.overfished$prop.70) * 100
-mean(base.mod.overfished$prop.25) * 100
-mean(base.mod.overfished$prop.10) * 100
-
-
-# Check forecast error
-fe.df <- base.mod %>% dplyr::select(year, SI.observed, SI.forecast, Spawn, harvest, sim) %>% filter(year > 29) %>% mutate(true.SI = Spawn+harvest)
-fe1 <- ggplot() +
-  geom_point(data = fe.df, aes(x = SI.observed, y = SI.forecast), color = '#0072B2', alpha = 0.1, size = 1.5) +
-  # geom_point(data = fe.df, aes(x = true.SI, y = SI.forecast), color = 'red', alpha = 0.1, size = 1.5) +
-  geom_abline(intercept = 0, slope = 1, lty = 'dashed', size = 1) +
-  geom_segment(aes(x = 406667, y = 0, xend = 406667, yend = 406667), size = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, y = 406667, xend = 406667, yend = 406667), size = 1, lty = 'dashed') +
-  scale_x_continuous(expand = c(0,0), limits = c(0,1e6)) +
-  scale_y_continuous(expand = c(0,0), limits = c(0,1e6)) +
-  labs(x = 'Postseason estimate', y = 'Preseason forecast') +
-  theme_classic()
-fe2 <- ggplot() +
-  geom_point(data = fe.df, aes(x = true.SI, y = SI.forecast), color = '#0072B2', alpha = 0.1, size = 1.5) +
-  geom_abline(intercept = 0, slope = 1, lty = 'dashed', size = 1) +
-  geom_segment(aes(x = 406667, y = 0, xend = 406667, yend = 406667), size = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, y = 406667, xend = 406667, yend = 406667), size = 1, lty = 'dashed') +
-  scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0)) +
-  labs(x = 'Postseason "true" SI', y = 'Preseason SI forecast') +
-  theme_classic()
-
-# Check implementation error
-ie.df <- base.mod %>% select(year, SI.observed, Spawn, harvest, mu.c, sim) %>% mutate(er.observed = harvest/SI.observed, er.true = harvest/(harvest+Spawn))
-ggplot() +
-  geom_point(data = ie.df, aes(x = mu.c, y = er.observed), color = '#0072B2', alpha = 0.1, size = 1.5) +
-  geom_abline(intercept = 0, slope = 1, lty = 'dashed', size = 1) +
-  # scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0)) +
-  labs(x = 'Allowable ER', y = 'Postseason observed ER') +
-  theme_classic()
-ggplot() +
-  geom_point(data = ie.df, aes(x = mu.c, y = er.true), color = '#0072B2', alpha = 0.1, size = 1.5) +
-  geom_abline(intercept = 0, slope = 1, lty = 'dashed', size = 1) +
-  scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0)) +
-  theme_classic()
 
 # Check autocorrelation
 tmp.acf <- acf(catch.esc$total.esc, 6)
