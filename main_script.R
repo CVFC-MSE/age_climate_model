@@ -2,28 +2,23 @@
 ## model_fitting.R
 ##
 ## Author: Paul Carvalho (paul.carvalho@noaa.gov, pcarvalh@ucsc.edu)
-## Last update: May 25, 2022
 ##
 ## Description: Run simulation models to test the effects of drought on Sacramento River fall run Chinook salmon under
 ##              different age structure scenarios. Two mechanisms that affect age structure were tested separately - 
 ##              mortality and maturation.
 ## ----------------------------------------------------------------------------------------------------------------------
 
-## General notes --------------------------------------------------------------------------------------------------------
+
+# GENERAL NOTES ---------------------------------------------------------------------------------------------------------
 # 1. Use docstring('insert function name') to view function documentation and information.
 
-# Setup workspace -------------------------------------------------------------------------------------------------------
+
+# SETUP WORKSPACE -------------------------------------------------------------------------------------------------------
 # Clear workspace
 rm(list = ls())
-# Load data
-load('srfc_data.RData')
-# Load functions stored in other scripts
-source('operating_model_functions.r')
-source('operating_model.r')
-source('main_script_functions.r')
 
 # Load libraries
-# library(docstring) # NOTE: Use docstring("function name") to display R documentation for functions defined in this script
+library(docstring) # NOTE: Use docstring("function name") to display R documentation for functions defined in this script
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -31,10 +26,318 @@ library(ggpubr)
 library(foreach)
 library(doParallel)
 
-# Set model parameters and variables ----------------------------------------------------------------------------------
-n.yr  <- 100 # number of years to simulate
+# Load empirical data
+load('srfc_data.RData')
+
+# Load functions stored in other scripts
+source('operating_model_functions.r')
+source('operating_model.r')
+source('main_script_functions.r')
+
+
+# SET MODEL PARAMETERS -------------------------------------------------------------------------------------------------
+n.yr  <- 100   # number of years to simulate
 n.sim <- 20000 # number of simulations to run 20000
 pars  <- c(0.068, 0.215, 0.828, 0.132) # See 'fall_model_fit.r' for calibration process: (1) residual juvenile mortality, (2) CV in recruitment stochasticity, (3) NPGO-dependent mortality coefficient, (4) Variance of NPGO-dependent mortality 
+
+
+# RUN MAIN MODEL SCENARIOS ---------------------------------------------------------------------------------------------
+## Base flow models ----------------------------------------------------------------------------------------------------
+# 1. maturation = 0.99 (base natural mortality)
+# 2. mortality  = 0.01 (base maturation)
+# 3. base maturity and mortality
+# 4. mortality  = 0.99 (base maturation)
+# 5. maturation = 0.25 (base natural mortality)        
+mod.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+mod.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+mod.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+mod.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+mod.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'base')
+save(mod.01, mod.02, mod.03, mod.04, mod.05, file = 'age_flow_mod1.RData')
+
+## Longer duration drought models --------------------------------------------------------------------------------------
+# 6.  maturation = 0.99 (base natural mortality)
+# 7.  mortality  = 0.01 (base maturation)
+# 8.  base maturity and mortality
+# 9.  mortality  = 0.99 (base maturation)
+# 10. maturation = 0.25 (base natural mortality)
+mod.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+mod.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
+mod.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+mod.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
+mod.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'longer duration')
+save(mod.06, mod.07, mod.08, mod.09, mod.10, file = 'age_flow_mod2.RData')
+
+## More frequent drought models ----------------------------------------------------------------------------------------
+# 11. maturation = 0.99 (base natural mortality)
+# 12. mortality  = 0.01 (base maturation)
+# 13. base maturity and mortality
+# 14. mortality  = 0.99 (base maturation)
+# 15. maturation = 0.25 (base natural mortality)
+mod.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+mod.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
+mod.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+mod.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
+mod.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more frequent')
+save(mod.11, mod.12, mod.13, mod.14, mod.15, file = 'age_flow_mod3.RData')
+
+## More intense drought models -----------------------------------------------------------------------------------------
+# 16. maturation = 0.99 (base natural mortality)
+# 17. mortality  = 0.01 (base maturation)
+# 18. base maturity and mortality
+# 19. mortality  = 0.99 (base maturation)
+# 20. maturation = 0.25 (base natural mortality)
+mod.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+mod.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
+mod.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+mod.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1),  n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
+mod.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8),   scenario = 'more intense')
+save(mod.16, mod.17, mod.18, mod.19, mod.20, file = 'age_flow_mod4.RData')
+
+
+# SUMMARIZE MAIN MODEL DATA --------------------------------------------------------------------------------------------
+load('age_flow_mod1.RData')
+mod01.df <- model.summary(mod.01)
+mod02.df <- model.summary(mod.02)
+mod03.df <- model.summary(mod.03)
+mod04.df <- model.summary(mod.04)
+mod05.df <- model.summary(mod.05)
+mod01.overfished <- calc_overfished(mod.01, n.sim = n.sim, n.yr = n.yr)
+mod02.overfished <- calc_overfished(mod.02, n.sim = n.sim, n.yr = n.yr)
+mod03.overfished <- calc_overfished(mod.03, n.sim = n.sim, n.yr = n.yr)
+mod04.overfished <- calc_overfished(mod.04, n.sim = n.sim, n.yr = n.yr)
+mod05.overfished <- calc_overfished(mod.05, n.sim = n.sim, n.yr = n.yr)
+vio1.df <- violin_df(mod.01, "1") 
+vio2.df <- violin_df(mod.02, "2") 
+vio3.df <- violin_df(mod.03, "3")
+vio4.df <- violin_df(mod.04, "4") 
+vio5.df <- violin_df(mod.05, "5")
+vio.df <- rbind(vio1.df,vio2.df,vio3.df,vio4.df,vio5.df)
+rm(mod.01, mod.02, mod.03, mod.04, mod.05, vio1.df, vio2.df, vio3.df, vio4.df, vio5.df)
+
+load('age_flow_mod2.RData')
+mod06.df <- model.summary(mod.06)
+mod07.df <- model.summary(mod.07)
+mod08.df <- model.summary(mod.08)
+mod09.df <- model.summary(mod.09)
+mod10.df <- model.summary(mod.10)
+mod06.overfished <- calc_overfished(mod.06, n.sim = n.sim, n.yr = n.yr)
+mod07.overfished <- calc_overfished(mod.07, n.sim = n.sim, n.yr = n.yr)
+mod08.overfished <- calc_overfished(mod.08, n.sim = n.sim, n.yr = n.yr)
+mod09.overfished <- calc_overfished(mod.09, n.sim = n.sim, n.yr = n.yr)
+mod10.overfished <- calc_overfished(mod.10, n.sim = n.sim, n.yr = n.yr)
+vio6.df <- violin_df(mod.06, "6") 
+vio7.df <- violin_df(mod.07, "7") 
+vio8.df <- violin_df(mod.08, "8")
+vio9.df <- violin_df(mod.09, "9") 
+vio10.df <- violin_df(mod.10, "10")
+vio.df <- rbind(vio.df,vio6.df,vio7.df,vio8.df,vio9.df,vio10.df)
+rm(mod.06, mod.07, mod.08, mod.09, mod.10, vio6.df, vio7.df, vio8.df, vio9.df, vio10.df)
+
+load('age_flow_mod3.RData')
+mod11.df <- model.summary(mod.11)
+mod12.df <- model.summary(mod.12)
+mod13.df <- model.summary(mod.13)
+mod14.df <- model.summary(mod.14)
+mod15.df <- model.summary(mod.15)
+mod11.overfished <- calc_overfished(mod.11, n.sim = n.sim, n.yr = n.yr)
+mod12.overfished <- calc_overfished(mod.12, n.sim = n.sim, n.yr = n.yr)
+mod13.overfished <- calc_overfished(mod.13, n.sim = n.sim, n.yr = n.yr)
+mod14.overfished <- calc_overfished(mod.14, n.sim = n.sim, n.yr = n.yr)
+mod15.overfished <- calc_overfished(mod.15, n.sim = n.sim, n.yr = n.yr)
+vio11.df <- violin_df(mod.11, "11") 
+vio12.df <- violin_df(mod.12, "12") 
+vio13.df <- violin_df(mod.13, "13")
+vio14.df <- violin_df(mod.14, "14") 
+vio15.df <- violin_df(mod.15, "15")
+vio.df <- rbind(vio.df,vio11.df,vio12.df,vio13.df,vio14.df,vio15.df)
+rm(mod.11, mod.12, mod.13, mod.14, mod.15, vio11.df, vio12.df, vio13.df, vio14.df, vio15.df)
+
+load('age_flow_mod4.RData')
+mod16.df <- model.summary(mod.16)
+mod17.df <- model.summary(mod.17)
+mod18.df <- model.summary(mod.18)
+mod19.df <- model.summary(mod.19)
+mod20.df <- model.summary(mod.20)
+mod16.overfished <- calc_overfished(mod.16, n.sim = n.sim, n.yr = n.yr)
+mod17.overfished <- calc_overfished(mod.17, n.sim = n.sim, n.yr = n.yr)
+mod18.overfished <- calc_overfished(mod.18, n.sim = n.sim, n.yr = n.yr)
+mod19.overfished <- calc_overfished(mod.19, n.sim = n.sim, n.yr = n.yr)
+mod20.overfished <- calc_overfished(mod.20, n.sim = n.sim, n.yr = n.yr)
+vio16.df <- violin_df(mod.16, "16") 
+vio17.df <- violin_df(mod.17, "17") 
+vio18.df <- violin_df(mod.18, "18")
+vio19.df <- violin_df(mod.19, "19") 
+vio20.df <- violin_df(mod.20, "20")
+vio.df <- rbind(vio.df,vio16.df,vio17.df,vio18.df,vio19.df,vio20.df)
+rm(mod.16, mod.17, mod.18, mod.19, mod.20, vio16.df, vio17.df, vio18.df, vio19.df, vio20.df)
+
+# Save summary data for plotting
+save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08.df, mod09.df, mod10.df,
+     mod11.df, mod12.df, mod13.df, mod14.df, mod15.df, mod16.df, mod17.df, mod18.df, mod19.df, mod20.df,
+     mod01.overfished, mod02.overfished, mod03.overfished, mod04.overfished, mod05.overfished, 
+     mod06.overfished, mod07.overfished, mod08.overfished, mod09.overfished, mod10.overfished,
+     mod11.overfished, mod12.overfished, mod13.overfished, mod14.overfished, mod15.overfished, 
+     mod16.overfished, mod17.overfished, mod18.overfished, mod19.overfished, mod20.overfished,
+     vio.df,
+     file = 'age_flow_summary.RData')
+
+
+## Plot scenarios ------------------------------------------------------------------------------------------------------
+# base case flow
+spawn.plot1   <- age_struct_plot(df.list = list(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df), spawn1_harvest0 = 1, labels = c('', 'Spawner escapement (1000s)', 'Contemporary flow'))
+harvest.plot1 <- age_struct_plot(df.list = list(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df), spawn1_harvest0 = 0, labels = c('', 'Harvest (1000s)', 'Contemporary flow'))
+# longer duration
+spawn.plot2   <- age_struct_plot(df.list = list(mod06.df, mod07.df, mod08.df, mod09.df, mod10.df), spawn1_harvest0 = 1, labels = c('', '', 'Longer duration'))
+harvest.plot2 <- age_struct_plot(df.list = list(mod06.df, mod07.df, mod08.df, mod09.df, mod10.df), spawn1_harvest0 = 0, labels = c('', '', 'Longer duration'))
+# more frequent
+spawn.plot3   <- age_struct_plot(df.list = list(mod11.df, mod12.df, mod13.df, mod14.df, mod15.df), spawn1_harvest0 = 1, labels = c('Age structure scenario', 'Spawner escapement (1000s)', 'More frequent'))
+harvest.plot3 <- age_struct_plot(df.list = list(mod11.df, mod12.df, mod13.df, mod14.df, mod15.df), spawn1_harvest0 = 0, labels = c('Age structure scenario', 'Harvest (1000s)', 'More frequent'))
+# more intense
+spawn.plot4   <- age_struct_plot(df.list = list(mod16.df, mod17.df, mod18.df, mod19.df, mod20.df), spawn1_harvest0 = 1, labels = c('Age structure scenario', '', 'More intense'))
+harvest.plot4 <- age_struct_plot(df.list = list(mod16.df, mod17.df, mod18.df, mod19.df, mod20.df), spawn1_harvest0 = 0, labels = c('Age structure scenario', '', 'More intense'))
+
+spawn.plot.all <- ggplot(data = all.scen.df) +
+  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
+  # geom_point(aes(x = age_scen, y = spawn.median/1000, color = climate), shape = 3, size = 3) +
+  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
+  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Spawner escapement (thousands)') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
+  theme(legend.title = element_blank(), legend.position = c(0.87, 0.9), text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank())
+harvest.plot.all <- ggplot(data = all.scen.df) +
+  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
+  # geom_point(aes(x = age_scen, y = harvest.median/1000, color = climate), shape = 3, size = 3) +
+  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
+  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Harvest (thousands)') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1900)) +
+  # scale_x_continuous(breaks = seq(1,5), labels = c(expression(tau[3]~"= 0.99"), ~paste(eta[4], ''[',5'], '=0.01'), 'Base case', ~paste(eta[4], ''[',5'], '=0.99'), expression(tau[3]~"= 0.25"))) +
+  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0,0,0.5,0.7),'cm'), axis.text.x = element_blank())
+
+# Arrange plots
+# ggarrange(spawn.plot.all, harvest.plot.all, nrow=2, ncol=1, labels=c('a','b'))
+
+# CV for each scenario
+cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=5),
+                    age_struct = c(seq(0.7,4.7,by=1),seq(0.9,4.9,by=1),seq(1.1,5.1,by=1),seq(1.3,5.3,by=1)),
+                    spawn_cv = c(mod01.df$spawn.cv, mod02.df$spawn.cv, mod03.df$spawn.cv, mod04.df$spawn.cv, mod05.df$spawn.cv, mod06.df$spawn.cv, mod07.df$spawn.cv, mod08.df$spawn.cv, mod09.df$spawn.cv, mod10.df$spawn.cv, mod11.df$spawn.cv, mod12.df$spawn.cv, mod13.df$spawn.cv, mod14.df$spawn.cv, mod15.df$spawn.cv, mod16.df$spawn.cv, mod17.df$spawn.cv, mod18.df$spawn.cv, mod19.df$spawn.cv, mod20.df$spawn.cv),
+                    harvest_cv = c(mod01.df$harvest.cv, mod02.df$harvest.cv, mod03.df$harvest.cv, mod04.df$harvest.cv, mod05.df$harvest.cv, mod06.df$harvest.cv, mod07.df$harvest.cv, mod08.df$harvest.cv, mod09.df$harvest.cv, mod10.df$harvest.cv, mod11.df$harvest.cv, mod12.df$harvest.cv, mod13.df$harvest.cv, mod14.df$harvest.cv, mod15.df$harvest.cv, mod16.df$harvest.cv, mod17.df$harvest.cv, mod18.df$harvest.cv, mod19.df$harvest.cv, mod20.df$harvest.cv))
+spawn.cv.plot1 <- cv_plot(cv.df, scen = 'Contemporary', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'Contemporary flow'))
+spawn.cv.plot2 <- cv_plot(cv.df, scen = 'Duration', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'Longer duration'))
+spawn.cv.plot3 <- cv_plot(cv.df, scen = 'Frequency', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'More frequent'))
+spawn.cv.plot4 <- cv_plot(cv.df, scen = 'Intensity', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'More intense'))
+
+harvest.cv.plot1 <- cv_plot(cv.df, scen = 'Contemporary', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'Contemporary flow'))
+harvest.cv.plot2 <- cv_plot(cv.df, scen = 'Duration', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'Longer duration'))
+harvest.cv.plot3 <- cv_plot(cv.df, scen = 'Frequency', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'More frequent'))
+harvest.cv.plot4 <- cv_plot(cv.df, scen = 'Intensity', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'More intense'))
+
+spawn.cv.all <- ggplot(data = cv.df) +
+  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
+  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
+  # scale_y_continuous(expand = c(0, 0), limits = c(0.52, 0.72)) +
+  scale_x_continuous(breaks = seq(1,5), labels = c(expression(tau[3]~"= 0.99"), ~paste(eta[4], ''[',5'], '=0.01'), 'Base case', ~paste(eta[4], ''[',5'], '=0.99'), expression(tau[3]~"= 0.25"))) +
+  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+harvest.cv.all <- ggplot(data = cv.df) +
+  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
+  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = 'Age structure scenario', y = 'CV of harvest') +
+  # scale_y_continuous(expand = c(0, 0), limits = c(0.65, 0.80)) +
+  scale_x_continuous(breaks = seq(1,5), labels = c(expression(tau[3]~"= 0.99"), ~paste(eta[4], ''[',5'], '=0.01'), 'Base case', ~paste(eta[4], ''[',5'], '=0.99'), expression(tau[3]~"= 0.25"))) +
+  theme(legend.title = element_blank(), legend.position = c(0.85, 0.85), text = element_text(size = 13), plot.margin = unit(c(0,0,0.5,0.7),'cm'))
+# ggarrange(spawn.cv.all, harvest.cv.all, nrow=2, ncol=1, labels=c('a','b'))
+ggarrange(spawn.plot.all, spawn.cv.all, nrow=2, ncol=1, labels=c('a','b'))
+ggarrange(harvest.plot.all, harvest.cv.all, nrow=2, ncol=1, labels=c('a','b'))
+
+
+## SPAWN PLOTS
+total.run.tau.plot <- ggplot(data = tau.df) +
+  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
+  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = '', title = 'Maturation') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 875)) +
+  annotate('text', x = 1.1, y = 840, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 840, label = '[Delayed maturation]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), 
+        plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+spawn.tau.95pi.plot <- ggplot(data = tau.df) +
+  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
+  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = '', title = 'Maturation') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
+  annotate('text', x = 1.1, y = 1250, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 2.9, y = 1250, label = '[Delayed maturation]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
+        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
+        plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
+
+total.run.cv.tau.plot <- ggplot(data = tau.cv.df) +
+  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = 'Age structure scenario', y = '') +
+  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
+  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
+  scale_y_continuous(limits=c(0.5, 0.7)) +
+  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+
+total.run.tau <- ggarrange(total.run.tau.plot, total.run.cv.tau.plot, nrow=2, labels = c('b', 'd'))
+
+total.run.eta.plot <- ggplot(data = eta.df) +
+  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
+  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Total run size (thousands)', title = 'Natural mortality') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 900)) +
+  annotate('text', x = 1.1, y = 875, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 875, label = '[Low mortality]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = c(0.8, 0.2),
+        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+spawn.eta.95pi.plot <- ggplot(data = eta.df) +
+  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
+  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
+  annotate('text', x = 1.1, y = 1250, label = '[High mortality]', size = 4) +
+  annotate('text', x = 2.9, y = 1250, label = '[Low mortality]', size = 4) +
+  theme(legend.title = element_blank(), legend.position = 'none',
+        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
+        plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
+total.run.cv.eta.plot <- ggplot(data = eta.cv.df) +
+  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = 'Age structure scenario', y = 'CV of total run size') +
+  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
+  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
+  scale_y_continuous(limits=c(0.5, 0.7)) +
+  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+
+
+total.run.eta <- ggarrange(total.run.eta.plot, total.run.cv.eta.plot, nrow=2, labels = c('a', 'c'))
+totalrun.final <- ggarrange(total.run.eta, total.run.tau, ncol=2)
+
+
+
+
+
 
 
 
@@ -870,389 +1173,6 @@ test.mod2.cv <- test.cv(test.mod2)
 test.mod3.cv <- test.cv(test.mod3)
 test.mod4.cv <- test.cv(test.mod4)
 test.mod5.cv <- test.cv(test.mod5)
-
-# Model scenarios ------------------------------------------------------------------------------------------------------
-# 1.  Base flow,       maturation = 0.99
-mod.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-# 2.  Base flow,       survival = 0.01            
-mod.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
-# 3.  Base flow,       base maturity and survival
-mod.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-# 4.  Base flow,       survival = 0.99            
-mod.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
-# 5.  Base flow,       maturation = 0.25           
-mod.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-save(mod.01, mod.02, mod.03, mod.04, mod.05, file = 'age_flow_mod1.RData')
-
-# 6.  Longer duration, maturation = 0.99            
-mod.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-# 7.  Longer duration, survival = 0.01            
-mod.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
-# 8.  Longer duration, base maturity and survival
-mod.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-# 9.  Longer duration, survival = 0.99            
-mod.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
-# 10. Longer duration, maturation = 0.25           
-mod.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-save(mod.06, mod.07, mod.08, mod.09, mod.10, file = 'age_flow_mod2.RData')
-
-# 11. More frequent,   maturation = 0.99       
-mod.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-# 12. More frequent,   survival = 0.01            
-mod.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
-# 13. More frequent,   base maturity and survival
-mod.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-# 14. More frequent,   survival = 0.99            
-mod.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
-# 15. More frequent,   maturation = 0.25           
-mod.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-save(mod.11, mod.12, mod.13, mod.14, mod.15, file = 'age_flow_mod3.RData')
-
-# 16. More intense,    maturation = 0.99      
-mod.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.999, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-# 17. More intense,    survival = 0.01            
-mod.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
-# 18. More intense,    base maturity and survival
-mod.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-# 19. More intense,    survival = 0.99            
-mod.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
-# 20. More intense,    maturation = 0.25           
-mod.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.250, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-save(mod.16, mod.17, mod.18, mod.19, mod.20, file = 'age_flow_mod4.RData')
-
-
-## Calculate summary values for all scenarios --------------------------------------------------------------------------
-load('age_flow_mod1.RData')
-mod01.df <- model.summary(mod.01)
-mod02.df <- model.summary(mod.02)
-mod03.df <- model.summary(mod.03)
-mod04.df <- model.summary(mod.04)
-mod05.df <- model.summary(mod.05)
-mod01.overfished <- calc_overfished(mod.01, n.sim = n.sim, n.yr = n.yr)
-mod02.overfished <- calc_overfished(mod.02, n.sim = n.sim, n.yr = n.yr)
-mod03.overfished <- calc_overfished(mod.03, n.sim = n.sim, n.yr = n.yr)
-mod04.overfished <- calc_overfished(mod.04, n.sim = n.sim, n.yr = n.yr)
-mod05.overfished <- calc_overfished(mod.05, n.sim = n.sim, n.yr = n.yr)
-vio1.df <- violin_df(mod.01, "1") 
-vio2.df <- violin_df(mod.02, "2") 
-vio3.df <- violin_df(mod.03, "3")
-vio4.df <- violin_df(mod.04, "4") 
-vio5.df <- violin_df(mod.05, "5")
-vio.df <- rbind(vio1.df,vio2.df,vio3.df,vio4.df,vio5.df)
-rm(mod.01, mod.02, mod.03, mod.04, mod.05, vio1.df, vio2.df, vio3.df, vio4.df, vio5.df)
-
-load('age_flow_mod2.RData')
-mod06.df <- model.summary(mod.06)
-mod07.df <- model.summary(mod.07)
-mod08.df <- model.summary(mod.08)
-mod09.df <- model.summary(mod.09)
-mod10.df <- model.summary(mod.10)
-mod06.overfished <- calc_overfished(mod.06, n.sim = n.sim, n.yr = n.yr)
-mod07.overfished <- calc_overfished(mod.07, n.sim = n.sim, n.yr = n.yr)
-mod08.overfished <- calc_overfished(mod.08, n.sim = n.sim, n.yr = n.yr)
-mod09.overfished <- calc_overfished(mod.09, n.sim = n.sim, n.yr = n.yr)
-mod10.overfished <- calc_overfished(mod.10, n.sim = n.sim, n.yr = n.yr)
-vio6.df <- violin_df(mod.06, "6") 
-vio7.df <- violin_df(mod.07, "7") 
-vio8.df <- violin_df(mod.08, "8")
-vio9.df <- violin_df(mod.09, "9") 
-vio10.df <- violin_df(mod.10, "10")
-vio.df <- rbind(vio.df,vio6.df,vio7.df,vio8.df,vio9.df,vio10.df)
-rm(mod.06, mod.07, mod.08, mod.09, mod.10, vio6.df, vio7.df, vio8.df, vio9.df, vio10.df)
-
-load('age_flow_mod3.RData')
-mod11.df <- model.summary(mod.11)
-mod12.df <- model.summary(mod.12)
-mod13.df <- model.summary(mod.13)
-mod14.df <- model.summary(mod.14)
-mod15.df <- model.summary(mod.15)
-mod11.overfished <- calc_overfished(mod.11, n.sim = n.sim, n.yr = n.yr)
-mod12.overfished <- calc_overfished(mod.12, n.sim = n.sim, n.yr = n.yr)
-mod13.overfished <- calc_overfished(mod.13, n.sim = n.sim, n.yr = n.yr)
-mod14.overfished <- calc_overfished(mod.14, n.sim = n.sim, n.yr = n.yr)
-mod15.overfished <- calc_overfished(mod.15, n.sim = n.sim, n.yr = n.yr)
-vio11.df <- violin_df(mod.11, "11") 
-vio12.df <- violin_df(mod.12, "12") 
-vio13.df <- violin_df(mod.13, "13")
-vio14.df <- violin_df(mod.14, "14") 
-vio15.df <- violin_df(mod.15, "15")
-vio.df <- rbind(vio.df,vio11.df,vio12.df,vio13.df,vio14.df,vio15.df)
-rm(mod.11, mod.12, mod.13, mod.14, mod.15, vio11.df, vio12.df, vio13.df, vio14.df, vio15.df)
-
-load('age_flow_mod4.RData')
-mod16.df <- model.summary(mod.16)
-mod17.df <- model.summary(mod.17)
-mod18.df <- model.summary(mod.18)
-mod19.df <- model.summary(mod.19)
-mod20.df <- model.summary(mod.20)
-mod16.overfished <- calc_overfished(mod.16, n.sim = n.sim, n.yr = n.yr)
-mod17.overfished <- calc_overfished(mod.17, n.sim = n.sim, n.yr = n.yr)
-mod18.overfished <- calc_overfished(mod.18, n.sim = n.sim, n.yr = n.yr)
-mod19.overfished <- calc_overfished(mod.19, n.sim = n.sim, n.yr = n.yr)
-mod20.overfished <- calc_overfished(mod.20, n.sim = n.sim, n.yr = n.yr)
-vio16.df <- violin_df(mod.16, "16") 
-vio17.df <- violin_df(mod.17, "17") 
-vio18.df <- violin_df(mod.18, "18")
-vio19.df <- violin_df(mod.19, "19") 
-vio20.df <- violin_df(mod.20, "20")
-vio.df <- rbind(vio.df,vio16.df,vio17.df,vio18.df,vio19.df,vio20.df)
-rm(mod.16, mod.17, mod.18, mod.19, mod.20, vio16.df, vio17.df, vio18.df, vio19.df, vio20.df)
-
-save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08.df, mod09.df, mod10.df,
-     mod11.df, mod12.df, mod13.df, mod14.df, mod15.df, mod16.df, mod17.df, mod18.df, mod19.df, mod20.df,
-     mod01.overfished, mod02.overfished, mod03.overfished, mod04.overfished, mod05.overfished, mod06.overfished, mod07.overfished, mod08.overfished, mod09.overfished, mod10.overfished,
-     mod11.overfished, mod12.overfished, mod13.overfished, mod14.overfished, mod15.overfished, mod16.overfished, mod17.overfished, mod18.overfished, mod19.overfished, mod20.overfished,
-     vio.df,
-     file = 'age_flow_summary.RData')
-
-# Test average absolute variability
-test <- rlnorm(100, 5, 0.2)
-test1 <- data.frame(test, year = seq(1:100)) %>%
-  filter(year>=30) %>%
-  mutate(test.lag = lag(test, 1)) %>%
-  filter(!(is.na(test.lag))) %>%
-  mutate(ab.diff = abs(test-test.lag)) %>%
-  mutate(abs.dev = abs(test-mean(test)))
-test2 <- sum(test1$ab.diff)/sum(test1$test)
-test3 <- sum(test1$abs.dev)/100
-
-load('age_flow_summary.RData')
-
-all.scen.df <- rbind(mod01.df%>%mutate(climate='Contemporary', age_scen=0.7),
-                     mod02.df%>%mutate(climate='Contemporary', age_scen=1.7),
-                     mod03.df%>%mutate(climate='Contemporary', age_scen=2.7),
-                     mod04.df%>%mutate(climate='Contemporary', age_scen=3.7),
-                     mod05.df%>%mutate(climate='Contemporary', age_scen=4.7),
-                     
-                     mod06.df%>%mutate(climate='Longer duration', age_scen=0.9),
-                     mod07.df%>%mutate(climate='Longer duration', age_scen=1.9),
-                     mod08.df%>%mutate(climate='Longer duration', age_scen=2.9),
-                     mod09.df%>%mutate(climate='Longer duration', age_scen=3.9),
-                     mod10.df%>%mutate(climate='Longer duration', age_scen=4.9),
-                     
-                     mod11.df%>%mutate(climate='More frequent', age_scen=1.1),
-                     mod12.df%>%mutate(climate='More frequent', age_scen=2.1),
-                     mod13.df%>%mutate(climate='More frequent', age_scen=3.1),
-                     mod14.df%>%mutate(climate='More frequent', age_scen=4.1),
-                     mod15.df%>%mutate(climate='More frequent', age_scen=5.1),
-                     
-                     mod16.df%>%mutate(climate='More intense', age_scen=1.3),
-                     mod17.df%>%mutate(climate='More intense', age_scen=2.3),
-                     mod18.df%>%mutate(climate='More intense', age_scen=3.3),
-                     mod19.df%>%mutate(climate='More intense', age_scen=4.3),
-                     mod20.df%>%mutate(climate='More intense', age_scen=5.3))
-
-tau.df <- rbind(mod01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
-                mod03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
-                mod05.df %>% mutate(climate='Contemporary', age_scen = 2.7),
-                mod06.df %>% mutate(climate='Longer duration', age_scen = 0.9),
-                mod08.df %>% mutate(climate='Longer duration', age_scen = 1.9),
-                mod10.df %>% mutate(climate='Longer duration', age_scen = 2.9),
-                mod11.df %>% mutate(climate='More frequent', age_scen = 1.1),
-                mod13.df %>% mutate(climate='More frequent', age_scen = 2.1),
-                mod15.df %>% mutate(climate='More frequent', age_scen = 3.1),
-                mod16.df %>% mutate(climate='More intense', age_scen = 1.3),
-                mod18.df %>% mutate(climate='More intense', age_scen = 2.3),
-                mod20.df %>% mutate(climate='More intense', age_scen = 3.3))
-
-age.scen.df1 <- data.frame(scenario = as.character(c(1,3,5,6,8,10,11,13,15,16,18,20)),
-                          age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
-
-tau.vio.df <- vio.df %>%
-  filter(scenario %in% as.character(c(1,3,5,6,8,10,11,13,15,16,18,20))) %>%
-  mutate(climate = ifelse(scenario %in% as.character(c(1,3,5)), 'Contemporary',
-                   ifelse(scenario %in% as.character(c(6,8,10)), 'Longer duration',
-                   ifelse(scenario %in% as.character(c(11,13,15)), 'More frequent',
-                   'More intense')))) %>%
-  left_join(., age.scen.df1, by = "scenario")
-
-tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
-                        age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
-                        spawn_cv = c(mod01.df$spawn.cv, mod03.df$spawn.cv, mod05.df$spawn.cv, mod06.df$spawn.cv, mod08.df$spawn.cv, mod10.df$spawn.cv, mod11.df$spawn.cv, mod13.df$spawn.cv, mod15.df$spawn.cv, mod16.df$spawn.cv, mod18.df$spawn.cv, mod20.df$spawn.cv),
-                        harvest_cv = c(mod01.df$harvest.cv, mod03.df$harvest.cv, mod05.df$harvest.cv, mod06.df$harvest.cv, mod08.df$harvest.cv, mod10.df$harvest.cv, mod11.df$harvest.cv, mod13.df$harvest.cv, mod15.df$harvest.cv, mod16.df$harvest.cv, mod18.df$harvest.cv, mod20.df$harvest.cv))
-                        # totalrun_cv = c(mod01.df$total.run.cv, mod03.df$total.run.cv, mod05.df$total.run.cv, mod06.df$total.run.cv, mod08.df$total.run.cv, mod10.df$total.run.cv, mod11.df$total.run.cv, mod13.df$total.run.cv, mod15.df$total.run.cv, mod16.df$total.run.cv, mod18.df$total.run.cv, mod20.df$total.run.cv))
-
-eta.df <- rbind(mod02.df %>% mutate(climate='Contemporary', age_scen = 0.7),
-                mod03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
-                mod04.df %>% mutate(climate='Contemporary', age_scen = 2.7),
-                mod07.df %>% mutate(climate='Longer duration', age_scen=0.9),
-                mod08.df %>% mutate(climate='Longer duration', age_scen=1.9),
-                mod09.df %>% mutate(climate='Longer duration', age_scen=2.9),
-                mod12.df %>% mutate(climate='More frequent', age_scen=1.1),
-                mod13.df %>% mutate(climate='More frequent', age_scen=2.1),
-                mod14.df %>% mutate(climate='More frequent', age_scen=3.1),
-                mod17.df %>% mutate(climate='More intense', age_scen=1.3),
-                mod18.df %>% mutate(climate='More intense', age_scen=2.3),
-                mod19.df %>% mutate(climate='More intense', age_scen=3.3))
-
-age.scen.df2 <- data.frame(scenario = as.character(c(2,3,4,7,8,9,12,13,14,17,18,19)),
-                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
-
-eta.vio.df <- vio.df %>%
-  filter(scenario %in% as.character(c(2,3,4,7,8,9,12,13,14,17,18,19))) %>%
-  mutate(climate = ifelse(scenario %in% as.character(c(2,3,4)), 'Contemporary',
-                   ifelse(scenario %in% as.character(c(7,8,9)), 'Longer duration',
-                   ifelse(scenario %in% as.character(c(12,13,14)), 'More frequent',
-                   'More intense')))) %>%
-  left_join(., age.scen.df2, by = "scenario")
-  
-eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
-                        age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
-                        spawn_cv = c(mod02.df$spawn.cv, mod03.df$spawn.cv, mod04.df$spawn.cv, mod07.df$spawn.cv, mod08.df$spawn.cv, mod09.df$spawn.cv, mod12.df$spawn.cv, mod13.df$spawn.cv, mod14.df$spawn.cv, mod17.df$spawn.cv, mod18.df$spawn.cv, mod19.df$spawn.cv),
-                        harvest_cv = c(mod02.df$harvest.cv, mod03.df$harvest.cv, mod04.df$harvest.cv, mod07.df$harvest.cv, mod08.df$harvest.cv, mod09.df$harvest.cv, mod12.df$harvest.cv, mod13.df$harvest.cv, mod14.df$harvest.cv, mod17.df$harvest.cv, mod18.df$harvest.cv, mod19.df$harvest.cv))
-                        # totalrun_cv = c(mod02.df$total.run.cv, mod03.df$total.run.cv, mod04.df$total.run.cv, mod07.df$total.run.cv, mod08.df$total.run.cv, mod09.df$total.run.cv, mod12.df$total.run.cv, mod13.df$total.run.cv, mod14.df$total.run.cv, mod17.df$total.run.cv, mod18.df$total.run.cv, mod19.df$total.run.cv))
-
-## Plot scenarios ------------------------------------------------------------------------------------------------------
-# base case flow
-spawn.plot1   <- age_struct_plot(df.list = list(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df), spawn1_harvest0 = 1, labels = c('', 'Spawner escapement (1000s)', 'Contemporary flow'))
-harvest.plot1 <- age_struct_plot(df.list = list(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df), spawn1_harvest0 = 0, labels = c('', 'Harvest (1000s)', 'Contemporary flow'))
-# longer duration
-spawn.plot2   <- age_struct_plot(df.list = list(mod06.df, mod07.df, mod08.df, mod09.df, mod10.df), spawn1_harvest0 = 1, labels = c('', '', 'Longer duration'))
-harvest.plot2 <- age_struct_plot(df.list = list(mod06.df, mod07.df, mod08.df, mod09.df, mod10.df), spawn1_harvest0 = 0, labels = c('', '', 'Longer duration'))
-# more frequent
-spawn.plot3   <- age_struct_plot(df.list = list(mod11.df, mod12.df, mod13.df, mod14.df, mod15.df), spawn1_harvest0 = 1, labels = c('Age structure scenario', 'Spawner escapement (1000s)', 'More frequent'))
-harvest.plot3 <- age_struct_plot(df.list = list(mod11.df, mod12.df, mod13.df, mod14.df, mod15.df), spawn1_harvest0 = 0, labels = c('Age structure scenario', 'Harvest (1000s)', 'More frequent'))
-# more intense
-spawn.plot4   <- age_struct_plot(df.list = list(mod16.df, mod17.df, mod18.df, mod19.df, mod20.df), spawn1_harvest0 = 1, labels = c('Age structure scenario', '', 'More intense'))
-harvest.plot4 <- age_struct_plot(df.list = list(mod16.df, mod17.df, mod18.df, mod19.df, mod20.df), spawn1_harvest0 = 0, labels = c('Age structure scenario', '', 'More intense'))
-
-spawn.plot.all <- ggplot(data = all.scen.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_point(aes(x = age_scen, y = spawn.median/1000, color = climate), shape = 3, size = 3) +
-  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Spawner escapement (thousands)') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
-  theme(legend.title = element_blank(), legend.position = c(0.87, 0.9), text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank())
-harvest.plot.all <- ggplot(data = all.scen.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_point(aes(x = age_scen, y = harvest.median/1000, color = climate), shape = 3, size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Harvest (thousands)') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1900)) +
-  # scale_x_continuous(breaks = seq(1,5), labels = c(expression(tau[3]~"= 0.99"), ~paste(eta[4], ''[',5'], '=0.01'), 'Base case', ~paste(eta[4], ''[',5'], '=0.99'), expression(tau[3]~"= 0.25"))) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0,0,0.5,0.7),'cm'), axis.text.x = element_blank())
-
-# Arrange plots
-# ggarrange(spawn.plot.all, harvest.plot.all, nrow=2, ncol=1, labels=c('a','b'))
-
-# CV for each scenario
-cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=5),
-                    age_struct = c(seq(0.7,4.7,by=1),seq(0.9,4.9,by=1),seq(1.1,5.1,by=1),seq(1.3,5.3,by=1)),
-                    spawn_cv = c(mod01.df$spawn.cv, mod02.df$spawn.cv, mod03.df$spawn.cv, mod04.df$spawn.cv, mod05.df$spawn.cv, mod06.df$spawn.cv, mod07.df$spawn.cv, mod08.df$spawn.cv, mod09.df$spawn.cv, mod10.df$spawn.cv, mod11.df$spawn.cv, mod12.df$spawn.cv, mod13.df$spawn.cv, mod14.df$spawn.cv, mod15.df$spawn.cv, mod16.df$spawn.cv, mod17.df$spawn.cv, mod18.df$spawn.cv, mod19.df$spawn.cv, mod20.df$spawn.cv),
-                    harvest_cv = c(mod01.df$harvest.cv, mod02.df$harvest.cv, mod03.df$harvest.cv, mod04.df$harvest.cv, mod05.df$harvest.cv, mod06.df$harvest.cv, mod07.df$harvest.cv, mod08.df$harvest.cv, mod09.df$harvest.cv, mod10.df$harvest.cv, mod11.df$harvest.cv, mod12.df$harvest.cv, mod13.df$harvest.cv, mod14.df$harvest.cv, mod15.df$harvest.cv, mod16.df$harvest.cv, mod17.df$harvest.cv, mod18.df$harvest.cv, mod19.df$harvest.cv, mod20.df$harvest.cv))
-spawn.cv.plot1 <- cv_plot(cv.df, scen = 'Contemporary', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'Contemporary flow'))
-spawn.cv.plot2 <- cv_plot(cv.df, scen = 'Duration', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'Longer duration'))
-spawn.cv.plot3 <- cv_plot(cv.df, scen = 'Frequency', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'More frequent'))
-spawn.cv.plot4 <- cv_plot(cv.df, scen = 'Intensity', spawn1_harvest0 = 1, lims = c(0.50, 0.75), labels = c('Age structure scenario', 'CV of spawner escapement', 'More intense'))
-
-harvest.cv.plot1 <- cv_plot(cv.df, scen = 'Contemporary', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'Contemporary flow'))
-harvest.cv.plot2 <- cv_plot(cv.df, scen = 'Duration', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'Longer duration'))
-harvest.cv.plot3 <- cv_plot(cv.df, scen = 'Frequency', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'More frequent'))
-harvest.cv.plot4 <- cv_plot(cv.df, scen = 'Intensity', spawn1_harvest0 = 0, lims = c(0.60, 0.80), labels = c('Age structure scenario', 'CV of harvest', 'More intense'))
-
-spawn.cv.all <- ggplot(data = cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
-  # scale_y_continuous(expand = c(0, 0), limits = c(0.52, 0.72)) +
-  scale_x_continuous(breaks = seq(1,5), labels = c(expression(tau[3]~"= 0.99"), ~paste(eta[4], ''[',5'], '=0.01'), 'Base case', ~paste(eta[4], ''[',5'], '=0.99'), expression(tau[3]~"= 0.25"))) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-harvest.cv.all <- ggplot(data = cv.df) +
-  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("#999999", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of harvest') +
-  # scale_y_continuous(expand = c(0, 0), limits = c(0.65, 0.80)) +
-  scale_x_continuous(breaks = seq(1,5), labels = c(expression(tau[3]~"= 0.99"), ~paste(eta[4], ''[',5'], '=0.01'), 'Base case', ~paste(eta[4], ''[',5'], '=0.99'), expression(tau[3]~"= 0.25"))) +
-  theme(legend.title = element_blank(), legend.position = c(0.85, 0.85), text = element_text(size = 13), plot.margin = unit(c(0,0,0.5,0.7),'cm'))
-# ggarrange(spawn.cv.all, harvest.cv.all, nrow=2, ncol=1, labels=c('a','b'))
-ggarrange(spawn.plot.all, spawn.cv.all, nrow=2, ncol=1, labels=c('a','b'))
-ggarrange(harvest.plot.all, harvest.cv.all, nrow=2, ncol=1, labels=c('a','b'))
-
-
-## SPAWN PLOTS
-total.run.tau.plot <- ggplot(data = tau.df) +
-  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 875)) +
-  annotate('text', x = 1.1, y = 840, label = '[Early maturation]', size = 4) +
-  annotate('text', x = 2.9, y = 840, label = '[Delayed maturation]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
-        plot.title = element_text(hjust = 0.5))
-
-spawn.tau.95pi.plot <- ggplot(data = tau.df) +
-  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
-  annotate('text', x = 1.1, y = 1250, label = '[Early maturation]', size = 4) +
-  annotate('text', x = 2.9, y = 1250, label = '[Delayed maturation]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'),
-        plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
-
-total.run.cv.tau.plot <- ggplot(data = tau.cv.df) +
-  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray85', color = 'gray85'), plot.background = element_rect(fill = 'gray85', color = 'gray85'))
-
-total.run.tau <- ggarrange(total.run.tau.plot, total.run.cv.tau.plot, nrow=2, labels = c('b', 'd'))
-
-total.run.eta.plot <- ggplot(data = eta.df) +
-  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Total run size (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 900)) +
-  annotate('text', x = 1.1, y = 875, label = '[High mortality]', size = 4) +
-  annotate('text', x = 2.9, y = 875, label = '[Low mortality]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.2),
-        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-spawn.eta.95pi.plot <- ggplot(data = eta.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 1300)) +
-  annotate('text', x = 1.1, y = 1250, label = '[High mortality]', size = 4) +
-  annotate('text', x = 2.9, y = 1250, label = '[Low mortality]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = 'none',
-        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5), axis.ticks.x = element_blank())
-total.run.cv.eta.plot <- ggplot(data = eta.cv.df) +
-  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of total run size') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-
-
-total.run.eta <- ggarrange(total.run.eta.plot, total.run.cv.eta.plot, nrow=2, labels = c('a', 'c'))
-totalrun.final <- ggarrange(total.run.eta, total.run.tau, ncol=2)
 
 
 ## HARVEST PLOTS
