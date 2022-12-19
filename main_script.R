@@ -194,28 +194,7 @@ save(mod01.df, mod02.df, mod03.df, mod04.df, mod05.df, mod06.df, mod07.df, mod08
 
 
 
-# TEST MODEL SCENARIOS --------------------------------------------------------------------------------------------
-# Base flow, survival = 0.01            
-test1 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
-# Base flow, base survival
-test2 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-# Base flow, survival = 0.99            
-test3 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
 
-
-
-mean1 <- test1 %>% filter(year > 30) %>% summarise(mean = mean(harvest))
-mean2 <- test2 %>% filter(year > 30) %>% summarise(mean = mean(harvest))
-mean3 <- test3 %>% filter(year > 30) %>% summarise(mean = mean(harvest))
-ggplot() +
-  geom_line(data = test1, aes(x = year, y = harvest, group = sim), colour = "red", alpha = 0.1) +
-  geom_line(data = test2, aes(x = year, y = harvest, group = sim), colour = "gray70", alpha = 0.1) +
-  geom_line(data = test3, aes(x = year, y = harvest, group = sim), colour = "blue", alpha = 0.1) +
-  # geom_hline(yintercept = mean1$mean, colour = 'red') +
-  # geom_hline(yintercept = mean2$mean, colour = 'gray70') +
-  # geom_hline(yintercept = mean3$mean, colour = 'blue') +
-  # scale_y_continuous(expand = c(0,0), limits = c(0, 500000)) +
-  theme_classic()
 
 
 # Sensitivity to CV of realized harvest rate ---------------------------------------------------------------------------
