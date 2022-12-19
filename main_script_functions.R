@@ -4,6 +4,43 @@
 ## Description: Supporting functions used in 'main_script.R'
 ## -------------------------------------------------------------------------------------------------------------------------
 
+model_summary <- function(x){
+  tmp    <- x %>% dplyr::filter(year >= 30) %>% dplyr::select(year, Spawn.est, harvest, sim)
+  # tmp    <- x %>% dplyr::filter(year >= 70) %>% dplyr::select(year, Spawn.est, harvest, sim)
+  tmp.cv <- tmp %>%
+    dplyr::group_by(sim) %>% 
+    dplyr::summarise(spawn.cv = sd(Spawn.est, na.rm=TRUE)/mean(Spawn.est, na.rm=TRUE), 
+                     harvest.cv = sd(harvest)/mean(harvest),
+                     total.run.cv = sd(Spawn.est+harvest,na.rm=TRUE)/mean(Spawn.est+harvest,na.rm=TRUE))
+  tmp.CVsim <- tmp %>% 
+    dplyr::group_by(sim) %>% 
+    summarise(mean = mean(Spawn.est, na.rm=TRUE), mean.h = mean(harvest)) 
+  tmp.CVsim.esc <- sd(tmp.CVsim$mean)/mean(tmp.CVsim$mean)
+  tmp.CVsim.har <- sd(tmp.CVsim$mean.h)/mean(tmp.CVsim$mean.h)
+  tmp.df <- data.frame(spawn.mean = mean(tmp$Spawn.est, na.rm = TRUE),
+                       spawn.sd = sd(tmp$Spawn.est, na.rm = TRUE),
+                       spawn.median = median(tmp$Spawn.est, na.rm = TRUE),
+                       spawn.pi.lo = quantile(tmp$Spawn.est, probs = 0.025, na.rm = TRUE),
+                       spawn.pi.up = quantile(tmp$Spawn.est, probs = 0.975, na.rm = TRUE),
+                       spawn.cv = mean(tmp.cv$spawn.cv),
+                       spawn.cv.lo = quantile(tmp.cv$spawn.cv, probs = 0.025),
+                       spawn.cv.up = quantile(tmp.cv$spawn.cv, probs = 0.975),
+                       harvest.mean = mean(tmp$harvest),
+                       harvest.sd = sd(tmp$harvest),
+                       harvest.median = median(tmp$harvest),
+                       harvest.pi.lo = quantile(tmp$harvest, probs = 0.025),
+                       harvest.pi.up = quantile(tmp$harvest, probs = 0.975),
+                       harvest.cv = mean(tmp.cv$harvest.cv),
+                       harvest.cv.lo = quantile(tmp.cv$harvest.cv, probs = 0.025),
+                       harvest.cv.up = quantile(tmp.cv$harvest.cv, probs = 0.975),
+                       total.run.mean = mean(tmp$Spawn.est + tmp$harvest, na.rm = TRUE),
+                       total.run.cv = mean(tmp.cv$total.run.cv),
+                       cv.esc.sim = tmp.CVsim.esc,
+                       cv.har.sim = tmp.CVsim.har)
+  row.names(tmp.df) <- NULL
+  return(tmp.df)
+}
+
 calc_overfished <- function(mod, n.sim, n.yr){
   # Set up parallel backend to run multiple simulations simultaneously
   cores <- detectCores() # CPU cores
