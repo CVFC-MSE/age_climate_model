@@ -299,209 +299,62 @@ save(cv.j.01, cv.j.02, cv.j.03, cv.j.04, cv.j.05,
      file = 'cv_j_sa.RData')
 
 
-# Sensitivity to mean NPGO effect ----------------------------------------------------------------------------
-n.yr  <- 100
-n.sim <- 500 # number of simulations
-pars  <- c(0.068, 0.3, 0.1, 0.20)
-# 1.  Base flow,       maturation = 0.99
-npgo.01 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-# 2.  Base flow,       survival = 0.01            
-npgo.02 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
-# 3.  Base flow,       base maturity and survival
-npgo.03 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
-# 4.  Base flow,       survival = 0.99            
-npgo.04 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
-# 5.  Base flow,       maturation = 0.25           
-npgo.05 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+## 6.3 mean NPGO effect ----------------------------------------------------------------------------------------------------
+### 6.3.1 Base flow models -------------------------------------------------------------------------------------------------
+# 1. maturation = 0.99 (base natural mortality)
+# 2. mortality  = 0.01 (base maturation)
+# 3. base maturity and mortality
+# 4. mortality  = 0.99 (base maturation)
+# 5. maturation = 0.25 (base natural mortality)
+npgo.01 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+npgo.02 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'base')
+npgo.03 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
+npgo.04 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'base')
+npgo.05 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
 
-# 6.  Longer duration, maturation = 0.99            
-npgo.06 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-# 7.  Longer duration, survival = 0.01            
-npgo.07 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
-# 8.  Longer duration, base maturity and survival
-npgo.08 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
-# 9.  Longer duration, survival = 0.99            
-npgo.09 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
-# 10. Longer duration, maturation = 0.25           
-npgo.10 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+### 6.3.2 Longer duration drought models -----------------------------------------------------------------------------------
+# 6.  maturation = 0.99 (base natural mortality)
+# 7.  mortality  = 0.01 (base maturation)
+# 8.  base maturity and mortality
+# 9.  mortality  = 0.99 (base maturation)
+# 10. maturation = 0.25 (base natural mortality)
+npgo.06 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+npgo.07 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'longer duration')
+npgo.08 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
+npgo.09 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'longer duration')
+npgo.10 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'longer duration')
 
-# 11. More frequent,   maturation = 0.99       
-npgo.11 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-# 12. More frequent,   survival = 0.01            
-npgo.12 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
-# 13. More frequent,   base maturity and survival
-npgo.13 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
-# 14. More frequent,   survival = 0.99            
-npgo.14 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
-# 15. More frequent,   maturation = 0.25           
-npgo.15 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+### 6.3.3 More frequent drought models -------------------------------------------------------------------------------------
+# 11. maturation = 0.99 (base natural mortality)
+# 12. mortality  = 0.01 (base maturation)
+# 13. base maturity and mortality
+# 14. mortality  = 0.99 (base maturation)
+# 15. maturation = 0.25 (base natural mortality)
+npgo.11 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+npgo.12 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more frequent')
+npgo.13 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
+npgo.14 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more frequent')
+npgo.15 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more frequent')
 
-# 16. More intense,    maturation = 0.99      
-npgo.16 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-# 17. More intense,    survival = 0.01            
-npgo.17 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
-# 18. More intense,    base maturity and survival
-npgo.18 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
-# 19. More intense,    survival = 0.99            
-npgo.19 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
-# 20. More intense,    maturation = 0.25           
-npgo.20 <- mse.simulation(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+### 6.3.4 More intense drought models --------------------------------------------------------------------------------------
+# 16. maturation = 0.99 (base natural mortality)
+# 17. mortality  = 0.01 (base maturation)
+# 18. base maturity and mortality
+# 19. mortality  = 0.99 (base maturation)
+# 20. maturation = 0.25 (base natural mortality)
+npgo.16 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.999, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+npgo.17 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.01, 0.01), scenario = 'more intense')
+npgo.18 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
+npgo.19 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.500, 0.999, 1), n.surv = c(0.5, 0.8, 0.99, 0.99), scenario = 'more intense')
+npgo.20 <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.038, 0.250, 0.999, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'more intense')
 
+### 6.3.5 Save data for sensitivity to mean NPGO effect --------------------------------------------------------------------
 save(npgo.01, npgo.02, npgo.03, npgo.04, npgo.05,
      npgo.06, npgo.07, npgo.08, npgo.09, npgo.10,
      npgo.11, npgo.12, npgo.13, npgo.14, npgo.15,
      npgo.16, npgo.17, npgo.18, npgo.19, npgo.20,
      file = 'npgo_sa.RData')
 
-npgo.01.df <- mse.summary(npgo.01)
-npgo.02.df <- mse.summary(npgo.02)
-npgo.03.df <- mse.summary(npgo.03)
-npgo.04.df <- mse.summary(npgo.04)
-npgo.05.df <- mse.summary(npgo.05)
-npgo.06.df <- mse.summary(npgo.06)
-npgo.07.df <- mse.summary(npgo.07)
-npgo.08.df <- mse.summary(npgo.08)
-npgo.09.df <- mse.summary(npgo.09)
-npgo.10.df <- mse.summary(npgo.10)
-npgo.11.df <- mse.summary(npgo.11)
-npgo.12.df <- mse.summary(npgo.12)
-npgo.13.df <- mse.summary(npgo.13)
-npgo.14.df <- mse.summary(npgo.14)
-npgo.15.df <- mse.summary(npgo.15)
-npgo.16.df <- mse.summary(npgo.16)
-npgo.17.df <- mse.summary(npgo.17)
-npgo.18.df <- mse.summary(npgo.18)
-npgo.19.df <- mse.summary(npgo.19)
-npgo.20.df <- mse.summary(npgo.20)
-
-npgo.tau.df <- rbind(npgo.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
-                     npgo.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
-                     npgo.05.df %>% mutate(climate='Contemporary', age_scen = 2.7),
-                     npgo.06.df %>% mutate(climate='Longer duration', age_scen = 0.9),
-                     npgo.08.df %>% mutate(climate='Longer duration', age_scen = 1.9),
-                     npgo.10.df %>% mutate(climate='Longer duration', age_scen = 2.9),
-                     npgo.11.df %>% mutate(climate='More frequent', age_scen = 1.1),
-                     npgo.13.df %>% mutate(climate='More frequent', age_scen = 2.1),
-                     npgo.15.df %>% mutate(climate='More frequent', age_scen = 3.1),
-                     npgo.16.df %>% mutate(climate='More intense', age_scen = 1.3),
-                     npgo.18.df %>% mutate(climate='More intense', age_scen = 2.3),
-                     npgo.20.df %>% mutate(climate='More intense', age_scen = 3.3))
-
-npgo.tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
-                             age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
-                             spawn_cv = c(npgo.01.df$spawn.cv, npgo.03.df$spawn.cv, npgo.05.df$spawn.cv, npgo.06.df$spawn.cv, npgo.08.df$spawn.cv, npgo.10.df$spawn.cv, npgo.11.df$spawn.cv, npgo.13.df$spawn.cv, npgo.15.df$spawn.cv, npgo.16.df$spawn.cv, npgo.18.df$spawn.cv, npgo.20.df$spawn.cv),
-                             harvest_cv = c(npgo.01.df$harvest.cv, npgo.03.df$harvest.cv, npgo.05.df$harvest.cv, npgo.06.df$harvest.cv, npgo.08.df$harvest.cv, npgo.10.df$harvest.cv, npgo.11.df$harvest.cv, npgo.13.df$harvest.cv, npgo.15.df$harvest.cv, npgo.16.df$harvest.cv, npgo.18.df$harvest.cv, npgo.20.df$harvest.cv))
-
-npgo.eta.df <- rbind(npgo.02.df %>% mutate(climate='Contemporary', age_scen = 0.7),
-                     npgo.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
-                     npgo.04.df %>% mutate(climate='Contemporary', age_scen = 2.7),
-                     npgo.07.df %>% mutate(climate='Longer duration', age_scen=0.9),
-                     npgo.08.df %>% mutate(climate='Longer duration', age_scen=1.9),
-                     npgo.09.df %>% mutate(climate='Longer duration', age_scen=2.9),
-                     npgo.12.df %>% mutate(climate='More frequent', age_scen=1.1),
-                     npgo.13.df %>% mutate(climate='More frequent', age_scen=2.1),
-                     npgo.14.df %>% mutate(climate='More frequent', age_scen=3.1),
-                     npgo.17.df %>% mutate(climate='More intense', age_scen=1.3),
-                     npgo.18.df %>% mutate(climate='More intense', age_scen=2.3),
-                     npgo.19.df %>% mutate(climate='More intense', age_scen=3.3))
-
-npgo.eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
-                             age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
-                             spawn_cv = c(npgo.02.df$spawn.cv, npgo.03.df$spawn.cv, npgo.04.df$spawn.cv, npgo.07.df$spawn.cv, npgo.08.df$spawn.cv, npgo.09.df$spawn.cv, npgo.12.df$spawn.cv, npgo.13.df$spawn.cv, npgo.14.df$spawn.cv, npgo.17.df$spawn.cv, npgo.18.df$spawn.cv, npgo.19.df$spawn.cv),
-                             harvest_cv = c(npgo.02.df$harvest.cv, npgo.03.df$harvest.cv, npgo.04.df$harvest.cv, npgo.07.df$harvest.cv, npgo.08.df$harvest.cv, npgo.09.df$harvest.cv, npgo.12.df$harvest.cv, npgo.13.df$harvest.cv, npgo.14.df$harvest.cv, npgo.17.df$harvest.cv, npgo.18.df$harvest.cv, npgo.19.df$harvest.cv))
-
-## SPAWN PLOTS
-spawn.tau.plot <- ggplot(data = npgo.tau.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.tau.plot <- ggplot(data = npgo.tau.cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-spawn.tau <- ggarrange(spawn.tau.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
-
-spawn.eta.plot <- ggplot(data = npgo.eta.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.25),
-        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.eta.plot <- ggplot(data = npgo.eta.cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'CV of spawner escapement') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) + 
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-spawn.eta <- ggarrange(spawn.eta.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
-
-spawn.final <- ggarrange(spawn.eta, spawn.tau, ncol=2)
-
-## HARVEST PLOTS
-harvest.tau.plot <- ggplot(data = npgo.tau.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.background = element_rect(fill = 'gray90', color = 'gray90'), panel.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.tau.plot <- ggplot(data = npgo.tau.cv.df) +
-  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-harvest.tau <- ggarrange(harvest.tau.plot, harvestCV.tau.plot, nrow=2, labels = c('f', 'h'))
-
-harvest.eta.plot <- ggplot(data = npgo.eta.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Harvest (thousands)', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.eta.plot <- ggplot(data = npgo.eta.cv.df) +
-  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of harvest') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-harvest.eta <- ggarrange(harvest.eta.plot, harvestCV.eta.plot, nrow=2, labels = c('e', 'g'))
-
-harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
-
-npgo.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
 
 # Test 100-year model --------------------------------------------------------------------------------------------------
 base.mod    <- operating.model(pars = pars, years = n.yr, sims = n.sim, m.maturity = c(0.035, 0.55, 0.95, 1), n.surv = c(0.5, 0.8, 0.8, 0.8), scenario = 'base')
