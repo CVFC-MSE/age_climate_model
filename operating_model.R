@@ -210,42 +210,38 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n
       N[2:n.age.stage, t, ] <- N.tmp[2:n.age.stage]
 
       # Save variables
-      NH.ratio[t,] <- sum(N[N.H.S.ind, t, ]) / sum(H[N.H.S.ind, t, ])
-      ocean[t, ]   <- sum(N[N.H.O.ind[c(2:4,(A+1):(A+3))], t, ], H[N.H.O.ind[c(2:4,(A+1):(A+3))], t, ]) # total ocean abundance
-      ocean.2[t, ] <- sum(N[N.H.O.ind[c(1,A)], t, ], H[N.H.O.ind[c(1,A)], t, ]) # number of age-2 ocean
-      ocean.3[t, ] <- sum(N[N.H.O.ind[c(2,A+1)], t, ], H[N.H.O.ind[c(2,A+1)], t, ]) # number of age-3 ocean
-      ocean.4[t, ] <- sum(N[N.H.O.ind[c(3,A+2)], t, ], H[N.H.O.ind[c(3,A+2)], t, ]) # number of age-4 ocean
-      ocean.5[t, ] <- sum(N[N.H.O.ind[c(4,A+3)], t, ], H[N.H.O.ind[c(4,A+3)], t, ]) # number of age-5 ocean
-      Spawn[t, ]   <- sum(N[N.H.S.ind, t, ], H[N.H.S.ind, t, ]) # number of total returning spawners at time t
-      spawn.2[t, ] <- sum(N[N.H.S.ind[c(1,A)], t, ], H[N.H.S.ind[c(1,A)], t, ]) # number of age-2 spawners
-      spawn.3[t, ] <- sum(N[N.H.S.ind[c(2,A+1)], t, ], H[N.H.S.ind[c(2,A+1)], t, ]) # number of age-3 spawners
-      spawn.4[t, ] <- sum(N[N.H.S.ind[c(3,A+2)], t, ], H[N.H.S.ind[c(3,A+2)], t, ]) # number of age-4 spawners
-      spawn.5[t, ] <- sum(N[N.H.S.ind[c(4,A+3)], t, ], H[N.H.S.ind[c(4,A+3)], t, ]) # number of age-5 spawners
+      NH.ratio[t,]   <- sum(N[N.H.S.ind, t, ]) / sum(H[N.H.S.ind, t, ])
+      ocean[t, ]     <- sum(N[N.H.O.ind[c(2:4,(A+1):(A+3))], t, ], H[N.H.O.ind[c(2:4,(A+1):(A+3))], t, ]) # total ocean abundance
+      ocean.2[t, ]   <- sum(N[N.H.O.ind[c(1,A)], t, ], H[N.H.O.ind[c(1,A)], t, ]) # number of age-2 ocean
+      ocean.3[t, ]   <- sum(N[N.H.O.ind[c(2,A+1)], t, ], H[N.H.O.ind[c(2,A+1)], t, ]) # number of age-3 ocean
+      ocean.4[t, ]   <- sum(N[N.H.O.ind[c(3,A+2)], t, ], H[N.H.O.ind[c(3,A+2)], t, ]) # number of age-4 ocean
+      ocean.5[t, ]   <- sum(N[N.H.O.ind[c(4,A+3)], t, ], H[N.H.O.ind[c(4,A+3)], t, ]) # number of age-5 ocean
+      Spawn[t, ]     <- sum(N[N.H.S.ind, t, ], H[N.H.S.ind, t, ]) # number of total returning spawners at time t
+      spawn.2[t, ]   <- sum(N[N.H.S.ind[c(1,A)], t, ], H[N.H.S.ind[c(1,A)], t, ]) # number of age-2 spawners
+      spawn.3[t, ]   <- sum(N[N.H.S.ind[c(2,A+1)], t, ], H[N.H.S.ind[c(2,A+1)], t, ]) # number of age-3 spawners
+      spawn.4[t, ]   <- sum(N[N.H.S.ind[c(3,A+2)], t, ], H[N.H.S.ind[c(3,A+2)], t, ]) # number of age-4 spawners
+      spawn.5[t, ]   <- sum(N[N.H.S.ind[c(4,A+3)], t, ], H[N.H.S.ind[c(4,A+3)], t, ]) # number of age-5 spawners
       harvest.2[t, ] <- sum(I.N[N.H.O.ind[c(1,A)], t, ], I.H[N.H.O.ind[c(1,A)], t, ]) # number of age-2 harvest
       harvest.3[t, ] <- sum(I.N[N.H.O.ind[c(2,A+1)], t, ], I.H[N.H.O.ind[c(2,A+1)], t, ]) # number of age-3 harvest
       harvest.4[t, ] <- sum(I.N[N.H.O.ind[c(3,A+2)], t, ], I.H[N.H.O.ind[c(3,A+2)], t, ]) # number of age-4 harvest
       harvest.5[t, ] <- sum(I.N[N.H.O.ind[c(4,A+3)], t, ], I.H[N.H.O.ind[c(4,A+3)], t, ]) # number of age-5 harvest
-      B.f.h[, t, ] <- round(H[N.H.S.female.ind, t, ] * xt[t]) # number of female hatchery-origin spawners that return to hatcheries
-      B.f.n[, t, ] <- round(N[N.H.S.female.ind, t, ] * xt[t]) # number of female natural-origin spawners ...
-      B.m.h[, t, ] <- round(H[N.H.S.ind[1:A-1], t, ] * xt[t]) # number of male hatchery-origin spawners ...
-      B.m.n[, t, ] <- round(N[N.H.S.ind[1:A-1], t, ] * xt[t]) # number of male natural-origin spawners ...
-      B.total[t, ] <- sum(B.f.h[, t, ], B.f.n[, t, ], B.m.h[, t, ], B.m.n[, t, ])
-      j.surv[t, ]  <- n[1, t, 1] * phi.2
+      B.f.h[, t, ]   <- round(H[N.H.S.female.ind, t, ] * xt[t]) # number of female hatchery-origin spawners that return to hatcheries
+      B.f.n[, t, ]   <- round(N[N.H.S.female.ind, t, ] * xt[t]) # number of female natural-origin spawners ...
+      B.m.h[, t, ]   <- round(H[N.H.S.ind[1:A-1], t, ] * xt[t]) # number of male hatchery-origin spawners ...
+      B.m.n[, t, ]   <- round(N[N.H.S.ind[1:A-1], t, ] * xt[t]) # number of male natural-origin spawners ...
+      B.total[t, ]   <- sum(B.f.h[, t, ], B.f.n[, t, ], B.m.h[, t, ], B.m.n[, t, ])
+      j.surv[t, ]    <- n[1, t, 1] * phi.2
 
     } # end t
     out <- data.frame(year = 1:n.yr, Spawn.est, harvest, NH.ratio, j.surv, SI.observed, SI.forecast, SI.error, Spawn, jack, mu.c, real.c, spawn.2, spawn.3, spawn.4, spawn.5, harvest.2, harvest.3, harvest.4, harvest.5, ocean.2, ocean.3, ocean.4, ocean.5, ocean)
   
   } # end parfor
 
+  # Stop cluster connection
   stopCluster(cl = cl)
 
-  # Unpackage parallel for loop output
+  # Unpackage the output from parallel computing
   for(i in seq_len(n.sim)){model.out[[i]] <- cbind(model.out[[i]], sim = paste0('s', i))}
   return(do.call('rbind', model.out))
 }
-
-
-
-
-
 

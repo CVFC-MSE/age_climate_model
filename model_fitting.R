@@ -544,18 +544,63 @@ ggplot() +
   geom_point(data = flow.gam.df, aes(x = flow, y = mod.s), color = 'red') +
   geom_smooth(data = flow.gam.df, aes(x = flow, y = mod.s), color = 'red')
 
-npgo.gam.emp <- mgcv::gam(env.df$emp.spawn ~ s(env.df$npgo.t1, k = 3), family = poisson(link = 'log'))
+
+
+npgo.gam.emp <- mgcv::gam(emp.spawn ~ s(npgo.t1, k = 3), family = poisson(link = 'log'), data = env.df)
 summary(npgo.gam.emp)
 plot(npgo.gam.emp)
 
-npgo.gam.mod <- mgcv::gam(env.df$mod.spawn ~ s(env.df$npgo.t1, k = 3), family = poisson(link = 'log'))
+npgo.gam.mod <- mgcv::gam(mod.spawn ~ s(npgo.t1, k = 3), family = poisson(link = 'log'), data = env.df)
 summary(npgo.gam.mod)
 plot(npgo.gam.mod)
+
+# New predicted GAM plot
+newdata <- data.frame(npgo.t1 = c(seq(-1.9,2.6,length=24)))
+pv.emp <- predict.gam(npgo.gam.emp, newdata = newdata, type = "response", se = TRUE)
+pv.mod <- predict.gam(npgo.gam.mod, newdata = newdata, type = "response", se = TRUE)
+
+# Plot escapement in relation to NPGO with predicted values from GAMs
+npgo.gam.plot <- ggplot() +
+  geom_point(data = env.df, aes(x = npgo.t1, y = emp.spawn/1000), color = 'red') +
+  geom_point(data = env.df, aes(x = npgo.t1, y = mod.spawn/1000)) +
+  geom_line(aes(x = newdata$npgo.t1, y = pv.emp$fit/1000, color = 'red'), lwd = 1) +
+  geom_line(aes(x = newdata$npgo.t1, y = pv.mod$fit/1000, color = 'black'), lwd = 1) +
+  
+  scale_color_manual(values = c('black' = 'black', 'red'='red'), labels = c('Simulated', 'Observed')) +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0)) +
+  xlab(expression(paste("NPGO (",italic(t)," - 1)"))) +
+  ylab("Total escapement (thousands)") +
+  theme(legend.title = element_blank(),
+        legend.position = c(0.15, 0.85),
+        legend.text = element_text(size = 13),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        axis.text = element_text(size = 10),
+        plot.margin = unit(c(0.5,0.75,0.5,0.75), 'cm')) 
+
 
 
 # Temporal autocorrelation
 ac.esc.emp <- acf((catch.esc$total.esc), lag.max = A, plot = TRUE)
-ac.esc.mod <- acf((mod.tspawn.med$median.esc), lag.max = A, plot = TRUE)
+
+# Try to do this for each simulation then take the average
+u.sims <- unique(mod.tspawn.df$sim)
+ac.by.sim <- NULL
+for(i in 1:length(u.sims)){
+  tmp.df1 <- mod.tspawn.df %>% filter(sim == u.sims[i])
+  tmp.df2 <- acf(tmp.df1$t.escapement, lag.max = A, plot = FALSE)
+  tmp.df3 <- data.frame(acf = tmp.df2$acf[,,],
+                        lag = seq(0,A,1),
+                        sim = u.sims[i])
+  ac.by.sim <- rbind(ac.by.sim, tmp.df3)
+}
+mean.ac.by.sim <- ac.by.sim %>%
+  group_by(lag) %>%
+  summarise(acf = mean(acf))
+barplot(mean.ac.by.sim$acf)
+
+ac.esc.mod <- acf((mod.tspawn.med$mean.esc), lag.max = A, plot = TRUE)
 par(mfrow = c(1,2))
 plot(ac.esc.emp, main = "Observed total escapement")
 plot(ac.esc.mod, main = "Simulated total escapement")

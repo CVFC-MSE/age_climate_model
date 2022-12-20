@@ -1,11 +1,12 @@
 ## -------------------------------------------------------------------------------------------------------------------------
-## model_fitting.R
+## Paper: Carvalho, PG, Satterthwaite, WH, O'Farrell, MR, Speir, C, and Palkovacs, EP. Role of maturation and mortality in portfolio
+##        effects and climate resilience.
 ##
-## Author: Paul Carvalho (paul.carvalho@noaa.gov, pcarvalh@ucsc.edu)
+## Contact: Paul Carvalho (paul.carvalho@noaa.gov, pcarvalh@ucsc.edu)
 ##
 ## Description: Run simulation models to test the effects of drought on Sacramento River fall run Chinook salmon under
 ##              different age structure scenarios. Two mechanisms that affect age structure were tested separately - 
-##              mortality and maturation.
+##              natural mortality and maturation.
 ## -------------------------------------------------------------------------------------------------------------------------
 
 
@@ -97,11 +98,11 @@ save(mod.16, mod.17, mod.18, mod.19, mod.20, file = 'age_flow_mod4.RData')
 
 # 5. SUMMARIZE MAIN MODEL DATA ---------------------------------------------------------------------------------------------
 load('age_flow_mod1.RData')
-mod01.df <- model.summary(mod.01)
-mod02.df <- model.summary(mod.02)
-mod03.df <- model.summary(mod.03)
-mod04.df <- model.summary(mod.04)
-mod05.df <- model.summary(mod.05)
+mod01.df <- model_summary(mod.01)
+mod02.df <- model_summary(mod.02)
+mod03.df <- model_summary(mod.03)
+mod04.df <- model_summary(mod.04)
+mod05.df <- model_summary(mod.05)
 mod01.overfished <- calc_overfished(mod.01, n.sim = n.sim, n.yr = n.yr)
 mod02.overfished <- calc_overfished(mod.02, n.sim = n.sim, n.yr = n.yr)
 mod03.overfished <- calc_overfished(mod.03, n.sim = n.sim, n.yr = n.yr)
@@ -116,11 +117,11 @@ vio.df <- rbind(vio1.df,vio2.df,vio3.df,vio4.df,vio5.df)
 rm(mod.01, mod.02, mod.03, mod.04, mod.05, vio1.df, vio2.df, vio3.df, vio4.df, vio5.df)
 
 load('age_flow_mod2.RData')
-mod06.df <- model.summary(mod.06)
-mod07.df <- model.summary(mod.07)
-mod08.df <- model.summary(mod.08)
-mod09.df <- model.summary(mod.09)
-mod10.df <- model.summary(mod.10)
+mod06.df <- model_summary(mod.06)
+mod07.df <- model_summary(mod.07)
+mod08.df <- model_summary(mod.08)
+mod09.df <- model_summary(mod.09)
+mod10.df <- model_summary(mod.10)
 mod06.overfished <- calc_overfished(mod.06, n.sim = n.sim, n.yr = n.yr)
 mod07.overfished <- calc_overfished(mod.07, n.sim = n.sim, n.yr = n.yr)
 mod08.overfished <- calc_overfished(mod.08, n.sim = n.sim, n.yr = n.yr)
@@ -135,11 +136,11 @@ vio.df <- rbind(vio.df,vio6.df,vio7.df,vio8.df,vio9.df,vio10.df)
 rm(mod.06, mod.07, mod.08, mod.09, mod.10, vio6.df, vio7.df, vio8.df, vio9.df, vio10.df)
 
 load('age_flow_mod3.RData')
-mod11.df <- model.summary(mod.11)
-mod12.df <- model.summary(mod.12)
-mod13.df <- model.summary(mod.13)
-mod14.df <- model.summary(mod.14)
-mod15.df <- model.summary(mod.15)
+mod11.df <- model_summary(mod.11)
+mod12.df <- model_summary(mod.12)
+mod13.df <- model_summary(mod.13)
+mod14.df <- model_summary(mod.14)
+mod15.df <- model_summary(mod.15)
 mod11.overfished <- calc_overfished(mod.11, n.sim = n.sim, n.yr = n.yr)
 mod12.overfished <- calc_overfished(mod.12, n.sim = n.sim, n.yr = n.yr)
 mod13.overfished <- calc_overfished(mod.13, n.sim = n.sim, n.yr = n.yr)
@@ -154,11 +155,11 @@ vio.df <- rbind(vio.df,vio11.df,vio12.df,vio13.df,vio14.df,vio15.df)
 rm(mod.11, mod.12, mod.13, mod.14, mod.15, vio11.df, vio12.df, vio13.df, vio14.df, vio15.df)
 
 load('age_flow_mod4.RData')
-mod16.df <- model.summary(mod.16)
-mod17.df <- model.summary(mod.17)
-mod18.df <- model.summary(mod.18)
-mod19.df <- model.summary(mod.19)
-mod20.df <- model.summary(mod.20)
+mod16.df <- model_summary(mod.16)
+mod17.df <- model_summary(mod.17)
+mod18.df <- model_summary(mod.18)
+mod19.df <- model_summary(mod.19)
+mod20.df <- model_summary(mod.20)
 mod16.overfished <- calc_overfished(mod.16, n.sim = n.sim, n.yr = n.yr)
 mod17.overfished <- calc_overfished(mod.17, n.sim = n.sim, n.yr = n.yr)
 mod18.overfished <- calc_overfished(mod.18, n.sim = n.sim, n.yr = n.yr)
@@ -240,7 +241,10 @@ save(cver.sa.01, cver.sa.02, cver.sa.03, cver.sa.04, cver.sa.05,
      cver.sa.11, cver.sa.12, cver.sa.13, cver.sa.14, cver.sa.15,
      cver.sa.16, cver.sa.17, cver.sa.18, cver.sa.19, cver.sa.20,
      file = 'cv_er_sa.RData')
-
+rm(cver.sa.01, cver.sa.02, cver.sa.03, cver.sa.04, cver.sa.05,
+   cver.sa.06, cver.sa.07, cver.sa.08, cver.sa.09, cver.sa.10,
+   cver.sa.11, cver.sa.12, cver.sa.13, cver.sa.14, cver.sa.15,
+   cver.sa.16, cver.sa.17, cver.sa.18, cver.sa.19, cver.sa.20)
 
 ## 6.2 CV of recruitment stochasticity -------------------------------------------------------------------------------------
 ### 6.2.1 Base flow models -------------------------------------------------------------------------------------------------
@@ -297,7 +301,10 @@ save(cv.j.01, cv.j.02, cv.j.03, cv.j.04, cv.j.05,
      cv.j.11, cv.j.12, cv.j.13, cv.j.14, cv.j.15,
      cv.j.16, cv.j.17, cv.j.18, cv.j.19, cv.j.20,
      file = 'cv_j_sa.RData')
-
+rm(cv.j.01, cv.j.02, cv.j.03, cv.j.04, cv.j.05,
+   cv.j.06, cv.j.07, cv.j.08, cv.j.09, cv.j.10,
+   cv.j.11, cv.j.12, cv.j.13, cv.j.14, cv.j.15,
+   cv.j.16, cv.j.17, cv.j.18, cv.j.19, cv.j.20)
 
 ## 6.3 mean NPGO effect ----------------------------------------------------------------------------------------------------
 ### 6.3.1 Base flow models -------------------------------------------------------------------------------------------------
@@ -354,3 +361,7 @@ save(npgo.01, npgo.02, npgo.03, npgo.04, npgo.05,
      npgo.11, npgo.12, npgo.13, npgo.14, npgo.15,
      npgo.16, npgo.17, npgo.18, npgo.19, npgo.20,
      file = 'npgo_sa.RData')
+rm(npgo.01, npgo.02, npgo.03, npgo.04, npgo.05,
+   npgo.06, npgo.07, npgo.08, npgo.09, npgo.10,
+   npgo.11, npgo.12, npgo.13, npgo.14, npgo.15,
+   npgo.16, npgo.17, npgo.18, npgo.19, npgo.20)

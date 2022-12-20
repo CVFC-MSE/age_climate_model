@@ -409,26 +409,26 @@ totalrun.final <- ggarrange(total.run.eta, total.run.tau, ncol=2)
 
 # Sensitivity to the CV of realized harvest rate ---------------------------------
 
-cver.sa.01.df <- model.summary(cver.sa.01)
-cver.sa.02.df <- model.summary(cver.sa.02)
-cver.sa.03.df <- model.summary(cver.sa.03)
-cver.sa.04.df <- model.summary(cver.sa.04)
-cver.sa.05.df <- model.summary(cver.sa.05)
-cver.sa.06.df <- model.summary(cver.sa.06)
-cver.sa.07.df <- model.summary(cver.sa.07)
-cver.sa.08.df <- model.summary(cver.sa.08)
-cver.sa.09.df <- model.summary(cver.sa.09)
-cver.sa.10.df <- model.summary(cver.sa.10)
-cver.sa.11.df <- model.summary(cver.sa.11)
-cver.sa.12.df <- model.summary(cver.sa.12)
-cver.sa.13.df <- model.summary(cver.sa.13)
-cver.sa.14.df <- model.summary(cver.sa.14)
-cver.sa.15.df <- model.summary(cver.sa.15)
-cver.sa.16.df <- model.summary(cver.sa.16)
-cver.sa.17.df <- model.summary(cver.sa.17)
-cver.sa.18.df <- model.summary(cver.sa.18)
-cver.sa.19.df <- model.summary(cver.sa.19)
-cver.sa.20.df <- model.summary(cver.sa.20)
+cver.sa.01.df <- model_summary(cver.sa.01)
+cver.sa.02.df <- model_summary(cver.sa.02)
+cver.sa.03.df <- model_summary(cver.sa.03)
+cver.sa.04.df <- model_summary(cver.sa.04)
+cver.sa.05.df <- model_summary(cver.sa.05)
+cver.sa.06.df <- model_summary(cver.sa.06)
+cver.sa.07.df <- model_summary(cver.sa.07)
+cver.sa.08.df <- model_summary(cver.sa.08)
+cver.sa.09.df <- model_summary(cver.sa.09)
+cver.sa.10.df <- model_summary(cver.sa.10)
+cver.sa.11.df <- model_summary(cver.sa.11)
+cver.sa.12.df <- model_summary(cver.sa.12)
+cver.sa.13.df <- model_summary(cver.sa.13)
+cver.sa.14.df <- model_summary(cver.sa.14)
+cver.sa.15.df <- model_summary(cver.sa.15)
+cver.sa.16.df <- model_summary(cver.sa.16)
+cver.sa.17.df <- model_summary(cver.sa.17)
+cver.sa.18.df <- model_summary(cver.sa.18)
+cver.sa.19.df <- model_summary(cver.sa.19)
+cver.sa.20.df <- model_summary(cver.sa.20)
 
 cver.sa.tau.df <- rbind(cver.sa.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                         cver.sa.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
@@ -560,26 +560,26 @@ harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
 cv.er.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
 
 # Sensitivity to CV of recruitment stochasticity ------------------
-cv.j.01.df <- model.summary(cv.j.01)
-cv.j.02.df <- model.summary(cv.j.02)
-cv.j.03.df <- model.summary(cv.j.03)
-cv.j.04.df <- model.summary(cv.j.04)
-cv.j.05.df <- model.summary(cv.j.05)
-cv.j.06.df <- model.summary(cv.j.06)
-cv.j.07.df <- model.summary(cv.j.07)
-cv.j.08.df <- model.summary(cv.j.08)
-cv.j.09.df <- model.summary(cv.j.09)
-cv.j.10.df <- model.summary(cv.j.10)
-cv.j.11.df <- model.summary(cv.j.11)
-cv.j.12.df <- model.summary(cv.j.12)
-cv.j.13.df <- model.summary(cv.j.13)
-cv.j.14.df <- model.summary(cv.j.14)
-cv.j.15.df <- model.summary(cv.j.15)
-cv.j.16.df <- model.summary(cv.j.16)
-cv.j.17.df <- model.summary(cv.j.17)
-cv.j.18.df <- model.summary(cv.j.18)
-cv.j.19.df <- model.summary(cv.j.19)
-cv.j.20.df <- model.summary(cv.j.20)
+cv.j.01.df <- model_summary(cv.j.01)
+cv.j.02.df <- model_summary(cv.j.02)
+cv.j.03.df <- model_summary(cv.j.03)
+cv.j.04.df <- model_summary(cv.j.04)
+cv.j.05.df <- model_summary(cv.j.05)
+cv.j.06.df <- model_summary(cv.j.06)
+cv.j.07.df <- model_summary(cv.j.07)
+cv.j.08.df <- model_summary(cv.j.08)
+cv.j.09.df <- model_summary(cv.j.09)
+cv.j.10.df <- model_summary(cv.j.10)
+cv.j.11.df <- model_summary(cv.j.11)
+cv.j.12.df <- model_summary(cv.j.12)
+cv.j.13.df <- model_summary(cv.j.13)
+cv.j.14.df <- model_summary(cv.j.14)
+cv.j.15.df <- model_summary(cv.j.15)
+cv.j.16.df <- model_summary(cv.j.16)
+cv.j.17.df <- model_summary(cv.j.17)
+cv.j.18.df <- model_summary(cv.j.18)
+cv.j.19.df <- model_summary(cv.j.19)
+cv.j.20.df <- model_summary(cv.j.20)
 
 cv.j.tau.df <- rbind(cv.j.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                      cv.j.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
@@ -712,26 +712,26 @@ cv.j.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
 
 
 # Sensitivity to mean NPGO effect -------------------
-npgo.01.df <- model.summary(npgo.01)
-npgo.02.df <- model.summary(npgo.02)
-npgo.03.df <- model.summary(npgo.03)
-npgo.04.df <- model.summary(npgo.04)
-npgo.05.df <- model.summary(npgo.05)
-npgo.06.df <- model.summary(npgo.06)
-npgo.07.df <- model.summary(npgo.07)
-npgo.08.df <- model.summary(npgo.08)
-npgo.09.df <- model.summary(npgo.09)
-npgo.10.df <- model.summary(npgo.10)
-npgo.11.df <- model.summary(npgo.11)
-npgo.12.df <- model.summary(npgo.12)
-npgo.13.df <- model.summary(npgo.13)
-npgo.14.df <- model.summary(npgo.14)
-npgo.15.df <- model.summary(npgo.15)
-npgo.16.df <- model.summary(npgo.16)
-npgo.17.df <- model.summary(npgo.17)
-npgo.18.df <- model.summary(npgo.18)
-npgo.19.df <- model.summary(npgo.19)
-npgo.20.df <- model.summary(npgo.20)
+npgo.01.df <- model_summary(npgo.01)
+npgo.02.df <- model_summary(npgo.02)
+npgo.03.df <- model_summary(npgo.03)
+npgo.04.df <- model_summary(npgo.04)
+npgo.05.df <- model_summary(npgo.05)
+npgo.06.df <- model_summary(npgo.06)
+npgo.07.df <- model_summary(npgo.07)
+npgo.08.df <- model_summary(npgo.08)
+npgo.09.df <- model_summary(npgo.09)
+npgo.10.df <- model_summary(npgo.10)
+npgo.11.df <- model_summary(npgo.11)
+npgo.12.df <- model_summary(npgo.12)
+npgo.13.df <- model_summary(npgo.13)
+npgo.14.df <- model_summary(npgo.14)
+npgo.15.df <- model_summary(npgo.15)
+npgo.16.df <- model_summary(npgo.16)
+npgo.17.df <- model_summary(npgo.17)
+npgo.18.df <- model_summary(npgo.18)
+npgo.19.df <- model_summary(npgo.19)
+npgo.20.df <- model_summary(npgo.20)
 
 npgo.tau.df <- rbind(npgo.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                      npgo.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
@@ -861,3 +861,197 @@ harvest.eta <- ggarrange(harvest.eta.plot, harvestCV.eta.plot, nrow=2, labels = 
 harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
 
 npgo.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
+
+# 100-YEAR MODEL VALIDATION ---------------------------------------------------------------------------------------------
+base.mod.df <- model_summary(mod.03)
+
+# plots
+sim.nums <- n.sim
+base.mod1   <- base.mod #%>% filter(sim %in% sim.nums)
+hundo.spawn <- ggplot() +
+  geom_line(data = base.mod1, aes(x = year, y = Spawn.est, group = sim), color = 'gray70', alpha = 0.3) +
+  # geom_line(data = base.mod2, aes(x = year, y = Spawn.est), color = 'black') +
+  # geom_line(aes(x = 1:26, y = catch.esc$total.esc), color = 'red') +
+  geom_hline(yintercept = base.mod.df$spawn.mean, color = 'black') +
+  geom_hline(yintercept = base.mod.df$spawn.median, color = 'black', lty = 'dashed') +
+  geom_hline(yintercept = mean(catch.esc$total.esc), color = 'blue') +
+  geom_hline(yintercept = median(catch.esc$total.esc), color = 'blue', lty = 'dashed') +
+  geom_hline(yintercept = 91500, color = 'red') +
+  # geom_hline(yintercept = 122000, color = 'red', lty = 'dashed') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(1,100)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, max(base.mod1$Spawn.est))) +
+  labs(x = 'Year', y = 'Total escapement') +
+  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), 'cm'))
+hundo.harvest <- ggplot() +
+  geom_line(data = base.mod1, aes(x = year, y = harvest, group = sim), color = 'gray70', alpha = 0.3) +
+  # geom_line(data = base.mod2, aes(x = year, y = harvest), color = 'black') +
+  # geom_line(aes(x = 1:26, y = catch.esc$total.esc), color = 'red') +
+  geom_hline(yintercept = base.mod.df$harvest.mean, color = 'black') +
+  geom_hline(yintercept = base.mod.df$harvest.median, color = 'black', lty = 'dashed') +
+  geom_hline(yintercept = mean(catch.esc$total.ocean.harvest + catch.esc$river.harvest), color = 'blue') +
+  geom_hline(yintercept = median(catch.esc$total.ocean.harvest + catch.esc$river.harvest), color = 'blue', lty = 'dashed') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(1,100)) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, max(base.mod1$harvest))) +
+  labs(x = 'Year', y = 'Harvest') +
+  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), 'cm'))
+ggarrange(hundo.spawn, hundo.harvest, nrow = 2, ncol = 1)
+
+# Check age-composition of spawners
+hundo.age.comp <- data.frame(age = c('2','3','4','5'),
+                             mean = as.numeric(base.mod %>% filter(year >= 30) %>% dplyr::select(spawn.2, spawn.3, spawn.4, spawn.5) %>% summarise(across(1:4, mean))))
+hundo.age.comp$prop <- hundo.age.comp$mean/sum(hundo.age.comp$mean)
+hundo.age.comp$source <- 'Simulated'
+
+wills.data <- data.frame(age = c('1-2', '3', '4', '5+'),
+                         prop = c(0.13, 0.65, 0.22, 0.003))
+
+sim.age.com <- ggplot() +
+  geom_histogram(aes(x = hundo.age.comp$age, y = hundo.age.comp$prop), stat = 'identity') +
+  labs(x = 'Age', y = 'Proportion of spawners', title = 'Simulated') +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 0.7)) +
+  theme_classic()
+
+will.age.com <- ggplot() +
+  geom_histogram(aes(x = wills.data$age, y = wills.data$prop), stat = 'identity') +
+  labs(x = 'Age', y = 'Proportion of spawners', title = 'Satterthwaite et al. 2017') +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 0.7)) +
+  theme_classic()
+
+# Check age-composition of harvest
+harv.age.comp <- data.frame(age = c('2','3','4','5'),
+                            mean = as.numeric(base.mod %>% filter(year >= 30) %>% dplyr::select(harvest.2, harvest.3, harvest.4, harvest.5) %>% summarise(across(1:4, mean))))
+harv.age.comp$prop <- (harv.age.comp$mean/sum(harv.age.comp$mean))
+
+melodies.data <- data.frame(age = c('2','3','4','5','2','3','4','5'),
+                            year = c(rep('1998 BY', times = 4), rep('1999 BY', times = 4)),
+                            prop = c(0.06, 0.82, 0.17, 0.0005, 0.008, 0.632, 0.352, 0.004))
+
+sim.harv.plot <- ggplot() +
+  geom_bar(aes(x = harv.age.comp$age, y = harv.age.comp$prop), stat = 'identity') +
+  labs(x = 'Age', y = 'Proportio of harvest', title = 'Simulated') +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 0.9), breaks = seq(0, 0.8, by = 0.2)) +
+  theme_classic()
+
+melodi.harv.plot <- ggplot() +
+  geom_bar(aes(x = melodies.data$age, y = melodies.data$prop, fill = melodies.data$year), stat = 'identity', position = 'dodge') +
+  scale_fill_manual("legend", values = c("1998 BY" = "grey35", "1999 BY" = "grey")) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, 0.9), breaks = seq(0, 0.8, by = 0.2)) +
+  labs(x = 'Age', y = 'Proportion of Feather River hatchery ocean impacts', title = 'Palmer-Zwahlen et al. 2006') +
+  theme_classic() +
+  theme(legend.title = element_blank(), legend.position = c(0.8, 0.8))
+
+ggarrange(sim.age.com, will.age.com, sim.harv.plot, melodi.harv.plot, nrow=2, ncol=2)
+
+# Check autocorrelation
+tmp.acf <- acf(catch.esc$total.esc, 6)
+tmp.acf <- data.frame(lag = 0:6, acf = tmp.acf$acf)
+tmp.acf3 <- NULL
+for(i in 1:n.sim){
+  tmp.acf1 <- base.mod %>% filter(sim == paste0('s',i)) %>% filter(year < 100 & year > 29)
+  tmp.acf2 <- acf(tmp.acf1$Spawn.est, 6, plot=FALSE)
+  tmp.acf2 <- data.frame(lag = 0:6, acf = tmp.acf2$acf) 
+  tmp.acf3 <- rbind(tmp.acf3, tmp.acf2)
+}
+tmp4 <- tmp.acf3 %>% group_by(lag) %>% summarise(acf = mean(acf))
+plot(tmp4$lag, tmp4$acf)
+
+
+
+# Code for plotting hydrographs -------------------------------------------
+# Code for plotting example hydrographs
+hydro.df <- data.frame(year = seq(1,n.yr),
+                       base = flow.sim(100, 'base', flow.full),
+                       duration = flow.sim(100, 'longer duration', flow.full),
+                       frequency = flow.sim(100, 'more frequent', flow.full),
+                       intensity = flow.sim(100, 'more intense', flow.full))
+
+hydro.plot.settings <- theme(axis.text = element_text(size = 14),
+                             axis.title = element_text(size = 14),
+                             title = element_text(size = 14),
+                             plot.margin = unit(c(0.5,0,0,0.1),'cm'))
+
+hydro.contemporary <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = base), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = '', y = 'Flow (csf)', title = 'Contemporary') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$base<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$base<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+hydro.duration <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = duration), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = '', y = '', title = 'Longer duration') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$duration<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$duration<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+hydro.frequency <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = frequency), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = 'Simulation year', y = 'Flow (csf)', title = 'More frequent') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$frequency<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$frequency<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+hydro.intensity <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = intensity), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = 'Simulation year', y = '', title = 'More intense') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$intensity<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$intensity<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+ggarrange(hydro.contemporary,hydro.duration, hydro.frequency, hydro.intensity)
+
+
+# Code for plotting the harvest control rule ----------------
+# Extra code for plotting the harvest control rule
+library(ggplot2)
+library(ggpubr)
+tmp.si <- seq(0, 500000, length.out = 1000)
+tmp.er <- sapply(tmp.si, control.rule)
+plot1 <- ggplot() +
+  geom_line(aes(x = tmp.si/1000, y = tmp.er), size = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+  labs(x = 'Sacramento Index (thousands)', y = 'Allowable exploitation rate') +
+  theme_classic() +
+  theme(text = element_text(size = 16), plot.margin = unit(c(0.5,1,0.5,0.5), 'cm'))
+
+plot2 <- ggplot() +
+  geom_line(aes(x = tmp.si/1000, y = (tmp.si/1000) - ((tmp.si/1000)* tmp.er)), size = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(x = 'Sacramento Index (thousands)', y = 'Expected spawners after exploitation') +
+  theme_classic() +
+  theme(text = element_text(size = 13), plot.margin = unit(c(0.5,1,0.5,0.5), 'cm'))
+#
+# ggarrange(plot1, plot2, nrow=2)
+#
+tmp.si2 <- seq(122000, 500000, length.out = 1000)
+constant_esc_er <- (tmp.si2 - 122000) / tmp.si2
+plot(tmp.si2, constant_esc_er)
+
+
+
+
+
+
+
+
+
