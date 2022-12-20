@@ -7,6 +7,7 @@ library(ggplot2)
 library(tidyverse)
 library(ggpubr)
 
+
 load('age_flow_summary.RData')
 
 # Organize data -----------------------------------------------------------------------------------------------------------------
@@ -35,7 +36,8 @@ tau.vio.df <- vio.df %>%
 tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                         age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                         spawn_cv = c(mod01.df$spawn.cv, mod03.df$spawn.cv, mod05.df$spawn.cv, mod06.df$spawn.cv, mod08.df$spawn.cv, mod10.df$spawn.cv, mod11.df$spawn.cv, mod13.df$spawn.cv, mod15.df$spawn.cv, mod16.df$spawn.cv, mod18.df$spawn.cv, mod20.df$spawn.cv),
-                        harvest_cv = c(mod01.df$harvest.cv, mod03.df$harvest.cv, mod05.df$harvest.cv, mod06.df$harvest.cv, mod08.df$harvest.cv, mod10.df$harvest.cv, mod11.df$harvest.cv, mod13.df$harvest.cv, mod15.df$harvest.cv, mod16.df$harvest.cv, mod18.df$harvest.cv, mod20.df$harvest.cv))
+                        harvest_cv = c(mod01.df$harvest.cv, mod03.df$harvest.cv, mod05.df$harvest.cv, mod06.df$harvest.cv, mod08.df$harvest.cv, mod10.df$harvest.cv, mod11.df$harvest.cv, mod13.df$harvest.cv, mod15.df$harvest.cv, mod16.df$harvest.cv, mod18.df$harvest.cv, mod20.df$harvest.cv),
+                        totalrun_cv = c(mod01.df$total.run.cv, mod03.df$total.run.cv, mod05.df$total.run.cv, mod06.df$total.run.cv, mod08.df$total.run.cv, mod10.df$total.run.cv, mod11.df$total.run.cv, mod13.df$total.run.cv, mod15.df$total.run.cv, mod16.df$total.run.cv, mod18.df$total.run.cv, mod20.df$total.run.cv))
 
 
 # Organize data for alternative natural mortality rate scenarios
@@ -63,7 +65,8 @@ eta.vio.df <- vio.df %>%
 eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                         age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                         spawn_cv = c(mod02.df$spawn.cv, mod03.df$spawn.cv, mod04.df$spawn.cv, mod07.df$spawn.cv, mod08.df$spawn.cv, mod09.df$spawn.cv, mod12.df$spawn.cv, mod13.df$spawn.cv, mod14.df$spawn.cv, mod17.df$spawn.cv, mod18.df$spawn.cv, mod19.df$spawn.cv),
-                        harvest_cv = c(mod02.df$harvest.cv, mod03.df$harvest.cv, mod04.df$harvest.cv, mod07.df$harvest.cv, mod08.df$harvest.cv, mod09.df$harvest.cv, mod12.df$harvest.cv, mod13.df$harvest.cv, mod14.df$harvest.cv, mod17.df$harvest.cv, mod18.df$harvest.cv, mod19.df$harvest.cv))
+                        harvest_cv = c(mod02.df$harvest.cv, mod03.df$harvest.cv, mod04.df$harvest.cv, mod07.df$harvest.cv, mod08.df$harvest.cv, mod09.df$harvest.cv, mod12.df$harvest.cv, mod13.df$harvest.cv, mod14.df$harvest.cv, mod17.df$harvest.cv, mod18.df$harvest.cv, mod19.df$harvest.cv),
+                        totalrun_cv = c(mod01.df$total.run.cv, mod03.df$total.run.cv, mod05.df$total.run.cv, mod06.df$total.run.cv, mod08.df$total.run.cv, mod10.df$total.run.cv, mod11.df$total.run.cv, mod13.df$total.run.cv, mod15.df$total.run.cv, mod16.df$total.run.cv, mod18.df$total.run.cv, mod20.df$total.run.cv))
 
 ### OVERFISHING TAU AND ETA
 tau.mods <- c(1,3,5,6,8,10,11,13,15,16,18,20)
@@ -99,7 +102,23 @@ for(index in 1:12){
   eta.overfished.df <- rbind(eta.overfished.df, tmp.of)
 }     
 
-# Figure. Spawner escapement violin plots and CV --------------------------------------------------------------------------------
+# MAIN FIGURES ----------------------------
+
+## FIGURE 1. Harvest control rule -----------------------------------------------------------------------------
+library(ggplot2)
+library(ggpubr)
+tmp.si <- seq(0, 500000, length.out = 1000)
+tmp.er <- sapply(tmp.si, control.rule)
+plot1 <- ggplot() +
+  geom_line(aes(x = tmp.si/1000, y = tmp.er), size = 1) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+  labs(x = 'Sacramento Index (thousands)', y = 'Allowable exploitation rate') +
+  theme_classic() +
+  theme(text = element_text(size = 16), plot.margin = unit(c(0.5,1,0.5,0.5), 'cm'))
+
+
+## FIGURE 3. Spawner escapement violin plots and CV --------------------------------------------------------------------------------
 vio.plot.settings <- theme(legend.title = element_blank(), 
                            legend.position = 'none', 
                            axis.text.x = element_blank(), 
@@ -157,7 +176,7 @@ spawn.eta <- ggarrange(spawn.eta.vio.plot, spawnCV.eta.plot, nrow=2, labels = c(
 spawn.final <- ggarrange(spawn.eta, spawn.tau, ncol=2)
 
 
-# Figure. Harvest violin plots and CV -------------------------------------------------------------------------------------------
+## FIGURE 4. Harvest violin plots and CV -------------------------------------------------------------------------------------------
 harvest.tau.vio.plot <- ggplot() +
   geom_violin(data = tau.vio.df, aes(x = age_scen, y = harvest/1000, fill = climate), draw_quantiles = 0.5) +
   scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
@@ -203,7 +222,7 @@ harvest.eta <- ggarrange(harvest.eta.vio.plot, harvestCV.eta.plot, nrow=2, label
 harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
 
 
-# Figure. Percent overfished status boxplot -------------------------------------------------------------------------------------
+## FIGURE 5. Percent overfished status boxplot -------------------------------------------------------------------------------------
 of.theme.settings <- theme(legend.position = 'none',
                            legend.title = element_blank(),
                            legend.text = element_text(size = 14),
@@ -249,7 +268,7 @@ of.eta.plot <- ggplot() +
 ggarrange(of.eta.plot, of.tau.plot, labels = c('a','b'))
 
 
-# Figure. Percent fishery restrictions ------------------------------------------------------------------------------------------
+## FIGURE 6. Percent fishery restrictions ------------------------------------------------------------------------------------------
 c.plot.settings <- theme(legend.position = 'none',
                          plot.title = element_text(hjust = 0.5, size = 15),
                          axis.ticks.x = element_blank(),
@@ -350,236 +369,234 @@ ggarrange(prop70.eta.plot,prop70.tau.plot,
           prop10.eta.plot,prop10.tau.plot,
           nrow = 3, ncol = 2, labels = c('a','b','c','d','e','f'))
 
+# SUPPLEMENTAL FIGURES -----------------------------
 
-# total escapement plots ----------
-## SPAWN PLOTS
-total.run.tau.plot <- ggplot(data = tau.df) +
-  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+## FIGURE S10. Simulated hydrographs -------------------------------------------
+hydro.df <- data.frame(year = seq(1,n.yr),
+                       base = flow.sim(100, 'base', flow.full),
+                       duration = flow.sim(100, 'longer duration', flow.full),
+                       frequency = flow.sim(100, 'more frequent', flow.full),
+                       intensity = flow.sim(100, 'more intense', flow.full))
+
+hydro.plot.settings <- theme(axis.text = element_text(size = 14),
+                             axis.title = element_text(size = 14),
+                             title = element_text(size = 14),
+                             plot.margin = unit(c(0.5,0,0,0.1),'cm'))
+
+hydro.contemporary <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = base), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = '', y = 'Flow (csf)', title = 'Contemporary') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$base<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$base<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+hydro.duration <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = duration), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = '', y = '', title = 'Longer duration') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$duration<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$duration<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+hydro.frequency <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = frequency), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = 'Simulation year', y = 'Flow (csf)', title = 'More frequent') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$frequency<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$frequency<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+hydro.intensity <- ggplot() +
+  geom_line(data = hydro.df, aes(x = year, y = intensity), lwd = 0.5) +
+  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
+  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
+  labs(x = 'Simulation year', y = '', title = 'More intense') +
+  theme_classic() +
+  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
+  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$intensity<10712)/n.yr)*100),'%'), size = 6) + 
+  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$intensity<4295)/n.yr)*100),'%'), size = 6) + 
+  hydro.plot.settings
+
+ggarrange(hydro.contemporary,hydro.duration, hydro.frequency, hydro.intensity)
+
+
+## FIGURE S13. Sensitivity to the CV of realized harvest rate ---------------------------------
+load("cv_er_sa.RData")
+
+cver.vio.df <- NULL
+for(i in 1:20){
+  assign(paste0("cver.sa.",str_pad(as.character(i), width = 2, pad = "0"),".df"), model_summary(get(paste0("cver.sa.",str_pad(as.character(i), width = 2, pad = "0")))))
+  assign(paste0("cver.sa.",str_pad(as.character(i), width = 2, pad = "0"),".df.vio"), violin_df(get(paste0("cver.sa.",str_pad(as.character(i), width = 2, pad = "0"))), as.character(i)))
+  cver.vio.df <- rbind(cver.vio.df, get(paste0("cver.sa.",str_pad(as.character(i), width = 2, pad = "0"),".df.vio")))
+}
+
+cver.tau.df <- rbind(cver.sa.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
+                     cver.sa.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
+                     cver.sa.05.df %>% mutate(climate='Contemporary', age_scen = 2.7),
+                     cver.sa.06.df %>% mutate(climate='Longer duration', age_scen = 0.9),
+                     cver.sa.08.df %>% mutate(climate='Longer duration', age_scen = 1.9),
+                     cver.sa.10.df %>% mutate(climate='Longer duration', age_scen = 2.9),
+                     cver.sa.11.df %>% mutate(climate='More frequent', age_scen = 1.1),
+                     cver.sa.13.df %>% mutate(climate='More frequent', age_scen = 2.1),
+                     cver.sa.15.df %>% mutate(climate='More frequent', age_scen = 3.1),
+                     cver.sa.16.df %>% mutate(climate='More intense', age_scen = 1.3),
+                     cver.sa.18.df %>% mutate(climate='More intense', age_scen = 2.3),
+                     cver.sa.20.df %>% mutate(climate='More intense', age_scen = 3.3))
+age.scen.df1 <- data.frame(scenario = as.character(c(1,3,5,6,8,10,11,13,15,16,18,20)),
+                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+cver.tau.vio.df <- cver.vio.df %>%
+  filter(scenario %in% as.character(c(1,3,5,6,8,10,11,13,15,16,18,20))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(1,3,5)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(6,8,10)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(11,13,15)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df1, by = "scenario")
+cver.tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
+                             age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
+                             spawn_cv = c(cver.sa.01.df$spawn.cv, cver.sa.03.df$spawn.cv, cver.sa.05.df$spawn.cv, cver.sa.06.df$spawn.cv, cver.sa.08.df$spawn.cv, cver.sa.10.df$spawn.cv, cver.sa.11.df$spawn.cv, cver.sa.13.df$spawn.cv, cver.sa.15.df$spawn.cv, cver.sa.16.df$spawn.cv, cver.sa.18.df$spawn.cv, cver.sa.20.df$spawn.cv),
+                             harvest_cv = c(cver.sa.01.df$harvest.cv, cver.sa.03.df$harvest.cv, cver.sa.05.df$harvest.cv, cver.sa.06.df$harvest.cv, cver.sa.08.df$harvest.cv, cver.sa.10.df$harvest.cv, cver.sa.11.df$harvest.cv, cver.sa.13.df$harvest.cv, cver.sa.15.df$harvest.cv, cver.sa.16.df$harvest.cv, cver.sa.18.df$harvest.cv, cver.sa.20.df$harvest.cv))
+     
+cver.eta.df <- rbind(cver.sa.02.df %>% mutate(climate='Contemporary', age_scen = 0.7),
+                     cver.sa.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
+                     cver.sa.04.df %>% mutate(climate='Contemporary', age_scen = 2.7),
+                     cver.sa.07.df %>% mutate(climate='Longer duration', age_scen=0.9),
+                     cver.sa.08.df %>% mutate(climate='Longer duration', age_scen=1.9),
+                     cver.sa.09.df %>% mutate(climate='Longer duration', age_scen=2.9),
+                     cver.sa.12.df %>% mutate(climate='More frequent', age_scen=1.1),
+                     cver.sa.13.df %>% mutate(climate='More frequent', age_scen=2.1),
+                     cver.sa.14.df %>% mutate(climate='More frequent', age_scen=3.1),
+                     cver.sa.17.df %>% mutate(climate='More intense', age_scen=1.3),
+                     cver.sa.18.df %>% mutate(climate='More intense', age_scen=2.3),
+                     cver.sa.19.df %>% mutate(climate='More intense', age_scen=3.3))
+age.scen.df2 <- data.frame(scenario = as.character(c(2,3,4,7,8,9,12,13,14,17,18,19)),
+                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+cver.eta.vio.df <- cver.vio.df %>%
+  filter(scenario %in% as.character(c(2,3,4,7,8,9,12,13,14,17,18,19))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(2,3,4)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(7,8,9)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(12,13,14)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df2, by = "scenario")
+cver.eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
+                             age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
+                             spawn_cv = c(cver.sa.02.df$spawn.cv, cver.sa.03.df$spawn.cv, cver.sa.04.df$spawn.cv, cver.sa.07.df$spawn.cv, cver.sa.08.df$spawn.cv, cver.sa.09.df$spawn.cv, cver.sa.12.df$spawn.cv, cver.sa.13.df$spawn.cv, cver.sa.14.df$spawn.cv, cver.sa.17.df$spawn.cv, cver.sa.18.df$spawn.cv, cver.sa.19.df$spawn.cv),
+                             harvest_cv = c(cver.sa.02.df$harvest.cv, cver.sa.03.df$harvest.cv, cver.sa.04.df$harvest.cv, cver.sa.07.df$harvest.cv, cver.sa.08.df$harvest.cv, cver.sa.09.df$harvest.cv, cver.sa.12.df$harvest.cv, cver.sa.13.df$harvest.cv, cver.sa.14.df$harvest.cv, cver.sa.17.df$harvest.cv, cver.sa.18.df$harvest.cv, cver.sa.19.df$harvest.cv))
+##
+## CVER PLOTS
+##
+vio.plot.settings <- theme(legend.title = element_blank(), 
+                           legend.position = 'none', 
+                           axis.text.x = element_blank(), 
+                           axis.ticks.x = element_blank(),
+                           plot.title = element_text(hjust = 0.5),
+                           text = element_text(size = 12),
+                           plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+cv.plot.settings <- theme(legend.title = element_blank(), 
+                          legend.position = 'none', 
+                          text = element_text(size = 12), 
+                          plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+cver.spawn.tau.vio.plot <- ggplot() +
+  geom_violin(data = cver.tau.vio.df, aes(x = age_scen, y = spawn/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 875)) +
-  annotate('text', x = 1.1, y = 840, label = '[Early maturation]', size = 4) +
-  annotate('text', x = 2.9, y = 840, label = '[Delayed maturation]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), 
-        plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  scale_x_discrete(expand = c(0,0)) +
+  annotate('text', x = 2.5, y = 570, label = '[Early maturation]', size = 3) +
+  annotate('text', x = 10.5, y = 570, label = '[Delayed maturation]', size = 3) +
+  vio.plot.settings
 
-total.run.cv.tau.plot <- ggplot(data = tau.cv.df) +
-  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
+cver.spawn.eta.vio.plot <- ggplot(data = cver.eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = spawn/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  annotate('text', x = 2, y = 570, label = '[High mortality]', size = 3) +
+  annotate('text', x = 11, y = 570, label = '[Low mortality]', size = 3) +
+  vio.plot.settings
+
+cver.spawnCV.tau.plot <- ggplot(data = cver.tau.cv.df) +
+  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+  scale_y_continuous(limits=c(0.65, 0.8)) +
+  cv.plot.settings
 
-total.run.tau <- ggarrange(total.run.tau.plot, total.run.cv.tau.plot, nrow=2, labels = c('b', 'd'))
-
-total.run.eta.plot <- ggplot(data = eta.df) +
-  geom_point(aes(x = age_scen, y = total.run.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Total run size (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 900)) +
-  annotate('text', x = 1.1, y = 875, label = '[High mortality]', size = 4) +
-  annotate('text', x = 2.9, y = 875, label = '[Low mortality]', size = 4) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.2),
-        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-
-total.run.cv.eta.plot <- ggplot(data = eta.cv.df) +
-  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of total run size') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-
-
-total.run.eta <- ggarrange(total.run.eta.plot, total.run.cv.eta.plot, nrow=2, labels = c('a', 'c'))
-totalrun.final <- ggarrange(total.run.eta, total.run.tau, ncol=2)
-
-
-# Sensitivity to the CV of realized harvest rate ---------------------------------
-
-cver.sa.01.df <- model_summary(cver.sa.01)
-cver.sa.02.df <- model_summary(cver.sa.02)
-cver.sa.03.df <- model_summary(cver.sa.03)
-cver.sa.04.df <- model_summary(cver.sa.04)
-cver.sa.05.df <- model_summary(cver.sa.05)
-cver.sa.06.df <- model_summary(cver.sa.06)
-cver.sa.07.df <- model_summary(cver.sa.07)
-cver.sa.08.df <- model_summary(cver.sa.08)
-cver.sa.09.df <- model_summary(cver.sa.09)
-cver.sa.10.df <- model_summary(cver.sa.10)
-cver.sa.11.df <- model_summary(cver.sa.11)
-cver.sa.12.df <- model_summary(cver.sa.12)
-cver.sa.13.df <- model_summary(cver.sa.13)
-cver.sa.14.df <- model_summary(cver.sa.14)
-cver.sa.15.df <- model_summary(cver.sa.15)
-cver.sa.16.df <- model_summary(cver.sa.16)
-cver.sa.17.df <- model_summary(cver.sa.17)
-cver.sa.18.df <- model_summary(cver.sa.18)
-cver.sa.19.df <- model_summary(cver.sa.19)
-cver.sa.20.df <- model_summary(cver.sa.20)
-
-cver.sa.tau.df <- rbind(cver.sa.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
-                        cver.sa.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
-                        cver.sa.05.df %>% mutate(climate='Contemporary', age_scen = 2.7),
-                        cver.sa.06.df %>% mutate(climate='Longer duration', age_scen = 0.9),
-                        cver.sa.08.df %>% mutate(climate='Longer duration', age_scen = 1.9),
-                        cver.sa.10.df %>% mutate(climate='Longer duration', age_scen = 2.9),
-                        cver.sa.11.df %>% mutate(climate='More frequent', age_scen = 1.1),
-                        cver.sa.13.df %>% mutate(climate='More frequent', age_scen = 2.1),
-                        cver.sa.15.df %>% mutate(climate='More frequent', age_scen = 3.1),
-                        cver.sa.16.df %>% mutate(climate='More intense', age_scen = 1.3),
-                        cver.sa.18.df %>% mutate(climate='More intense', age_scen = 2.3),
-                        cver.sa.20.df %>% mutate(climate='More intense', age_scen = 3.3))
-
-cver.sa.tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
-                                age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
-                                spawn_cv = c(cver.sa.01.df$spawn.cv, cver.sa.03.df$spawn.cv, cver.sa.05.df$spawn.cv, cver.sa.06.df$spawn.cv, cver.sa.08.df$spawn.cv, cver.sa.10.df$spawn.cv, cver.sa.11.df$spawn.cv, cver.sa.13.df$spawn.cv, cver.sa.15.df$spawn.cv, cver.sa.16.df$spawn.cv, cver.sa.18.df$spawn.cv, cver.sa.20.df$spawn.cv),
-                                harvest_cv = c(cver.sa.01.df$harvest.cv, cver.sa.03.df$harvest.cv, cver.sa.05.df$harvest.cv, cver.sa.06.df$harvest.cv, cver.sa.08.df$harvest.cv, cver.sa.10.df$harvest.cv, cver.sa.11.df$harvest.cv, cver.sa.13.df$harvest.cv, cver.sa.15.df$harvest.cv, cver.sa.16.df$harvest.cv, cver.sa.18.df$harvest.cv, cver.sa.20.df$harvest.cv))
-
-cver.sa.eta.df <- rbind(cver.sa.02.df %>% mutate(climate='Contemporary', age_scen = 0.7),
-                        cver.sa.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
-                        cver.sa.04.df %>% mutate(climate='Contemporary', age_scen = 2.7),
-                        cver.sa.07.df %>% mutate(climate='Longer duration', age_scen=0.9),
-                        cver.sa.08.df %>% mutate(climate='Longer duration', age_scen=1.9),
-                        cver.sa.09.df %>% mutate(climate='Longer duration', age_scen=2.9),
-                        cver.sa.12.df %>% mutate(climate='More frequent', age_scen=1.1),
-                        cver.sa.13.df %>% mutate(climate='More frequent', age_scen=2.1),
-                        cver.sa.14.df %>% mutate(climate='More frequent', age_scen=3.1),
-                        cver.sa.17.df %>% mutate(climate='More intense', age_scen=1.3),
-                        cver.sa.18.df %>% mutate(climate='More intense', age_scen=2.3),
-                        cver.sa.19.df %>% mutate(climate='More intense', age_scen=3.3))
-
-cver.sa.eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
-                                age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
-                                spawn_cv = c(cver.sa.02.df$spawn.cv, cver.sa.03.df$spawn.cv, cver.sa.04.df$spawn.cv, cver.sa.07.df$spawn.cv, cver.sa.08.df$spawn.cv, cver.sa.09.df$spawn.cv, cver.sa.12.df$spawn.cv, cver.sa.13.df$spawn.cv, cver.sa.14.df$spawn.cv, cver.sa.17.df$spawn.cv, cver.sa.18.df$spawn.cv, cver.sa.19.df$spawn.cv),
-                                harvest_cv = c(cver.sa.02.df$harvest.cv, cver.sa.03.df$harvest.cv, cver.sa.04.df$harvest.cv, cver.sa.07.df$harvest.cv, cver.sa.08.df$harvest.cv, cver.sa.09.df$harvest.cv, cver.sa.12.df$harvest.cv, cver.sa.13.df$harvest.cv, cver.sa.14.df$harvest.cv, cver.sa.17.df$harvest.cv, cver.sa.18.df$harvest.cv, cver.sa.19.df$harvest.cv))
-
-## SPAWN PLOTS
-spawn.tau.plot <- ggplot(data = cver.sa.tau.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.tau.plot <- ggplot(data = cver.sa.tau.cv.df) +
+cver.spawnCV.eta.plot <- ggplot(data = cver.eta.cv.df) +
   geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
-  labs(x = '', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
+  labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-spawn.tau <- ggarrange(spawn.tau.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
+  scale_y_continuous(limits=c(0.65, 0.8)) +
+  cv.plot.settings +
+  theme(legend.position = c(0.8, 0.9))
 
-spawn.eta.plot <- ggplot(data = cver.sa.eta.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.25),
-        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.eta.plot <- ggplot(data = cver.sa.eta.cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'CV of spawner escapement') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) + 
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-spawn.eta <- ggarrange(spawn.eta.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
-
-spawn.final <- ggarrange(spawn.eta, spawn.tau, ncol=2)
-
-## HARVEST PLOTS
-harvest.tau.plot <- ggplot(data = cver.sa.tau.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+#harvest
+cver.harvest.tau.vio.plot <- ggplot() +
+  geom_violin(data = cver.tau.vio.df, aes(x = age_scen, y = harvest/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.background = element_rect(fill = 'gray90', color = 'gray90'), panel.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.tau.plot <- ggplot(data = cver.sa.tau.cv.df) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 700), breaks = seq(0,700,100)) +
+  scale_x_discrete(expand = c(0,0)) +
+  vio.plot.settings
+
+cver.harvest.eta.vio.plot <- ggplot(data = cver.eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = harvest/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Harvest (thousands)', title = '') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 700), breaks = seq(0,700,100)) +
+  vio.plot.settings
+
+cver.harvestCV.tau.plot <- ggplot(data = cver.tau.cv.df) +
   geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-harvest.tau <- ggarrange(harvest.tau.plot, harvestCV.tau.plot, nrow=2, labels = c('f', 'h'))
+  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  cv.plot.settings
 
-harvest.eta.plot <- ggplot(data = cver.sa.eta.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Harvest (thousands)', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.eta.plot <- ggplot(data = cver.sa.eta.cv.df) +
+cver.harvestCV.eta.plot <- ggplot(data = cver.eta.cv.df) +
   geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = 'CV of harvest') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-harvest.eta <- ggarrange(harvest.eta.plot, harvestCV.eta.plot, nrow=2, labels = c('e', 'g'))
+  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  cv.plot.settings
 
-harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
+ggarrange(cver.spawn.eta.vio.plot, cver.spawn.tau.vio.plot,
+          cver.spawnCV.eta.plot, cver.spawnCV.tau.plot,
+          cver.harvest.eta.vio.plot, cver.harvest.tau.vio.plot,
+          cver.harvestCV.eta.plot, cver.harvestCV.tau.plot,
+          nrow = 4, ncol = 2)
 
-cv.er.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
 
-# Sensitivity to CV of recruitment stochasticity ------------------
-cv.j.01.df <- model_summary(cv.j.01)
-cv.j.02.df <- model_summary(cv.j.02)
-cv.j.03.df <- model_summary(cv.j.03)
-cv.j.04.df <- model_summary(cv.j.04)
-cv.j.05.df <- model_summary(cv.j.05)
-cv.j.06.df <- model_summary(cv.j.06)
-cv.j.07.df <- model_summary(cv.j.07)
-cv.j.08.df <- model_summary(cv.j.08)
-cv.j.09.df <- model_summary(cv.j.09)
-cv.j.10.df <- model_summary(cv.j.10)
-cv.j.11.df <- model_summary(cv.j.11)
-cv.j.12.df <- model_summary(cv.j.12)
-cv.j.13.df <- model_summary(cv.j.13)
-cv.j.14.df <- model_summary(cv.j.14)
-cv.j.15.df <- model_summary(cv.j.15)
-cv.j.16.df <- model_summary(cv.j.16)
-cv.j.17.df <- model_summary(cv.j.17)
-cv.j.18.df <- model_summary(cv.j.18)
-cv.j.19.df <- model_summary(cv.j.19)
-cv.j.20.df <- model_summary(cv.j.20)
+## FIGURE S14. Sensitivity to CV of recruitment stochasticity ------------------
+load("cv_j_sa.RData")
+
+cvj.vio.df <- NULL
+for(i in 1:20){
+  assign(paste0("cv.j.",str_pad(as.character(i), width = 2, pad = "0"),".df"), model_summary(get(paste0("cv.j.",str_pad(as.character(i), width = 2, pad = "0")))))
+  assign(paste0("cv.j.",str_pad(as.character(i), width = 2, pad = "0"),".df.vio"), violin_df(get(paste0("cv.j.",str_pad(as.character(i), width = 2, pad = "0"))), as.character(i)))
+  cvj.vio.df <- rbind(cvj.vio.df, get(paste0("cv.j.",str_pad(as.character(i), width = 2, pad = "0"),".df.vio")))
+}
 
 cv.j.tau.df <- rbind(cv.j.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                      cv.j.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
@@ -593,6 +610,17 @@ cv.j.tau.df <- rbind(cv.j.01.df %>% mutate(climate='Contemporary', age_scen = 0.
                      cv.j.16.df %>% mutate(climate='More intense', age_scen = 1.3),
                      cv.j.18.df %>% mutate(climate='More intense', age_scen = 2.3),
                      cv.j.20.df %>% mutate(climate='More intense', age_scen = 3.3))
+
+age.scen.df1 <- data.frame(scenario = as.character(c(1,3,5,6,8,10,11,13,15,16,18,20)),
+                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+
+cv.j.tau.vio.df <- cvj.vio.df %>%
+  filter(scenario %in% as.character(c(1,3,5,6,8,10,11,13,15,16,18,20))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(1,3,5)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(6,8,10)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(11,13,15)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df1, by = "scenario")
 
 cv.j.tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                              age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
@@ -612,126 +640,127 @@ cv.j.eta.df <- rbind(cv.j.02.df %>% mutate(climate='Contemporary', age_scen = 0.
                      cv.j.18.df %>% mutate(climate='More intense', age_scen=2.3),
                      cv.j.19.df %>% mutate(climate='More intense', age_scen=3.3))
 
+age.scen.df2 <- data.frame(scenario = as.character(c(2,3,4,7,8,9,12,13,14,17,18,19)),
+                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+cv.j.eta.vio.df <- cvj.vio.df %>%
+  filter(scenario %in% as.character(c(2,3,4,7,8,9,12,13,14,17,18,19))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(2,3,4)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(7,8,9)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(12,13,14)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df2, by = "scenario")
+
 cv.j.eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                              age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                              spawn_cv = c(cv.j.02.df$spawn.cv, cv.j.03.df$spawn.cv, cv.j.04.df$spawn.cv, cv.j.07.df$spawn.cv, cv.j.08.df$spawn.cv, cv.j.09.df$spawn.cv, cv.j.12.df$spawn.cv, cv.j.13.df$spawn.cv, cv.j.14.df$spawn.cv, cv.j.17.df$spawn.cv, cv.j.18.df$spawn.cv, cv.j.19.df$spawn.cv),
                              harvest_cv = c(cv.j.02.df$harvest.cv, cv.j.03.df$harvest.cv, cv.j.04.df$harvest.cv, cv.j.07.df$harvest.cv, cv.j.08.df$harvest.cv, cv.j.09.df$harvest.cv, cv.j.12.df$harvest.cv, cv.j.13.df$harvest.cv, cv.j.14.df$harvest.cv, cv.j.17.df$harvest.cv, cv.j.18.df$harvest.cv, cv.j.19.df$harvest.cv))
 
-## SPAWN PLOTS
-spawn.tau.plot <- ggplot(data = cv.j.tau.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+##
+## CVJ PLOTS
+##
+vio.plot.settings <- theme(legend.title = element_blank(), 
+                           legend.position = 'none', 
+                           axis.text.x = element_blank(), 
+                           axis.ticks.x = element_blank(),
+                           plot.title = element_text(hjust = 0.5),
+                           text = element_text(size = 12),
+                           plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+cv.plot.settings <- theme(legend.title = element_blank(), 
+                          legend.position = 'none', 
+                          text = element_text(size = 12), 
+                          plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+cv.j.spawn.tau.vio.plot <- ggplot() +
+  geom_violin(data = cv.j.tau.vio.df, aes(x = age_scen, y = spawn/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 500)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.tau.plot <- ggplot(data = cv.j.tau.cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.6, 0.8)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-spawn.tau <- ggarrange(spawn.tau.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  scale_x_discrete(expand = c(0,0)) +
+  annotate('text', x = 2.5, y = 570, label = '[Early maturation]', size = 3) +
+  annotate('text', x = 10.5, y = 570, label = '[Delayed maturation]', size = 3) +
+  vio.plot.settings
 
-spawn.eta.plot <- ggplot(data = cv.j.eta.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+cv.j.spawn.eta.vio.plot <- ggplot(data = cv.j.eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = spawn/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 500)) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.25),
-        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.eta.plot <- ggplot(data = cv.j.eta.cv.df) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  annotate('text', x = 2, y = 570, label = '[High mortality]', size = 3) +
+  annotate('text', x = 11, y = 570, label = '[Low mortality]', size = 3) +
+  vio.plot.settings
+
+cv.j.spawnCV.tau.plot <- ggplot(data = cv.j.tau.cv.df) +
   geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
-  labs(x = '', y = 'CV of spawner escapement') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
+  labs(x = 'Age structure scenario', y = '') +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.6, 0.8)) + 
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-spawn.eta <- ggarrange(spawn.eta.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
+  scale_y_continuous(limits=c(0.65, 0.8)) +
+  cv.plot.settings
 
-spawn.final <- ggarrange(spawn.eta, spawn.tau, ncol=2)
-
-## HARVEST PLOTS
-harvest.tau.plot <- ggplot(data = cv.j.tau.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
+cv.j.spawnCV.eta.plot <- ggplot(data = cv.j.eta.cv.df) +
+  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
+  labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
+  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
+  scale_y_continuous(limits=c(0.65, 0.8)) +
+  cv.plot.settings +
+  theme(legend.position = c(0.8, 0.9))
+
+#harvest
+cv.j.harvest.tau.vio.plot <- ggplot() +
+  geom_violin(data = cv.j.tau.vio.df, aes(x = age_scen, y = harvest/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
   labs(x = '', y = '', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.background = element_rect(fill = 'gray90', color = 'gray90'), panel.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.tau.plot <- ggplot(data = cv.j.tau.cv.df) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 700), breaks = seq(0,700,100)) +
+  scale_x_discrete(expand = c(0,0)) +
+  vio.plot.settings
+
+cv.j.harvest.eta.vio.plot <- ggplot(data = cv.j.eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = harvest/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Harvest (thousands)', title = '') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 700), breaks = seq(0,700,100)) +
+  vio.plot.settings
+
+cv.j.harvestCV.tau.plot <- ggplot(data = cv.j.tau.cv.df) +
   geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.6, 0.9)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-harvest.tau <- ggarrange(harvest.tau.plot, harvestCV.tau.plot, nrow=2, labels = c('f', 'h'))
+  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  cv.plot.settings
 
-harvest.eta.plot <- ggplot(data = cv.j.eta.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = 'Harvest (thousands)', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.eta.plot <- ggplot(data = cv.j.eta.cv.df) +
+cv.j.harvestCV.eta.plot <- ggplot(data = cv.j.eta.cv.df) +
   geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = 'CV of harvest') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.6, 0.9)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-harvest.eta <- ggarrange(harvest.eta.plot, harvestCV.eta.plot, nrow=2, labels = c('e', 'g'))
+  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  cv.plot.settings
 
-harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
+ggarrange(cv.j.spawn.eta.vio.plot, cv.j.spawn.tau.vio.plot,
+          cv.j.spawnCV.eta.plot, cv.j.spawnCV.tau.plot,
+          cv.j.harvest.eta.vio.plot, cv.j.harvest.tau.vio.plot,
+          cv.j.harvestCV.eta.plot, cv.j.harvestCV.tau.plot,
+          nrow = 4, ncol = 2)
 
-cv.j.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
 
+## FIGURE S15. Sensitivity to mean NPGO effect -------------------
+load("npgo_sa.RData")
 
-# Sensitivity to mean NPGO effect -------------------
-npgo.01.df <- model_summary(npgo.01)
-npgo.02.df <- model_summary(npgo.02)
-npgo.03.df <- model_summary(npgo.03)
-npgo.04.df <- model_summary(npgo.04)
-npgo.05.df <- model_summary(npgo.05)
-npgo.06.df <- model_summary(npgo.06)
-npgo.07.df <- model_summary(npgo.07)
-npgo.08.df <- model_summary(npgo.08)
-npgo.09.df <- model_summary(npgo.09)
-npgo.10.df <- model_summary(npgo.10)
-npgo.11.df <- model_summary(npgo.11)
-npgo.12.df <- model_summary(npgo.12)
-npgo.13.df <- model_summary(npgo.13)
-npgo.14.df <- model_summary(npgo.14)
-npgo.15.df <- model_summary(npgo.15)
-npgo.16.df <- model_summary(npgo.16)
-npgo.17.df <- model_summary(npgo.17)
-npgo.18.df <- model_summary(npgo.18)
-npgo.19.df <- model_summary(npgo.19)
-npgo.20.df <- model_summary(npgo.20)
+npgo.vio.df <- NULL
+for(i in 1:20){
+  assign(paste0("npgo.",str_pad(as.character(i), width = 2, pad = "0"),".df"), model_summary(get(paste0("npgo.",str_pad(as.character(i), width = 2, pad = "0")))))
+  assign(paste0("npgo.",str_pad(as.character(i), width = 2, pad = "0"),".df.vio"), violin_df(get(paste0("npgo.",str_pad(as.character(i), width = 2, pad = "0"))), as.character(i)))
+  npgo.vio.df <- rbind(npgo.vio.df, get(paste0("npgo.",str_pad(as.character(i), width = 2, pad = "0"),".df.vio")))
+}
 
 npgo.tau.df <- rbind(npgo.01.df %>% mutate(climate='Contemporary', age_scen = 0.7),
                      npgo.03.df %>% mutate(climate='Contemporary', age_scen = 1.7),
@@ -745,6 +774,17 @@ npgo.tau.df <- rbind(npgo.01.df %>% mutate(climate='Contemporary', age_scen = 0.
                      npgo.16.df %>% mutate(climate='More intense', age_scen = 1.3),
                      npgo.18.df %>% mutate(climate='More intense', age_scen = 2.3),
                      npgo.20.df %>% mutate(climate='More intense', age_scen = 3.3))
+
+age.scen.df1 <- data.frame(scenario = as.character(c(1,3,5,6,8,10,11,13,15,16,18,20)),
+                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+
+npgo.tau.vio.df <- npgo.vio.df %>%
+  filter(scenario %in% as.character(c(1,3,5,6,8,10,11,13,15,16,18,20))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(1,3,5)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(6,8,10)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(11,13,15)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df1, by = "scenario")
 
 npgo.tau.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                              age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
@@ -764,103 +804,175 @@ npgo.eta.df <- rbind(npgo.02.df %>% mutate(climate='Contemporary', age_scen = 0.
                      npgo.18.df %>% mutate(climate='More intense', age_scen=2.3),
                      npgo.19.df %>% mutate(climate='More intense', age_scen=3.3))
 
+age.scen.df2 <- data.frame(scenario = as.character(c(2,3,4,7,8,9,12,13,14,17,18,19)),
+                           age_scen = as.character(c(0.7,1.7,2.7,0.9,1.9,2.9,1.1,2.1,3.1,1.3,2.3,3.3)))
+npgo.eta.vio.df <- npgo.vio.df %>%
+  filter(scenario %in% as.character(c(2,3,4,7,8,9,12,13,14,17,18,19))) %>%
+  mutate(climate = ifelse(scenario %in% as.character(c(2,3,4)), 'Contemporary',
+                   ifelse(scenario %in% as.character(c(7,8,9)), 'Longer duration',
+                   ifelse(scenario %in% as.character(c(12,13,14)), 'More frequent',
+                   'More intense')))) %>%
+  left_join(., age.scen.df2, by = "scenario")
+
 npgo.eta.cv.df <- data.frame(climate_scenario = rep(c('Contemporary','Duration','Frequency','Intensity'), each=3),
                              age_struct = c(seq(0.7,2.7,by=1),seq(0.9,2.9,by=1),seq(1.1,3.1,by=1),seq(1.3,3.3,by=1)),
                              spawn_cv = c(npgo.02.df$spawn.cv, npgo.03.df$spawn.cv, npgo.04.df$spawn.cv, npgo.07.df$spawn.cv, npgo.08.df$spawn.cv, npgo.09.df$spawn.cv, npgo.12.df$spawn.cv, npgo.13.df$spawn.cv, npgo.14.df$spawn.cv, npgo.17.df$spawn.cv, npgo.18.df$spawn.cv, npgo.19.df$spawn.cv),
                              harvest_cv = c(npgo.02.df$harvest.cv, npgo.03.df$harvest.cv, npgo.04.df$harvest.cv, npgo.07.df$harvest.cv, npgo.08.df$harvest.cv, npgo.09.df$harvest.cv, npgo.12.df$harvest.cv, npgo.13.df$harvest.cv, npgo.14.df$harvest.cv, npgo.17.df$harvest.cv, npgo.18.df$harvest.cv, npgo.19.df$harvest.cv))
 
-## SPAWN PLOTS
-spawn.tau.plot <- ggplot(data = npgo.tau.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+##
+## NPGO PLOTS
+##
+vio.plot.settings <- theme(legend.title = element_blank(), 
+                           legend.position = 'none', 
+                           axis.text.x = element_blank(), 
+                           axis.ticks.x = element_blank(),
+                           plot.title = element_text(hjust = 0.5),
+                           text = element_text(size = 12),
+                           plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+cv.plot.settings <- theme(legend.title = element_blank(), 
+                          legend.position = 'none', 
+                          text = element_text(size = 12), 
+                          plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+npgo.spawn.tau.vio.plot <- ggplot() +
+  geom_violin(data = npgo.tau.vio.df, aes(x = age_scen, y = spawn/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = '', title = 'Maturation') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.tau.plot <- ggplot(data = npgo.tau.cv.df) +
-  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = '', y = '') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
-  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-spawn.tau <- ggarrange(spawn.tau.plot, spawnCV.tau.plot, nrow=2, labels = c('b', 'd'))
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  scale_x_discrete(expand = c(0,0)) +
+  annotate('text', x = 2.5, y = 570, label = '[Early maturation]', size = 3) +
+  annotate('text', x = 10.5, y = 570, label = '[Delayed maturation]', size = 3) +
+  vio.plot.settings
 
-spawn.eta.plot <- ggplot(data = npgo.eta.df) +
-  geom_point(aes(x = age_scen, y = spawn.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = spawn.pi.lo/1000, ymax = spawn.pi.up/1000, color = climate), width = 0) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+npgo.spawn.eta.vio.plot <- ggplot(data = npgo.eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = spawn/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = '', y = 'Spawner escapement (thousands)', title = 'Natural mortality') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
-  theme(legend.title = element_blank(), legend.position = c(0.8, 0.25),
-        text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-spawnCV.eta.plot <- ggplot(data = npgo.eta.cv.df) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
+  annotate('text', x = 2, y = 570, label = '[High mortality]', size = 3) +
+  annotate('text', x = 11, y = 570, label = '[Low mortality]', size = 3) +
+  vio.plot.settings
+
+npgo.spawnCV.tau.plot <- ggplot(data = npgo.tau.cv.df) +
   geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
-  labs(x = '', y = 'CV of spawner escapement') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
+  labs(x = 'Age structure scenario', y = '') +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.5, 0.7)) + 
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-spawn.eta <- ggarrange(spawn.eta.plot, spawnCV.eta.plot, nrow=2, labels = c('a', 'c'))
+  scale_y_continuous(limits=c(0.65, 0.8)) +
+  cv.plot.settings
 
-spawn.final <- ggarrange(spawn.eta, spawn.tau, ncol=2)
-
-## HARVEST PLOTS
-harvest.tau.plot <- ggplot(data = npgo.tau.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
+npgo.spawnCV.eta.plot <- ggplot(data = npgo.eta.cv.df) +
+  geom_point(aes(x = age_struct, y = spawn_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
+  labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
+  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
+  scale_y_continuous(limits=c(0.65, 0.8)) +
+  cv.plot.settings +
+  theme(legend.position = c(0.8, 0.9))
+
+#harvest
+npgo.harvest.tau.vio.plot <- ggplot() +
+  geom_violin(data = npgo.tau.vio.df, aes(x = age_scen, y = harvest/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
   labs(x = '', y = '', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.background = element_rect(fill = 'gray90', color = 'gray90'), panel.background = element_rect(fill = 'gray90', color = 'gray90'),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.tau.plot <- ggplot(data = npgo.tau.cv.df) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 700), breaks = seq(0,700,100)) +
+  scale_x_discrete(expand = c(0,0)) +
+  vio.plot.settings
+
+npgo.harvest.eta.vio.plot <- ggplot(data = npgo.eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = harvest/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Harvest (thousands)', title = '') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 700), breaks = seq(0,700,100)) +
+  vio.plot.settings
+
+npgo.harvestCV.tau.plot <- ggplot(data = npgo.tau.cv.df) +
   geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = 'Age structure scenario', y = '') +
+  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
+  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  cv.plot.settings
+
+npgo.harvestCV.eta.plot <- ggplot(data = npgo.eta.cv.df) +
+  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
+  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = 'Age structure scenario', y = 'CV of harvest') +
+  scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
+  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  cv.plot.settings
+
+ggarrange(npgo.spawn.eta.vio.plot, npgo.spawn.tau.vio.plot,
+          npgo.spawnCV.eta.plot, npgo.spawnCV.tau.plot,
+          npgo.harvest.eta.vio.plot, npgo.harvest.tau.vio.plot,
+          npgo.harvestCV.eta.plot, npgo.harvestCV.tau.plot,
+          nrow = 4, ncol = 2)
+
+
+## FIGURE S16. total escapement plots ----------
+vio.plot.settings <- theme(legend.title = element_blank(), 
+                           legend.position = 'none', 
+                           axis.text.x = element_blank(), 
+                           axis.ticks.x = element_blank(),
+                           plot.title = element_text(hjust = 0.5),
+                           text = element_text(size = 16),
+                           plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+cv.plot.settings <- theme(legend.title = element_blank(), 
+                          legend.position = 'none', 
+                          text = element_text(size = 16), 
+                          plot.margin = unit(c(0.5,0,0,0.7),'cm'))
+
+total.run.tau.vio.plot <- ggplot() +
+  geom_violin(data = tau.vio.df, aes(x = age_scen, y = (spawn+harvest)/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey75", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = '', title = 'Maturation') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1100)) +
+  scale_x_discrete(expand = c(0,0)) +
+  annotate('text', x = 2.5, y = 1000, label = '[Early maturation]', size = 4) +
+  annotate('text', x = 10.5, y = 1000, label = '[Delayed maturation]', size = 4) +
+  vio.plot.settings
+
+total.run.eta.vio.plot <- ggplot(data = eta.vio.df) +
+  geom_violin(aes(x = age_scen, y = (spawn+harvest)/1000, fill = climate), draw_quantiles = 0.5) +
+  scale_fill_manual(values = c("grey", "#E69F00", "#56B4E9", "#009E73")) +
+  theme_classic() +
+  labs(x = '', y = 'Total run size (thousands)', title = 'Natural mortality') +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1100)) +
+  annotate('text', x = 2, y = 1000, label = '[High mortality]', size = 4) +
+  annotate('text', x = 11, y = 1000, label = '[Low mortality]', size = 4) +
+  vio.plot.settings
+
+total.run.CV.tau.plot <- ggplot(data = tau.cv.df) +
+  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'),
-        panel.background = element_rect(fill = 'gray90', color = 'gray90'), plot.background = element_rect(fill = 'gray90', color = 'gray90'))
-harvest.tau <- ggarrange(harvest.tau.plot, harvestCV.tau.plot, nrow=2, labels = c('f', 'h'))
+  scale_y_continuous(limits=c(0.5, 0.65)) +
+  cv.plot.settings
 
-harvest.eta.plot <- ggplot(data = npgo.eta.df) +
-  geom_point(aes(x = age_scen, y = harvest.mean/1000, color = climate), size = 3) +
-  # geom_errorbar(aes(x = age_scen, ymin = harvest.pi.lo/1000, ymax = harvest.pi.up/1000, color = climate), width = 0) +
+total.run.CV.eta.plot <- ggplot(data = eta.cv.df) +
+  geom_point(aes(x = age_struct, y = totalrun_cv, color = climate_scenario), size = 3) +
   scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
   theme_classic() +
-  labs(x = '', y = 'Harvest (thousands)', title = '') +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 600)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'), axis.text.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-harvestCV.eta.plot <- ggplot(data = npgo.eta.cv.df) +
-  geom_point(aes(x = age_struct, y = harvest_cv, color = climate_scenario), size = 3) +
-  scale_color_manual(values = c("black", "#E69F00", "#56B4E9", "#009E73")) +
-  theme_classic() +
-  labs(x = 'Age structure scenario', y = 'CV of harvest') +
-  # scale_x_continuous(breaks = seq(1,3), labels = c(~paste(eta['4,5'], " = 0.01"), 'Base case', expression(~paste(eta['4,5'], ' = 0.99')))) +
+  labs(x = 'Age structure scenario', y = 'CV of total run size') +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits = c(0.5, 0.7)) +
-  theme(legend.title = element_blank(), legend.position = 'none', text = element_text(size = 13), plot.margin = unit(c(0.5,0,0,0.7),'cm'))
-harvest.eta <- ggarrange(harvest.eta.plot, harvestCV.eta.plot, nrow=2, labels = c('e', 'g'))
+  scale_y_continuous(limits=c(0.5, 0.65)) +
+  cv.plot.settings +
+  theme(legend.position = c(0.8, 0.9))
 
-harvest.final <- ggarrange(harvest.eta, harvest.tau, ncol=2)
-
-npgo.final <- ggarrange(spawn.final, harvest.final, nrow = 2)
+totalrun.tau <- ggarrange(total.run.tau.vio.plot, total.run.CV.tau.plot, nrow=2, labels = c('b', 'd'))
+totalrun.eta <- ggarrange(total.run.eta.vio.plot, total.run.CV.eta.plot, nrow=2, labels = c('a', 'c'))
+totalrun.final <- ggarrange(totalrun.eta, totalrun.tau, ncol=2)
 
 # 100-YEAR MODEL VALIDATION ---------------------------------------------------------------------------------------------
 base.mod.df <- model_summary(mod.03)
@@ -959,93 +1071,8 @@ plot(tmp4$lag, tmp4$acf)
 
 
 
-# Code for plotting hydrographs -------------------------------------------
-# Code for plotting example hydrographs
-hydro.df <- data.frame(year = seq(1,n.yr),
-                       base = flow.sim(100, 'base', flow.full),
-                       duration = flow.sim(100, 'longer duration', flow.full),
-                       frequency = flow.sim(100, 'more frequent', flow.full),
-                       intensity = flow.sim(100, 'more intense', flow.full))
-
-hydro.plot.settings <- theme(axis.text = element_text(size = 14),
-                             axis.title = element_text(size = 14),
-                             title = element_text(size = 14),
-                             plot.margin = unit(c(0.5,0,0,0.1),'cm'))
-
-hydro.contemporary <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = base), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = '', y = 'Flow (csf)', title = 'Contemporary') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$base<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$base<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-hydro.duration <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = duration), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = '', y = '', title = 'Longer duration') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$duration<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$duration<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-hydro.frequency <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = frequency), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = 'Simulation year', y = 'Flow (csf)', title = 'More frequent') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$frequency<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$frequency<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-hydro.intensity <- ggplot() +
-  geom_line(data = hydro.df, aes(x = year, y = intensity), lwd = 0.5) +
-  geom_segment(aes(x = 0, xend = 100, y = 10712, yend = 10712), lwd = 1, lty = 'dashed') +
-  geom_segment(aes(x = 0, xend = 100, y = 4295, yend = 4295), lwd = 1, lty = 'dashed') +
-  labs(x = 'Simulation year', y = '', title = 'More intense') +
-  theme_classic() +
-  scale_x_continuous(expand = c(0,0), limits = c(0, 120), breaks = seq(0,100,20)) +
-  annotate('text', x = n.yr+8, y = 10712, label = paste0(as.character((sum(hydro.df$intensity<10712)/n.yr)*100),'%'), size = 6) + 
-  annotate('text', x = n.yr+8, y = 4295, label = paste0(as.character((sum(hydro.df$intensity<4295)/n.yr)*100),'%'), size = 6) + 
-  hydro.plot.settings
-
-ggarrange(hydro.contemporary,hydro.duration, hydro.frequency, hydro.intensity)
 
 
-# Code for plotting the harvest control rule ----------------
-# Extra code for plotting the harvest control rule
-library(ggplot2)
-library(ggpubr)
-tmp.si <- seq(0, 500000, length.out = 1000)
-tmp.er <- sapply(tmp.si, control.rule)
-plot1 <- ggplot() +
-  geom_line(aes(x = tmp.si/1000, y = tmp.er), size = 1) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
-  labs(x = 'Sacramento Index (thousands)', y = 'Allowable exploitation rate') +
-  theme_classic() +
-  theme(text = element_text(size = 16), plot.margin = unit(c(0.5,1,0.5,0.5), 'cm'))
-
-plot2 <- ggplot() +
-  geom_line(aes(x = tmp.si/1000, y = (tmp.si/1000) - ((tmp.si/1000)* tmp.er)), size = 1) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0, 0)) +
-  labs(x = 'Sacramento Index (thousands)', y = 'Expected spawners after exploitation') +
-  theme_classic() +
-  theme(text = element_text(size = 13), plot.margin = unit(c(0.5,1,0.5,0.5), 'cm'))
-#
-# ggarrange(plot1, plot2, nrow=2)
-#
-tmp.si2 <- seq(122000, 500000, length.out = 1000)
-constant_esc_er <- (tmp.si2 - 122000) / tmp.si2
-plot(tmp.si2, constant_esc_er)
 
 
 
