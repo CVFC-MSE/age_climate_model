@@ -66,6 +66,7 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n
   # State variables
   N <- H <- I.N <- I.H <- array(0, dim = c(n.age.stage, n.yr, n.pops)) # Numbers of natural-origin individuals (N); # numbers of hatchery-origin individuals (H); # natural-origin impacts (I.N, during period following time t); hatchery-origin impacts; rows are fry/pre-smolts, immature males (ages 2:A), mature males (ages 2:A), immature females (ages 2:A), mature females (ages 2:A); columns are times
   age.c <- B.m.h <- B.m.n <- B.f.h <- B.f.n <- R.spawn.fem.a <-  array(0, dim = c(A-1, n.yr, n.pops)) # number of spawners that return to hatcheries
+  fem.spawn.a <- array(0, dim = c(A-2, n.yr, n.pops)) # females spawners by age class
   j.surv <- NH.ratio <- harvest <- real.c <- mu.c <- SI.error <- SI.observed <- SI.forecast <- jack <- Spawn <- B.total <- R.spawn <- Spawn.est <- R.spawn.est <- spawn.2 <- spawn.3 <- spawn.4 <- spawn.5 <- harvest.2 <- harvest.3 <- harvest.4 <- harvest.5 <- ocean.2 <- ocean.3 <- ocean.4 <- ocean.5 <- ocean <- array(NA, dim = c(n.yr, n.pops)) # Number of returning spawners (at time t), number of spawners in natural area (at time t), broodstock (per sex) removed at time t, number of female spawners in natural area (at time t), estimated number of returning spawners (at time t), estimated number of spawners in natural area (at time t), impact rate specified by the management strategy at time t, realized impact rate south of Point Arena following time t, and population size at time t (sum of spawners at time t and in previous two years)
   n <- array(NA, dim = c(A, n.yr, n.pops)) # natural survival rate (probability of surviving to next age (based on flow for juveniles) after harvest during the current age for ages >= 2); columns are times; Note: impact rates and natural survival rates are not sex- or origin-specific
   
@@ -164,7 +165,7 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n
       # Realized exploitation rate
       c.alpha <- (1 - (tmp.c * (1 + (cv.er^2)))) / (cv.er^2)
       c.beta  <- ((1/tmp.c) - 2 + tmp.c + (tmp.c - 1) * (cv.er^2)) / (cv.er^2)
-      real.c[t, ] <- rbeta(1, c.alpha, c.alpha)
+      real.c[t, ] <- rbeta(1, c.alpha, c.beta)
       
       # Fishery impact
       age.c[, t, ] <- real.c[t, ] * nu
@@ -233,7 +234,9 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n
       j.surv[t, ]    <- n[1, t, 1] * phi.2
 
     } # end t
-    out <- data.frame(year = 1:n.yr, Spawn.est, harvest, NH.ratio, j.surv, SI.observed, SI.forecast, SI.error, Spawn, jack, mu.c, real.c, spawn.2, spawn.3, spawn.4, spawn.5, harvest.2, harvest.3, harvest.4, harvest.5, ocean.2, ocean.3, ocean.4, ocean.5, ocean)
+    out <- data.frame(year = 1:n.yr, Spawn.est, harvest, NH.ratio, j.surv, SI.observed, SI.forecast, SI.error, Spawn, 
+                      jack, mu.c, real.c, spawn.2, spawn.3, spawn.4, spawn.5, harvest.2, harvest.3, harvest.4, harvest.5, 
+                      ocean.2, ocean.3, ocean.4, ocean.5, ocean)
   
   } # end parfor
 
