@@ -72,7 +72,7 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n
   
   # Survival/harvest parameters
   n[2:A, , ]     <- n.surv # survival rate of fish aged 2 and older
-  harvest.scalar <- 1.0
+  harvest.scalar <- 0.72 # scale harvest as it is applied to true ocean abundance in the model.
   
   # Initialize population
   # Initial number of hatchery escapement
@@ -92,17 +92,17 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n
   init.harvest         <- ((1 - (1 - ((catch.esc$exploitation.rate/100)[2]))) * nu)
   init.total.harvest.1 <- catch.esc$total.ocean.harvest[1] + catch.esc$river.harvest[1]
   init.total.harvest.2 <- catch.esc$total.ocean.harvest[2] + catch.esc$river.harvest[2]
-  N[c(2, 2*A), 1, ]    <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ]    <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ]    <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1]))
+  H[c(2, 2*A), 1, ]    <- round((init.total.harvest.2 * 0.025 * 0.75) / (init.harvest[1]))
   # Initial ocean age 3
-  N[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar) )
-  H[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar))
+  N[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.6) / (init.harvest[2]) )
+  H[c(3, (2*A)+1), 1, ] <- round((init.total.harvest.2 * 0.715 * 0.6) / (init.harvest[2]))
   # Initial ocean age 4
-  N[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.5) / (init.harvest[3] * harvest.scalar))
-  H[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.5) / (init.harvest[3] * harvest.scalar))
+  N[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.5) / (init.harvest[3]))
+  H[c(4, (2*A)+2), 1, ] <- round((init.total.harvest.2 * 0.255 * 0.5) / (init.harvest[3]))
   # Initial ocean age 5
-  N[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
-  H[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
+  N[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.35) / (init.harvest[4]))
+  H[c(5, (2*A)+3), 1, ] <- round((init.total.harvest.2 * 0.005 * 0.35) / (init.harvest[4]))
   # Initial harvest
   I.N[N.H.O.ind, 1, ] <- round(init.total.harvest.1 * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
   I.H[N.H.O.ind, 1, ] <- round(init.total.harvest.1 * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
