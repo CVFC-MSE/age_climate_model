@@ -9,5 +9,5 @@ The portfolio effect plays a critical role in population productivity and stabil
 ###  model_fitting.R
 This file contains code to fit a population dynamics model to Sacramento River fall-run Chinook salmon (_Oncorhynchus tshawytscha_) escapement and harvest. The parameters estimated through model fitting are juvenile survival (not flow related), the coefficient of variation of recruitment stochasticity, mean NPGO (North Pacific Gyre Oscillation Index) effect on survival, and variance of NPGO effect on survival.
 
-Supporting files:\n
+Supporting files:  
 _model_fitting_functions.R_ contains code for the stock-recruitment relationship, fishery impact, flow-dependent juvenile survival, and smart rounding numbers while preserving overall sum.
