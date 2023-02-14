@@ -72,7 +72,7 @@ operating.model <- function(pars, years = 100, sims = 1000, m.maturity = NULL, n
   
   # Survival/harvest parameters
   n[2:A, , ]     <- n.surv # survival rate of fish aged 2 and older
-  harvest.scalar <- 0.72 # scale harvest as it is applied to true ocean abundance in the model.
+  harvest.scalar <- 0.72 # Exploitation rate modified by scalar to account for fish that remain in the ocean and delay spawning. The harvest control rule exploitation rate assumes that all fish are either captured in the fishery or escape the fishery and return to spawn.
   
   # Initialize population
   # Initial number of hatchery escapement
