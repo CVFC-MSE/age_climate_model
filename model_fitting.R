@@ -110,8 +110,7 @@ optim.simulation <- function(pars, calibrate, reset.esc){
     
   # Population dynamics parameters/variables
   n[2:A, , , ]   <- n.surv # survival rate of fish aged 2 and older
-  harvest.scalar <- 1 # need to scale back exploitation rate because not all ocean ages are exploited at the same rate, and this scales harvest to match empirical values
-  
+
   # Initialize population
   # Initial number of hatchery escapement
   B.m.h[, 1, , ] <- B.m.n[, 1, , ] <- smart.round(c(0, 0.761, 0.235, 0.004) * (y.params$Ht[1]/4)) # Starting proportions for adult spawners inferred from Friedman et al. 2019
@@ -128,17 +127,17 @@ optim.simulation <- function(pars, calibrate, reset.esc){
   n[1, 1, , ] <- juv.survival(y.params$w[1]) * alpha # juvenile survival as a function of flow (outmigration) and average survival through the bay (alpha). Flow data not available for 1987, thus 1988 was used for initialization.
   # Initial ocean age 2 - abundance of ocean fish estimated from harvest, exploitation rate, and resonable age-composition of harvest
   init.harvest <- ((1 - (1 - (y.params$i[2]))) * nu)
-  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
-  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.75) / (init.harvest[1] * harvest.scalar))
+  N[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.75) / (init.harvest[1]))
+  H[c(2, 2*A), 1, ,] <- round((y.params$total.harvest[2] * 0.025 * 0.75) / (init.harvest[1]))
   # Initial ocean age 3
-  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar) )
-  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.6) / (init.harvest[2] * harvest.scalar))
+  N[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.6) / (init.harvest[2]) )
+  H[c(3, (2*A)+1), 1, ,] <- round((y.params$total.harvest[2] * 0.715 * 0.6) / (init.harvest[2]))
   # Initial ocean age 4
-  N[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.5) / (init.harvest[3] * harvest.scalar))
-  H[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.5) / (init.harvest[3] * harvest.scalar))
+  N[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.5) / (init.harvest[3]))
+  H[c(4, (2*A)+2), 1, ,] <- round((y.params$total.harvest[2] * 0.255 * 0.5) / (init.harvest[3]))
   # Initial ocean age 5
-  N[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
-  H[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4] * harvest.scalar))
+  N[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4]))
+  H[c(5, (2*A)+3), 1, ,] <- round((y.params$total.harvest[2] * 0.005 * 0.35) / (init.harvest[4]))
   # Initial harvest
   I.N[N.H.O.ind, 1, , ] <- round(y.params$total.harvest[1] * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
   I.H[N.H.O.ind, 1, , ] <- round(y.params$total.harvest[1] * 0.25 * c(0.025, 0.715, 0.255, 0.005, 0.025, 0.715, 0.255, 0.005))
@@ -180,7 +179,7 @@ optim.simulation <- function(pars, calibrate, reset.esc){
       prefish.ab[t, , sim] <- sum(c(H[N.H.O.ind, t, , sim], N[N.H.O.ind, t, , sim]), na.rm=TRUE)
       
       # Fishery impact
-      harvest[t, , sim] <- y.params$i[t] * harvest.scalar # Empirical exploitation rate modified by scalar to account for fish that remain in the ocean and delay spawning
+      harvest[t, , sim] <- y.params$i[t] # exploitation rate
       I.H[N.H.O.ind, t, , sim] <- fishery.impact(H[N.H.O.ind, t, , sim], harvest[t, , sim], nu) # natural mortality occurs first, so harvest is limited to fish that survive
       I.N[N.H.O.ind, t, , sim] <- fishery.impact(N[N.H.O.ind, t, , sim], harvest[t, , sim], nu) # natural mortality occurs first, so harvest is limited to fish that survive
       
@@ -273,7 +272,7 @@ pars    <- c(alpha.i, cv.j.i, phi.i, sd.i)
 # proc.time() - ptm; setDefaultCluster(cl = NULL); stopCluster(cl = cluster)
 
 ## Run simulation model -------------------------------------------------------------------------------------------------
-tmp.par <- c(0.0677540 , 0.2150685 , 0.8281944 , 0.1316211) # Iteratively adjusted calibrated parameters to fine tune model fit (0.04, 0.26, 0.86, 0.26)
+tmp.par <- c(0.0677540 , 0.2150685 , 0.8281944 , 0.1316211) # Iteratively adjusted calibrated parameters to fine tune model fit
 sim.results <- optim.simulation(pars = tmp.par, calibrate = FALSE, reset.esc = TRUE)
 sims <- 5000; n.age.stage <- 17; A <- 5 # Model setup
 N.H.O.ind <- c(2:A, (2 * A):(3 * A - 2)) # Indices of natural- and hatchery-origin population vectors that correspond to ocean fish (immature fish age 2 or greater)
