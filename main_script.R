@@ -38,7 +38,7 @@ source('main_script_functions.r')
 
 # 3. SET MODEL PARAMETERS --------------------------------------------------------------------------------------------------
 n.yr  <- 100   # number of years to simulate
-n.sim <- 20000 # number of simulations to run 20000
+n.sim <- 500 # number of simulations to run 20000
 pars  <- c(0.068, 0.215, 0.828, 0.132) # See 'fall_model_fit.r' for calibration process: (1) residual juvenile mortality, (2) CV in recruitment stochasticity, (3) NPGO-dependent mortality coefficient, (4) Variance of NPGO-dependent mortality 
 
 

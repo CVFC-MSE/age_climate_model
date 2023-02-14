@@ -158,7 +158,7 @@ spawnCV.tau.plot <- ggplot(data = tau.cv.df) +
   labs(x = 'Age structure scenario', y = '') +
   # scale_x_continuous(breaks = seq(1,3), labels = c(expression(tau[3]~"= 0.99"), 'Base case', expression(tau[3]~"= 0.25"))) +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.65, 0.8)) +
+  # scale_y_continuous(limits=c(0.65, 0.8)) +
   cv.plot.settings
 
 spawnCV.eta.plot <- ggplot(data = eta.cv.df) +
@@ -167,7 +167,7 @@ spawnCV.eta.plot <- ggplot(data = eta.cv.df) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = 'CV of spawner escapement') +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.65, 0.8)) +
+  # scale_y_continuous(limits=c(0.60, 0.7)) +
   cv.plot.settings +
   theme(legend.position = c(0.8, 0.9))
 
@@ -204,7 +204,7 @@ harvestCV.tau.plot <- ggplot(data = tau.cv.df) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = '') +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  # scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
   cv.plot.settings
 
 harvestCV.eta.plot <- ggplot(data = eta.cv.df) +
@@ -213,7 +213,7 @@ harvestCV.eta.plot <- ggplot(data = eta.cv.df) +
   theme_classic() +
   labs(x = 'Age structure scenario', y = 'CV of harvest') +
   scale_x_continuous(breaks = seq(1,3), labels = c('Low', 'Base case', 'High')) +
-  scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
+  # scale_y_continuous(limits=c(0.7, 0.825), breaks = seq(0.7,0.825,0.025)) +
   cv.plot.settings +
   theme(legend.position = c(0.8, 0.9))
 
@@ -273,7 +273,7 @@ c.plot.settings <- theme(legend.position = 'none',
                          plot.title = element_text(hjust = 0.5, size = 15),
                          axis.ticks.x = element_blank(),
                          axis.text.x = element_blank(),
-                         axis.title = element(size = 15),
+                         axis.title = element_text(size = 15),
                          text = element_text(size = 15),
                          plot.margin = unit(c(0.5,0.2,0,0.5), "cm"))
 
