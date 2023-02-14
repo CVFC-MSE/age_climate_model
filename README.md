@@ -11,3 +11,6 @@ This file contains code to fit a population dynamics model to Sacramento River f
 
 Supporting files:  
 _model_fitting_functions.R_ contains code for the stock-recruitment relationship, fishery impact, flow-dependent juvenile survival, and smart rounding numbers while preserving overall sum.
+
+### main_script.R
+Run simulation models to test the effects of drought on Sacramento River fall-run Chinook salmon under different age structure diversity scenarios. The two mechanisms that affect age sctructure (mortality and maturation) were tested separately. For each scenario (full factorial design of drought and age structure diversity), 20,000 stochastic simulations were conducted. Simulated data were saved in .Rdata files.
