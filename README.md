@@ -19,3 +19,5 @@ Supporting files:
 _operating_model.R_ contains a function for an age-structure, life-cycle model for Sacramento River fall-run Chinook salmon. The model inputs include age-specific maturation and natural mortality rates, which were used to modify age structure diversity. In addition, the 'scenario' input specifies drought scenarios to model (contemporary, longer duration, more frequent and more intense).
 
 _operating_model_functions.R_ contains functions used within operating_model.R to simulate model variables (e.g. flow, hatchery releases, and NPGO), stock-recruitment relationship, fishery impact, flow-dependent juvenile survival, and harvest control rule.
+
+_main_script_functions.R_ contains functions for summarizing model outputs from main_script.R.
