@@ -21,3 +21,5 @@ _operating_model.R_ contains a function for an age-structure, life-cycle model f
 _operating_model_functions.R_ contains functions used within operating_model.R to simulate model variables (e.g. flow, hatchery releases, and NPGO), stock-recruitment relationship, fishery impact, flow-dependent juvenile survival, and harvest control rule.
 
 _main_script_functions.R_ contains functions for summarizing model outputs from main_script.R.
+
+_plots.R_ contains code for plotting main and supplementary figures in the manuscript.
