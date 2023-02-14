@@ -13,7 +13,7 @@ Supporting files:
 _model_fitting_functions.R_ contains code for the stock-recruitment relationship, fishery impact, flow-dependent juvenile survival, and smart rounding numbers while preserving overall sum.
 
 ### B. main_script.R
-Run simulation models to test the effects of drought on Sacramento River fall-run Chinook salmon under different age structure diversity scenarios. The two mechanisms that affect age sctructure (mortality and maturation) were tested separately. For each scenario (full factorial design of drought and age structure diversity), 20,000 stochastic simulations were conducted. Simulated data were saved in .Rdata files.
+Run simulation models to test the effects of drought on Sacramento River fall-run Chinook salmon under different age structure diversity scenarios. The two mechanisms that affect age sctructure (mortality and maturation) were tested separately. For each scenario (full factorial design of drought and age structure diversity), 20,000 stochastic simulations were conducted. Simulated data were saved in .Rdata files but too large for this repository (.Rdata files are available upon request).
 
 Supporting files:  
 _operating_model.R_ contains a function for an age-structure, life-cycle model for Sacramento River fall-run Chinook salmon. The model inputs include age-specific maturation and natural mortality rates, which were used to modify age structure diversity. In addition, the 'scenario' input specifies drought scenarios to model (contemporary, longer duration, more frequent and more intense).
